@@ -11,15 +11,15 @@ export function useTheme() {
 }
 
 const themes = {
-    purple: {
-        name: 'Purple',
-        description: 'Beautiful purple theme with glass effects',
-        class: 'theme-purple'
-    },
     light: {
         name: 'Light',
-        description: 'Clean white theme for better readability',
+        description: 'Soft beige light theme',
         class: 'theme-light'
+    },
+    dark: {
+        name: 'Dark',
+        description: 'Minimal black dark theme',
+        class: 'theme-dark'
     }
 };
 
@@ -27,9 +27,9 @@ export function ThemeProvider({ children }) {
     const [currentTheme, setCurrentTheme] = useState(() => {
         if (typeof window !== 'undefined') {
             const savedTheme = localStorage.getItem('app-theme');
-            return (savedTheme && themes[savedTheme]) ? savedTheme : 'purple';
+            return (savedTheme && themes[savedTheme]) ? savedTheme : 'light';
         }
-        return 'purple';
+        return 'light';
     });
 
     useEffect(() => {

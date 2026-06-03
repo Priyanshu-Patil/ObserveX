@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Sidebar } from './Sidebar';
-import { Menu, X, LogOut, Clock, RefreshCw } from 'lucide-react';
+import { Menu, X, LogOut, Clock, RefreshCw, Sun, Moon } from 'lucide-react';
 import { useQueryClient, useIsFetching } from '@tanstack/react-query';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useDashboardQuery } from '../../hooks/useDashboardQuery';
@@ -9,7 +9,7 @@ import styles from '../../styles/modules/layout/DashboardLayout.module.scss';
 
 export function DashboardLayout({ children, onLogout }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { currentTheme } = useTheme();
+    const { currentTheme, switchTheme } = useTheme();
     const queryClient = useQueryClient();
     const isFetching = useIsFetching({ queryKey: QUERY_KEYS.DASHBOARD }) > 0;
     const { dataUpdatedAt } = useDashboardQuery({ notifyOnChangeProps: ['dataUpdatedAt'] });
@@ -22,7 +22,9 @@ export function DashboardLayout({ children, onLogout }) {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD });
     };
 
-    const themeClass = currentTheme === 'purple' ? styles.themePurple : styles.themeLight;
+    const themeClass = currentTheme === 'dark'
+        ? styles.themeDark
+        : styles.themeLight;
 
     return (
         <div className={`${styles.container} ${themeClass}`}>
@@ -44,6 +46,18 @@ export function DashboardLayout({ children, onLogout }) {
                             </p>
                         </div>
                         <div className={styles.actionButtons}>
+                            <button
+                                className={styles.toggleButton}
+                                type="button"
+                                onClick={() => switchTheme(currentTheme === 'light' ? 'dark' : 'light')}
+                                aria-label={`Switch to ${currentTheme === 'light' ? 'dark' : 'light'} theme`}
+                            >
+                                {currentTheme === 'light' ? (
+                                    <Moon aria-hidden="true" />
+                                ) : (
+                                    <Sun aria-hidden="true" />
+                                )}
+                            </button>
                             <button
                                 className={styles.refreshButton}
                                 onClick={handleRefresh}

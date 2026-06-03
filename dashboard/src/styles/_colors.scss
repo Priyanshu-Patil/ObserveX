@@ -64,7 +64,7 @@
   --destructive-foreground: 210 40% 98%;
   --ring: 263 70% 50%;
 
-  --theme-background: #ffffff;
+  --theme-background: #e7e3dd;
   --theme-logo-bg: linear-gradient(
     135deg,
     hsl(263, 70%, 50%),
@@ -82,86 +82,42 @@
   --theme-glass-strong-border: rgba(0, 0, 0, 0.15);
 }
 
-.theme-purple {
-  --background: 232 27% 10%;
-  --foreground: 255 85% 96%;
-  --card: 247 25% 15%;
-  --card-foreground: 255 85% 96%;
-  --popover: 247 25% 15%;
-  --popover-foreground: 255 85% 96%;
-  --primary: 265 82% 50%;
-  --primary-foreground: 255 85% 96%;
-  --secondary: 247 25% 20%;
-  --secondary-foreground: 255 85% 96%;
-  --muted: 245 20% 22%;
-  --muted-foreground: 245 40% 65%;
-  --accent: 265 100% 70%;
-  --accent-foreground: 232 27% 10%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 245 20% 25%;
-  --input: 245 20% 25%;
-  --ring: 265 82% 50%;
 
-  --theme-background: linear-gradient(
-    135deg,
-    hsl(265, 80%, 50%) 0%,
-    hsl(275, 90%, 60%) 25%,
-    hsl(285, 85%, 55%) 50%,
-    hsl(295, 90%, 65%) 75%,
-    hsl(305, 95%, 70%) 100%
-  );
-  --theme-logo-bg: linear-gradient(
-    135deg,
-    hsl(265, 80%, 50%),
-    hsl(275, 90%, 60%)
-  );
-  --theme-logo-shadow: 0 8px 32px hsl(265, 80%, 50%);
-  --theme-text-gradient: linear-gradient(
-    135deg,
-    hsl(265, 80%, 85%),
-    hsl(275, 90%, 95%)
-  );
-}
-
-.theme-light {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
+.theme-dark {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --muted: 0 0% 18%;
+  --muted-foreground: 0 0% 70%;
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 96%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 95%;
+  --border: 0 0% 20%;
+  --input: 0 0% 12%;
+  --primary: 220 100% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 215 20% 40%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 220 8% 30%;
+  --accent-foreground: 0 0% 100%;
   --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 10% 3.9%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 220 100% 65%;
 
-  --theme-background: linear-gradient(
-    135deg,
-    hsl(200, 100%, 98%) 0%,
-    hsl(210, 50%, 96%) 25%,
-    hsl(220, 30%, 94%) 50%,
-    hsl(230, 20%, 92%) 75%,
-    hsl(240, 15%, 90%) 100%
-  );
+  --theme-background: #000000;
   --theme-logo-bg: linear-gradient(
     135deg,
-    hsl(210, 60%, 25%),
-    hsl(220, 70%, 35%)
+    hsl(220, 100%, 75%),
+    hsl(240, 80%, 65%)
   );
-  --theme-logo-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+  --theme-logo-shadow: 0 8px 25px rgba(66, 153, 225, 0.35);
   --theme-text-gradient: linear-gradient(
     135deg,
-    hsl(210, 60%, 35%),
-    hsl(220, 70%, 45%)
+    hsl(220, 100%, 85%),
+    hsl(240, 70%, 85%)
   );
+  --theme-glass-bg: rgba(255, 255, 255, 0.05);
+  --theme-glass-border: rgba(255, 255, 255, 0.12);
+  --theme-glass-strong-bg: rgba(255, 255, 255, 0.08);
+  --theme-glass-strong-border: rgba(255, 255, 255, 0.16);
 }

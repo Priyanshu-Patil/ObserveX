@@ -1,25 +1,30 @@
 .container {
-    border: 1px solid hsla(var(--border), 0.5);
-    background-color: hsla(var(--card), 0.5);
-    backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--border) / 0.2);
+    background: hsl(var(--card));
+    border-radius: 0.5rem;
+    box-shadow: 0 30px 60px -45px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
 }
 
 .headerContainer {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    flex-wrap: wrap;
 }
 
 .headerInfo {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
 .iconContainer {
-    width: 2.5rem;
-    height: 2.5rem;
-    background-color: hsla(var(--primary), 0.1);
+    width: 2.75rem;
+    height: 2.75rem;
+    background-color: hsla(var(--primary), 0.12);
     border-radius: 0.5rem;
     display: flex;
     align-items: center;
@@ -27,20 +32,25 @@
 }
 
 .icon {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.4rem;
+    height: 1.4rem;
     color: hsl(var(--primary));
 }
 
 .badge {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.35rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    background: hsla(var(--muted), 0.12);
+    color: hsl(var(--foreground));
 }
 
 .badgeIcon {
-    width: 0.75rem;
-    height: 0.75rem;
+    width: 0.85rem;
+    height: 0.85rem;
 }
 
 .noDataContainer {
@@ -48,14 +58,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 3rem 0;
+    padding: 3rem 1.5rem 2rem;
     text-align: center;
 }
 
 .noDataIcon {
-    width: 4rem;
-    height: 4rem;
-    background-color: hsla(var(--muted), 0.5);
+    width: 4.5rem;
+    height: 4.5rem;
+    background-color: hsla(var(--muted), 0.15);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -64,191 +74,193 @@
 }
 
 .noDataIconSvg {
-    width: 2rem;
-    height: 2rem;
+    width: 2.25rem;
+    height: 2.25rem;
     color: hsl(var(--muted-foreground));
 }
 
 .noDataText {
-    color: hsl(var(--muted-foreground));
+    color: hsl(var(--foreground));
+    font-weight: 600;
+    margin-bottom: 0.35rem;
 }
 
 .noDataSubtext {
-    font-size: 0.875rem;
-    color: hsla(var(--muted-foreground), 0.6);
-    margin-top: 0.25rem;
+    font-size: 0.9rem;
+    color: hsla(var(--muted-foreground), 0.7);
+    margin: 0;
+    max-width: 33rem;
 }
 
 .endpointsList {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.875rem;
+    padding: 1.5rem;
 }
 
 .endpointItem {
-    padding: 1rem;
+    padding: 1.25rem;
     border-radius: 0.5rem;
-    border: 1px solid hsl(var(--border) / 0.5);
-    background: hsl(var(--card) / 0.5);
-    backdrop-filter: blur(4px);
-    transition: all 0.3s ease;
+    border: 1px solid hsl(var(--border) / 0.2);
+    background: hsl(var(--background));
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
 
-    &:hover {
-        background: hsl(var(--card) / 0.8);
-        border-color: hsl(var(--border) / 0.8);
-        transform: translateY(-1px);
-    }
+.endpointItem:hover {
+    transform: translateY(-2px);
+    border-color: hsl(var(--border) / 0.35);
+    box-shadow: 0 20px 40px -30px rgba(0, 0, 0, 0.35);
 }
 
 .endpointContent {
-    display: flex;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: auto 1fr;
     gap: 1rem;
+    align-items: start;
 }
 
 .rankBadge {
     flex-shrink: 0;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.5rem;
-    display: flex;
+    min-width: 2.25rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 9999px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-weight: bold;
-    font-size: 0.875rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    font-weight: 700;
+    font-size: 0.85rem;
+}
 
-    &.rank1 {
-        background: linear-gradient(to bottom right, #f59e0b, #f97316);
-    }
+.rank1 {
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+}
 
-    &.rank2 {
-        background: linear-gradient(to bottom right, #9ca3af, #6b7280);
-    }
+.rank2 {
+    background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+}
 
-    &.rank3 {
-        background: linear-gradient(to bottom right, #ea580c, #f97316);
-    }
+.rank3 {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
 
-    &.rankOther {
-        background: linear-gradient(to bottom right, #64748b, #475569);
-    }
+.rankOther {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
 }
 
 .endpointInfo {
-    flex: 1;
     min-width: 0;
 }
 
 .endpointHeader {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
     flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
 }
 
 .endpointPath {
-    font-size: 0.875rem;
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: 600;
+    display: block;
+    width: 100%;
+    font-size: 0.95rem;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
+    letter-spacing: -0.01em;
     color: hsl(var(--foreground));
-    text-overflow: ellipsis;
     overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .badgeGroup {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
 }
 
 .methodBadge {
-    border: 1px solid;
+    padding: 0.4rem 0.75rem;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
 
-    &.methodGet {
-        background-color: rgba(59, 130, 246, 0.2);
-        color: #60a5fa;
-        border-color: rgba(59, 130, 246, 0.5);
-    }
+.methodGet {
+    background-color: rgba(59, 130, 246, 0.12);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.35);
+}
 
-    &.methodPost {
-        background-color: rgba(34, 197, 94, 0.2);
-        color: #4ade80;
-        border-color: rgba(34, 197, 94, 0.5);
-    }
+.methodPost {
+    background-color: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+    border-color: rgba(34, 197, 94, 0.35);
+}
 
-    &.methodPut {
-        background-color: rgba(234, 179, 8, 0.2);
-        color: #facc15;
-        border-color: rgba(234, 179, 8, 0.5);
-    }
+.methodPut {
+    background-color: rgba(234, 179, 8, 0.12);
+    color: #f59e0b;
+    border-color: rgba(234, 179, 8, 0.35);
+}
 
-    &.methodDelete {
-        background-color: rgba(239, 68, 68, 0.2);
-        color: #f87171;
-        border-color: rgba(239, 68, 68, 0.5);
-    }
+.methodDelete {
+    background-color: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.35);
+}
 
-    &.methodPatch {
-        background-color: hsla(var(--primary), 0.2);
-        color: hsl(var(--primary));
-        border-color: hsla(var(--primary), 0.5);
-    }
+.methodPatch {
+    background-color: hsla(var(--primary), 0.14);
+    color: hsl(var(--primary));
+    border-color: hsla(var(--primary), 0.35);
+}
 
-    &.methodDefault {
-        background-color: rgba(107, 114, 128, 0.2);
-        color: #9ca3af;
-        border-color: rgba(107, 114, 128, 0.5);
-    }
+.methodDefault {
+    background-color: rgba(107, 114, 128, 0.12);
+    color: #64748b;
+    border-color: rgba(107, 114, 128, 0.28);
 }
 
 .statsGrid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-top: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+    gap: 0.85rem;
+    margin-top: 0.85rem;
 }
 
 .statItem {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    min-width: 0;
 }
 
 .statIcon {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 0.85rem;
+    display: grid;
+    place-items: center;
+}
 
-    &.statIconBlue {
-        background-color: rgba(59, 130, 246, 0.1);
+.statIconBlue {
+    background-color: rgba(59, 130, 246, 0.12);
+    color: #3b82f6;
+}
 
-        .statIconSvg {
-            color: #3b82f6;
-        }
-    }
+.statIconPurple {
+    background-color: rgba(168, 85, 247, 0.12);
+    color: hsl(var(--primary));
+}
 
-    &.statIconPurple {
-        background-color: rgba(168, 85, 247, 0.1);
-
-        .statIconSvg {
-            color: hsl(var(--primary));
-        }
-    }
-
-    &.statIconRed {
-        background-color: rgba(239, 68, 68, 0.1);
-
-        .statIconSvg {
-            color: #ef4444;
-        }
-    }
+.statIconRed {
+    background-color: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
 }
 
 .statIconSvg {
@@ -257,15 +269,63 @@
 }
 
 .statLabel {
+    margin: 0;
     font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
     color: hsl(var(--muted-foreground));
+    line-height: 1.2;
 }
 
 .statValue {
-    font-size: 0.875rem;
-    font-weight: bold;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+}
 
-    &.errorRate {
-        color: #f87171;
+.errorRate {
+    color: #f87171;
+}
+
+@media (max-width: 768px) {
+    .headerContainer {
+        padding: 1.25rem 1.25rem 0;
+    }
+
+    .endpointItem {
+        padding: 1rem;
+    }
+
+    .endpointContent {
+        grid-template-columns: 1fr;
+    }
+
+    .endpointHeader {
+        justify-content: space-between;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 540px) {
+    .headerContainer {
+        padding: 1rem 1rem 0;
+    }
+
+    .endpointsList {
+        padding: 1rem;
+    }
+
+    .endpointHeader {
+        gap: 0.5rem;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .statsGrid {
+        grid-template-columns: 1fr;
     }
 }
