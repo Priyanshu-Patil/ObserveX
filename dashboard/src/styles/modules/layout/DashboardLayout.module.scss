@@ -14,7 +14,7 @@
     padding-left: 0;
 
     @media (min-width: 1024px) {
-        padding-left: 16rem; // pl-64 equivalent
+        padding-left: 16rem;
     }
 }
 
@@ -132,7 +132,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.75rem ;
     border: 1px solid hsl(var(--border));
     border-radius: 0.375rem;
     background: hsl(var(--background));

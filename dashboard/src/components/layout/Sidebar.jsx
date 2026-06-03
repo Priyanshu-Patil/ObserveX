@@ -5,6 +5,7 @@ import {
     Settings,
     Zap,
 } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 import styles from '../../styles/modules/layout/Sidebar.module.scss';
 
 const navItems = [
@@ -26,6 +27,9 @@ const bottomNavItems = [
 ];
 
 export function Sidebar({ isOpen, onClose }) {
+    const { currentTheme } = useTheme();
+    const logoSrc = currentTheme === 'dark' ? '/Logo-Dark.png' : '/Logo-Light.png';
+
     return (
         <>
             {isOpen && (
@@ -42,11 +46,12 @@ export function Sidebar({ isOpen, onClose }) {
             >
                 <div className={styles.sidebarContainer}>
                     <div className={styles.logoSection}>
-                        <div className={cn(styles.logoIcon, 'theme-logo-bg')}>
-                            <Zap aria-hidden="true" />
-                        </div>
-                        <div className={styles.logoText}>
-                            <h2 className="theme-text-gradient">ObserveX</h2>
+                        <div className={styles.logoIcon}>
+                            <img
+                                src={logoSrc}
+                                alt="ObserveX logo"
+                                className={styles.logoImage}
+                            />
                         </div>
                     </div>
                     <nav className={styles.navigation} aria-label="Main navigation">

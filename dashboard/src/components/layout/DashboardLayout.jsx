@@ -15,7 +15,12 @@ export function DashboardLayout({ children, onLogout }) {
     const { dataUpdatedAt } = useDashboardQuery({ notifyOnChangeProps: ['dataUpdatedAt'] });
 
     const lastUpdated = dataUpdatedAt
-        ? new Date(dataUpdatedAt).toLocaleTimeString()
+        ? new Date(dataUpdatedAt).toLocaleTimeString(undefined, {
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            hour12: true,
+        })
         : '--';
 
     const handleRefresh = () => {
