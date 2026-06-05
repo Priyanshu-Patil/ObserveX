@@ -39,7 +39,7 @@ export function OverviewPage() {
                 <p>Welcome to your ObserveX dashboard</p>
             </div>
 
-            <StatsGrid stats={stats} />
+            <StatsGrid stats={stats} recentActivity={data?.data?.recentActivity ?? []} />
 
             <div className={styles.gridTwoCols}>
                 <ApiHitsChart stats={stats} />

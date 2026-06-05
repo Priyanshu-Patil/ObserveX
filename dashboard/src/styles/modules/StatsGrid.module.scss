@@ -1,208 +1,345 @@
 .container {
     display: grid;
     grid-template-columns: repeat(1, minmax(0, 1fr));
-    gap: 1.5rem;
+    gap: 1rem;
 
-    @media (min-width: 768px) {
+    @media (min-width: 640px) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.125rem;
     }
 
-    @media (min-width: 1024px) {
+    @media (min-width: 1280px) {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.25rem;
     }
 }
 
 .statCard {
-    transition: all 300ms ease;
-    border: 1px solid hsl(var(--border) / 0.5);
-    background: hsl(var(--card) / 0.5);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 1px solid hsl(var(--border) / 0.55);
+    background:
+        linear-gradient(145deg, hsl(var(--card) / 0.92) 0%, hsl(var(--card) / 0.72) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow:
+        0 1px 2px hsl(var(--foreground) / 0.04),
+        0 8px 24px hsl(var(--foreground) / 0.06);
+    animation: stat-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+    transition:
+        transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.35s ease,
+        border-color 0.35s ease;
 
-    &:hover {
-        transform: scale(1.05);
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1px;
+        background: linear-gradient(
+            135deg,
+            hsl(var(--foreground) / 0.08),
+            transparent 40%,
+            transparent 60%,
+            hsl(var(--foreground) / 0.04)
+        );
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
     }
 
-    // Dynamic animation delay will be set via inline style
+    &:hover {
+        transform: translateY(-4px);
+        border-color: hsl(var(--border) / 0.9);
+        box-shadow:
+            0 2px 4px hsl(var(--foreground) / 0.05),
+            0 16px 40px hsl(var(--foreground) / 0.1);
+
+        .accentGlow {
+            opacity: 0.55;
+        }
+
+        .iconOrb {
+            transform: scale(1.06) rotate(-2deg);
+        }
+
+        .meterFill {
+            filter: brightness(1.08);
+        }
+    }
 }
 
-.cardContent {
-    padding: 1.5rem;
+.accentBar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    opacity: 0.95;
 }
 
-.contentLayout {
+.accentGlow {
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    filter: blur(48px);
+    opacity: 0.35;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+}
+
+.cardInner {
+    position: relative;
+    z-index: 1;
+    padding: 1.25rem 1.25rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 11.5rem;
+}
+
+.cardHeader {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    gap: 0.75rem;
 }
 
-.textContent {
-    flex: 1 1 0%;
+.labelRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.title {
-    font-size: 0.875rem;
-    font-weight: 500;
+.label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     color: hsl(var(--muted-foreground));
-    margin-bottom: 0.5rem;
-    margin: 0 0 0.5rem 0;
+    text-transform: uppercase;
+}
+
+.liveDot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+    animation: live-pulse 2s ease-out infinite;
+}
+
+.iconOrb {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.75rem;
+    flex-shrink: 0;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+
+    svg {
+        width: 1.125rem;
+        height: 1.125rem;
+    }
+}
+
+.valueBlock {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+    margin-top: 0.125rem;
 }
 
 .value {
-    font-size: 1.875rem; // text-3xl
+    font-size: clamp(1.75rem, 4vw, 2.125rem);
     font-weight: 700;
-    margin-bottom: 0.25rem;
-    margin: 0 0 0.25rem 0;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+    color: hsl(var(--foreground));
+}
 
-    // Base gradient setup - colors will be applied via CSS classes
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-image: linear-gradient(to right, var(--tw-gradient-stops));
+.unit {
+    font-size: 1rem;
+    font-weight: 600;
+    color: hsl(var(--muted-foreground));
+    margin-left: 0.2rem;
+    letter-spacing: 0;
+}
+
+.trendBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.2rem;
+}
+
+.trendUp {
+    color: #16a34a;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.trendDown {
+    color: #dc2626;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.18);
 }
 
 .subtitle {
-    font-size: 0.75rem; // text-xs
-    color: hsl(var(--muted-foreground));
     margin: 0;
+    font-size: 0.8125rem;
+    color: hsl(var(--muted-foreground));
+    line-height: 1.4;
 }
 
-.iconContainer {
-    padding: 0.75rem;
-    border-radius: 0.75rem;
-    transition: transform 300ms ease;
-
-    .statCard:hover & {
-        transform: scale(1.1);
-    }
-
-    svg {
-        width: 1.5rem;
-        height: 1.5rem;
-    }
+.sparkline {
+    width: 100%;
+    height: 2.25rem;
+    margin-top: auto;
+    opacity: 0.9;
 }
 
-.progressBar {
-    margin-top: 1rem;
-    height: 0.25rem;
+.meterTrack {
+    height: 4px;
     width: 100%;
     border-radius: 9999px;
-    opacity: 0.5;
-    transition: opacity 300ms ease;
+    background: hsl(var(--muted) / 0.65);
+    overflow: hidden;
+    margin-top: 0.375rem;
+}
 
-    .statCard:hover & {
+.meterFill {
+    height: 100%;
+    border-radius: inherit;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
+}
+
+// Accent themes
+.accentBlue {
+    .accentBar { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+    .accentGlow { background: #3b82f6; }
+    .iconOrb {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(6, 182, 212, 0.12));
+        color: #3b82f6;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .meterFill { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+}
+
+.accentPurple {
+    .accentBar { background: linear-gradient(90deg, #a855f7, #ec4899); }
+    .accentGlow { background: #a855f7; }
+    .iconOrb {
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.12));
+        color: #a855f7;
+    }
+    .meterFill { background: linear-gradient(90deg, #a855f7, #ec4899); }
+}
+
+.accentRed {
+    .accentBar { background: linear-gradient(90deg, #ef4444, #f97316); }
+    .accentGlow { background: #ef4444; }
+    .iconOrb {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(249, 115, 22, 0.1));
+        color: #ef4444;
+    }
+    .meterFill { background: linear-gradient(90deg, #ef4444, #f97316); }
+}
+
+.accentGreen {
+    .accentBar { background: linear-gradient(90deg, #22c55e, #10b981); }
+    .accentGlow { background: #22c55e; }
+    .iconOrb {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(16, 185, 129, 0.1));
+        color: #22c55e;
+    }
+    .meterFill { background: linear-gradient(90deg, #22c55e, #10b981); }
+}
+
+.accentIndigo {
+    .accentBar { background: linear-gradient(90deg, #6366f1, #3b82f6); }
+    .accentGlow { background: #6366f1; }
+    .iconOrb {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(59, 130, 246, 0.12));
+        color: #6366f1;
+    }
+    .meterFill { background: linear-gradient(90deg, #6366f1, #3b82f6); }
+}
+
+.accentAmber {
+    .accentBar { background: linear-gradient(90deg, #f59e0b, #f97316); }
+    .accentGlow { background: #f59e0b; }
+    .iconOrb {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(249, 115, 22, 0.12));
+        color: #f59e0b;
+    }
+    .meterFill { background: linear-gradient(90deg, #f59e0b, #f97316); }
+}
+
+.accentTeal {
+    .accentBar { background: linear-gradient(90deg, #14b8a6, #06b6d4); }
+    .accentGlow { background: #14b8a6; }
+    .iconOrb {
+        background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(6, 182, 212, 0.12));
+        color: #14b8a6;
+    }
+    .meterFill { background: linear-gradient(90deg, #14b8a6, #06b6d4); }
+}
+
+.accentRose {
+    .accentBar { background: linear-gradient(90deg, #f43f5e, #ec4899); }
+    .accentGlow { background: #f43f5e; }
+    .iconOrb {
+        background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(236, 72, 153, 0.12));
+        color: #f43f5e;
+    }
+    .meterFill { background: linear-gradient(90deg, #f43f5e, #ec4899); }
+}
+
+@keyframes stat-enter {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.98);
+    }
+    to {
         opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 
-// Gradient color definitions for value text
-.gradientBlue {
-    --tw-gradient-from: #3b82f6;
-    --tw-gradient-to: #06b6d4;
-    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+@keyframes live-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
 }
 
-.gradientPurple {
-    --tw-gradient-from: #a855f7;
-    --tw-gradient-to: #ec4899;
-    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
+@media (prefers-reduced-motion: reduce) {
+    .statCard {
+        animation: none;
+    }
 
-.gradientRed {
-    --tw-gradient-from: #ef4444;
-    --tw-gradient-to: #f97316;
-    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-
-.gradientGreen {
-    --tw-gradient-from: #22c55e;
-    --tw-gradient-to: #10b981;
-    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-
-.gradientIndigo {
-    --tw-gradient-from: #6366f1;
-    --tw-gradient-to: #3b82f6;
-    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-
-.gradientYellow {
-    --tw-gradient-from: #eab308;
-    --tw-gradient-to: #f97316;
-    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-
-// Background colors for icon containers
-.bgBlue {
-    background-color: rgba(59, 130, 246, 0.1);
-}
-
-.bgPurple {
-    background-color: rgba(168, 85, 247, 0.1);
-}
-
-.bgRed {
-    background-color: rgba(239, 68, 68, 0.1);
-}
-
-.bgGreen {
-    background-color: rgba(34, 197, 94, 0.1);
-}
-
-.bgIndigo {
-    background-color: rgba(99, 102, 241, 0.1);
-}
-
-.bgYellow {
-    background-color: rgba(234, 179, 8, 0.1);
-}
-
-// Text colors for icons
-.textBlue {
-    color: rgb(59, 130, 246);
-}
-
-.textPurple {
-    color: hsl(var(--primary));
-}
-
-.textRed {
-    color: rgb(239, 68, 68);
-}
-
-.textGreen {
-    color: rgb(34, 197, 94);
-}
-
-.textIndigo {
-    color: rgb(99, 102, 241);
-}
-
-.textYellow {
-    color: rgb(234, 179, 8);
-}
-
-// Progress bar backgrounds
-.progressBlue {
-    background: linear-gradient(to right, #3b82f6, #06b6d4);
-}
-
-.progressPurple {
-    background: linear-gradient(to right, #a855f7, #ec4899);
-}
-
-.progressRed {
-    background: linear-gradient(to right, #ef4444, #f97316);
-}
-
-.progressGreen {
-    background: linear-gradient(to right, #22c55e, #10b981);
-}
-
-.progressIndigo {
-    background: linear-gradient(to right, #6366f1, #3b82f6);
-}
-
-.progressYellow {
-    background: linear-gradient(to right, #eab308, #f97316);
+    .liveDot {
+        animation: none;
+    }
 }

@@ -1,13 +1,19 @@
 .container {
-    min-height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
     background: #000;
     padding: 24px;
+    box-sizing: border-box;
 }
 
 .authWrapper {
-    min-height: calc(100vh - 48px);
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
     display: grid;
     grid-template-columns: 1.1fr 0.9fr;
+    grid-template-rows: minmax(0, 1fr);
     border-radius: 24px;
     overflow: hidden;
     background: #050505;
@@ -20,14 +26,13 @@
 
 .leftPanel {
     position: relative;
+    min-height: 0;
+    overflow: hidden;
 
-    /* Use your purple wave image */
     background-image: url('/login-bg.jpeg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-
-    overflow: hidden;
 }
 
 .overlay {
@@ -176,12 +181,14 @@
 
 .rightPanel {
     background: #050505;
+    min-height: 0;
+    overflow: hidden;
 
     display: flex;
-    align-items: start;
+    align-items: center;
     justify-content: center;
 
-    padding: 64px;
+    padding: 48px 40px;
 }
 
 .loginCard {
@@ -419,15 +426,22 @@
 @media (max-width: 640px) {
     .container {
         padding: 0;
+        height: 100dvh;
     }
 
     .authWrapper {
-        min-height: 100vh;
+        height: 100%;
         border-radius: 0;
     }
 
     .rightPanel {
         padding: 24px;
+        overflow-y: auto;
+        align-items: flex-start;
+    }
+
+    .compact .rightPanel {
+        padding: 20px 16px;
     }
 
     .logoContainer {
@@ -454,6 +468,277 @@
 
     .submitButton {
         height: 52px;
+    }
+}
+
+.forgotLink {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover {
+        color: #fff;
+        text-decoration: underline;
+    }
+}
+
+.eyeToggle {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    padding: 0.25rem;
+    display: grid;
+    place-items: center;
+}
+
+.rememberRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+
+    input {
+        accent-color: #7c3aed;
+    }
+}
+
+.hint {
+    text-align: center;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0.75rem 0 0;
+}
+
+.inputWithToggle {
+    padding-right: 48px;
+}
+
+.labelRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fieldError {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #f87171;
+}
+
+.inputError {
+    border-color: rgba(239, 68, 68, 0.5) !important;
+
+    &:focus {
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+    }
+}
+
+.roleBadge {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    background: rgba(139, 92, 246, 0.12);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    color: #c4b5fd;
+    font-size: 0.875rem;
+    font-weight: 600;
+
+    em {
+        margin-left: auto;
+        font-size: 0.75rem;
+        font-weight: 400;
+        font-style: normal;
+        color: rgba(255, 255, 255, 0.45);
+    }
+}
+
+.roleHint {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.strengthBar {
+    height: 4px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.strengthFill {
+    height: 100%;
+    border-radius: inherit;
+    transition: width 0.3s ease, background 0.3s ease;
+    background: #ef4444;
+}
+
+.strength1 { background: #ef4444; }
+.strength2 { background: #f59e0b; }
+.strength3 { background: #3b82f6; }
+.strength4 { background: #22c55e; }
+
+.strengthLabel {
+    margin: 0.375rem 0 0;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.select {
+    width: 100%;
+    height: 54px;
+    padding-left: 48px;
+    padding-right: 16px;
+    border-radius: 10px;
+    background: #111111;
+    border: 1px solid #202020;
+    color: white;
+    font-size: 14px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    &:focus {
+        outline: none;
+        border-color: #8b5cf6;
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.12);
+    }
+
+    option {
+        background: #111;
+        color: white;
+    }
+}
+
+.footerText {
+    text-align: center;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 1.25rem 0 0;
+}
+
+.footerLink {
+    color: #60a5fa;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+        color: #93c5fd;
+        text-decoration: underline;
+    }
+}
+
+.recentLogin {
+    text-align: center;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.45);
+    margin: 0 0 1rem;
+}
+
+.successState {
+    text-align: center;
+    padding: 1.5rem 0;
+
+    p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9375rem;
+    }
+}
+
+.successIcon {
+    width: 4rem;
+    height: 4rem;
+    color: #22c55e;
+    margin-bottom: 1rem;
+}
+
+/* Taller forms (onboard, register) — fit viewport without scroll */
+.compact {
+    .rightPanel {
+        padding: 28px 32px;
+        align-items: center;
+    }
+
+    .loginCard {
+        max-width: 400px;
+    }
+
+    .cardHeader {
+        margin-bottom: 18px;
+    }
+
+    .logoImage {
+        width: 150px;
+        margin-bottom: 8px;
+    }
+
+    .title {
+        font-size: 1.625rem;
+    }
+
+    .description {
+        font-size: 14px;
+        margin-top: 6px;
+    }
+
+    .form {
+        gap: 12px;
+    }
+
+    .inputGroup {
+        gap: 6px;
+    }
+
+    .input,
+    .select {
+        height: 46px;
+        font-size: 13px;
+    }
+
+    .submitButton {
+        height: 46px;
+        font-size: 14px;
+    }
+
+    .roleBadge {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8125rem;
+    }
+
+    .strengthBar {
+        margin-top: 0.25rem;
+    }
+
+    .strengthLabel {
+        margin-top: 0.2rem;
+        font-size: 0.6875rem;
+    }
+
+    .fieldError {
+        font-size: 0.75rem;
+    }
+
+    .hint {
+        margin-top: 0.35rem;
+        font-size: 0.6875rem;
+    }
+
+    .footerText {
+        margin-top: 0.625rem;
+        font-size: 0.75rem;
     }
 }
 

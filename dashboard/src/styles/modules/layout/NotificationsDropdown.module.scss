@@ -1,0 +1,114 @@
+.wrapper {
+  position: relative;
+}
+
+.trigger {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: hsl(var(--accent));
+  }
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.25rem;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-size: 0.625rem;
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 18rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) + 2px);
+  background: hsl(var(--card));
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  animation: fade-in 150ms ease;
+}
+
+.header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+
+  h3 {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+}
+
+.list {
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+.empty {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.item {
+  display: flex;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+  transition: background 0.15s;
+
+  &:hover {
+    background: hsl(var(--accent) / 0.5);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.itemTitle {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.itemTime {
+  font-size: 0.6875rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0.125rem 0 0;
+}
+
+.iconSuccess {
+  color: #22c55e;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.iconInfo {
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}

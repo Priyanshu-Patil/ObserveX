@@ -42,12 +42,14 @@
 }
 
 .outline {
-    border: 1px solid hsl(var(--input));
+    border: 1px solid hsl(var(--border));
     background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
 
     &:hover {
         background-color: hsl(var(--accent));
         color: hsl(var(--accent-foreground));
+        border-color: hsl(var(--border));
     }
 }
 
@@ -62,6 +64,7 @@
 
 .ghost {
     background-color: transparent;
+    color: hsl(var(--foreground));
 
     &:hover {
         background-color: hsl(var(--accent));

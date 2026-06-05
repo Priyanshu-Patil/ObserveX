@@ -1,0 +1,246 @@
+.docsLayout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 16rem 1fr;
+  }
+}
+
+.docsSidebar {
+  border: 1px solid hsl(var(--border) / 0.5);
+  border-radius: 1rem;
+  background: hsl(var(--card) / 0.6);
+  padding: 1rem;
+  height: fit-content;
+
+  @media (min-width: 1024px) {
+    position: sticky;
+    top: 5rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+  }
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0.25rem 0.5rem 0.75rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+  margin-bottom: 0.75rem;
+  color: hsl(var(--foreground));
+}
+
+.tocTitle {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: hsl(var(--muted-foreground));
+  margin: 0.75rem 0 0.5rem;
+  padding: 0 0.5rem;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+}
+
+.tocLink {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.625rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.9375rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    color: hsl(var(--foreground));
+    background: hsl(var(--accent) / 0.6);
+  }
+
+  &.active {
+    color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.12);
+    font-weight: 600;
+  }
+}
+
+.docsContent {
+  min-width: 0;
+}
+
+.search {
+  max-width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.noResults {
+  padding: 2rem;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  font-size: 1rem;
+  border: 1px dashed hsl(var(--border));
+  border-radius: 1rem;
+}
+
+.article {
+  border: 1px solid hsl(var(--border) / 0.5);
+  border-radius: 1rem;
+  background: hsl(var(--card) / 0.5);
+  padding: 2rem;
+}
+
+.articleHeader {
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 0 0 0.5rem;
+    color: hsl(var(--foreground));
+  }
+}
+
+.articleLead {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+}
+
+.prose {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: hsl(var(--foreground));
+
+  p {
+    margin: 0 0 1.25rem;
+  }
+
+  ol {
+    margin: 0 0 1.5rem;
+    padding-left: 1.5rem;
+
+    li {
+      margin-bottom: 0.625rem;
+      padding-left: 0.25rem;
+    }
+  }
+}
+
+.callout {
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border-left: 4px solid hsl(var(--primary));
+  background: hsl(var(--primary) / 0.08);
+  color: hsl(var(--foreground));
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+
+.inlineCodeWrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: hsl(var(--muted) / 0.5);
+  border: 1px solid hsl(var(--border));
+  margin-bottom: 1.25rem;
+}
+
+.inlineCode {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 1rem;
+  color: hsl(var(--primary));
+  word-break: break-all;
+}
+
+.codePanel {
+  border-radius: 0.875rem;
+  border: 1px solid hsl(var(--border));
+  overflow: hidden;
+  background: #0d1117;
+}
+
+.codePanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+}
+
+.langBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8b949e;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  background: #21262d;
+}
+
+.codeScroll {
+  overflow-x: auto;
+  max-height: 32rem;
+  overflow-y: auto;
+}
+
+.codeTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+.lineNumber {
+  width: 3rem;
+  padding: 0 0.75rem;
+  text-align: right;
+  color: #484f58;
+  user-select: none;
+  vertical-align: top;
+  border-right: 1px solid #21262d;
+}
+
+.lineCode {
+  padding: 0 1.25rem;
+  color: #e6edf3;
+  white-space: pre;
+
+  code {
+    font-family: inherit;
+  }
+}
+
+// Light theme code panel adjustments
+:global(.theme-light) {
+  .codePanel {
+    background: #1e1e2e;
+  }
+
+  .codePanelHeader {
+    background: #181825;
+    border-bottom-color: #313244;
+  }
+}

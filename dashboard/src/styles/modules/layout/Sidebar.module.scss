@@ -80,6 +80,20 @@
     padding: 1rem 0.75rem;
 }
 
+.navSection {
+    margin-bottom: 1.25rem;
+}
+
+.sectionTitle {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: hsl(var(--muted-foreground));
+    padding: 0 0.75rem;
+    margin: 0 0 0.5rem;
+}
+
 .navList {
     display: flex;
     flex-direction: column;

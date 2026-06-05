@@ -9,6 +9,7 @@ const api = axios.create({
     },
     withCredentials: true,
 });
+
 api.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -29,23 +30,23 @@ export const authApi = {
         const response = await api.post('/auth/register', userData);
         return response.data;
     },
+    onboardSuperAdmin: async (userData) => {
+        const response = await api.post('/auth/onboard-super-admin', userData);
+        return response.data;
+    },
     getProfile: async (options) => {
         const response = await api.get('/auth/profile', { signal: options?.signal });
         return response.data;
     },
     logout: async () => {
-        const response = await api.post('/auth/logout');
-        return response.data;
-    },
-    updateProfile: async (profileData) => {
-        const response = await api.put('/auth/profile', profileData);
+        const response = await api.get('/auth/logout');
         return response.data;
     },
 };
 
 export const analyticsApi = {
-    getDashboard: async () => {
-        const response = await api.get('/analytics/dashboard');
+    getDashboard: async (params) => {
+        const response = await api.get('/analytics/dashboard', { params });
         const payload = response.data || {};
 
         payload.data = payload.data || {};
@@ -69,40 +70,23 @@ export const analyticsApi = {
         const response = await api.get('/analytics/stats', { params });
         return response.data;
     },
-    getTopEndpoints: async (params) => {
-        const response = await api.get('/analytics/top-endpoints', { params });
-        return response.data;
-    },
-    getTimeSeries: async (params) => {
-        const response = await api.get('/analytics/time-series', { params });
-        return response.data;
-    },
 };
 
 export const clientApi = {
-    getCurrentClient: async () => {
-        const response = await api.get('/clients/current');
+    onboardClient: async (clientData) => {
+        const response = await api.post('/admin/clients/onboard', clientData);
         return response.data;
     },
-    getClientDashboard: async (clientId) => {
-        const params = clientId ? { clientId } : {};
-        const response = await api.get('/clients/dashboard', { params });
-        return response.data;
-    },
-    createClient: async (clientData) => {
-        const response = await api.post('/admin/clients', clientData);
-        return response.data;
-    },
-    getClients: async (params) => {
-        const response = await api.get('/admin/clients', { params });
+    createClientUser: async (clientId, userData) => {
+        const response = await api.post(`/admin/clients/${clientId}/users`, userData);
         return response.data;
     },
     createApiKey: async (clientId, keyData) => {
-        const response = await api.post(`/admin/clients/${clientId}/api-keys`, keyData);
+        const response = await api.post(`/admin/clients/${clientId}/api/keys`, keyData);
         return response.data;
     },
     getClientApiKeys: async (clientId) => {
-        const response = await api.get(`/admin/clients/${clientId}/api-keys`);
+        const response = await api.get(`/admin/clients/${clientId}/api/keys`);
         return response.data;
     },
 };
