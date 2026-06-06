@@ -729,22 +729,22 @@ function AuthenticationPage() {
           <div className={styles.codeBlock}>
             <div className={styles.codeHeader}>
               <span>Authorization Header</span>
-              <CopyButton text="x-api-key: apim_xxxxxxxxxxx" />
+              <CopyButton text="x-api-key: apim_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
             </div>
 
             <pre>
-              {`x-api-key: apim_704cc048ced683634d7c9952398382287bf60157`}
+              {`x-api-key: apim_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`}
             </pre>
           </div>
 
           <div className={styles.codeBlock}>
             <div className={styles.codeHeader}>
               <span>.env</span>
-              <CopyButton text="OBSERVEX_API_KEY=apim_xxxxx" />
+              <CopyButton text="OBSERVEX_API_KEY=apim_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
             </div>
 
             <pre>
-              {`OBSERVEX_API_KEY=apim_704cc048ced683634d7c9952398382287bf60157`}
+              {`OBSERVEX_API_KEY=apim_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`}
             </pre>
           </div>
         </div>
