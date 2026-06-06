@@ -1,0 +1,824 @@
+.analyticsPage {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .metricsGrid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+  
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  
+    @media (min-width: 1400px) {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+  
+  .metricCard {
+    position: relative;
+    overflow: hidden;
+  
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  
+    padding: 1.25rem;
+  
+    border-radius: 1rem;
+  
+    border: 1px solid hsl(var(--border) / 0.4);
+  
+    background:
+      linear-gradient(
+        180deg,
+        hsl(var(--card)),
+        hsl(var(--card) / 0.7)
+      );
+  
+    backdrop-filter: blur(12px);
+  
+    transition: all 0.25s ease;
+  
+    &:hover {
+      transform: translateY(-2px);
+  
+      border-color:
+        hsl(var(--primary) / 0.4);
+  
+      box-shadow:
+        0 10px 40px
+        hsl(var(--primary) / 0.08);
+    }
+  }
+  
+  .metricCard::before {
+    content: '';
+  
+    position: absolute;
+  
+    top: 0;
+    left: 0;
+  
+    width: 100%;
+    height: 1px;
+  
+    background:
+      linear-gradient(
+        90deg,
+        transparent,
+        hsl(var(--primary)),
+        transparent
+      );
+  }
+  
+  .metricIcon {
+    width: 3rem;
+    height: 3rem;
+  
+    flex-shrink: 0;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    border-radius: 0.875rem;
+  
+    background:
+      hsl(var(--primary) / 0.12);
+  
+    color:
+      hsl(var(--primary));
+  }
+  
+  .metricLabel {
+    margin: 0;
+  
+    font-size: 0.75rem;
+    font-weight: 500;
+  
+    color:
+      hsl(var(--muted-foreground));
+  
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  
+  .metricValue {
+    margin: 0.35rem 0;
+  
+    font-size: 1.75rem;
+    font-weight: 700;
+  
+    line-height: 1;
+  
+    color:
+      hsl(var(--foreground));
+  }
+  
+  .metricSubtitle {
+    font-size: 0.75rem;
+  
+    color:
+      hsl(var(--muted-foreground));
+  }
+  
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  
+    padding: 1rem 1.25rem;
+  
+    border-radius: 1rem;
+  
+    border:
+      1px solid hsl(var(--border) / 0.4);
+  
+    background:
+      hsl(var(--card) / 0.5);
+  
+    backdrop-filter: blur(10px);
+  }
+  
+  .insightsGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  .insightCard {
+    border-radius: 1rem;
+  
+    border:
+      1px solid hsl(var(--border) / 0.4);
+  
+    background:
+      linear-gradient(
+        180deg,
+        hsl(var(--card)),
+        hsl(var(--card) / 0.6)
+      );
+  
+    overflow: hidden;
+  
+    transition: all 0.2s ease;
+  
+    &:hover {
+      border-color:
+        hsl(var(--primary) / 0.3);
+    }
+  }
+  
+  .insightHeader {
+    padding: 1rem 1.25rem;
+  
+    border-bottom:
+      1px solid hsl(var(--border) / 0.4);
+  
+    background:
+      hsl(var(--background) / 0.35);
+  
+    > div {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+  
+    h3 {
+      margin: 0;
+  
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  
+    svg {
+      color:
+        hsl(var(--primary));
+    }
+  }
+  
+  .insightBody {
+    padding: 0.5rem;
+  }
+  
+  .insightItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  
+    gap: 1rem;
+  
+    padding: 0.85rem 1rem;
+  
+    border-radius: 0.75rem;
+  
+    transition: all 0.2s ease;
+  
+    &:hover {
+      background:
+        hsl(var(--primary) / 0.06);
+    }
+  
+    > div {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+  
+      min-width: 0;
+    }
+  
+    strong {
+      font-size: 0.875rem;
+      white-space: nowrap;
+    }
+  }
+  
+  .methodBadge {
+    font-size: 0.72rem;
+    font-weight: 700;
+  
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  
+    flex-shrink: 0;
+  }
+  
+  .endpointPath {
+    font-size: 0.875rem;
+  
+    color:
+      hsl(var(--foreground));
+  
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .emptyInsight {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    min-height: 120px;
+  
+    color:
+      hsl(var(--muted-foreground));
+  
+    font-size: 0.875rem;
+  }
+  
+  .tableSection {
+    border-radius: 1rem;
+  
+    border:
+      1px solid hsl(var(--border) / 0.4);
+  
+    background:
+      linear-gradient(
+        180deg,
+        hsl(var(--card)),
+        hsl(var(--card) / 0.65)
+      );
+  
+    overflow: hidden;
+  }
+  
+  .tableHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  
+    gap: 1rem;
+  
+    padding: 1.25rem 1.5rem;
+  
+    border-bottom:
+      1px solid hsl(var(--border) / 0.4);
+  
+    h3 {
+      margin: 0;
+  
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  
+    p {
+      margin: 0.25rem 0 0;
+  
+      font-size: 0.875rem;
+  
+      color:
+        hsl(var(--muted-foreground));
+    }
+  }
+  
+  .endpointButton {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  
+    background: transparent;
+    border: none;
+  
+    cursor: pointer;
+  
+    width: 100%;
+  
+    text-align: left;
+  
+    padding: 0.15rem 0;
+
+    color: hsl(var(--primary));
+  
+    transition: all 0.2s ease;
+  }
+  
+  .endpointButton:hover {
+    transform: translateX(4px);
+  }
+  
+  .endpointInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  
+    min-width: 0;
+  }
+  
+  .endpointService {
+    font-size: 0.75rem;
+  
+    color:
+      hsl(var(--muted-foreground));
+  }
+  
+  .endpointName {
+    font-size: 0.875rem;
+    font-weight: 600;
+  
+    color:
+      hsl(var(--foreground));
+  
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .requestsCell {
+    font-weight: 600;
+  
+    color:
+      hsl(var(--foreground));
+  }
+  
+  .latencyBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  
+    min-width: 80px;
+  
+    padding: 0.35rem 0.75rem;
+  
+    border-radius: 999px;
+  
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .latencyGood {
+    background:
+      rgb(34 197 94 / 12%);
+  
+    color:
+      rgb(34 197 94);
+  }
+  
+  .latencyMedium {
+    background:
+      rgb(245 158 11 / 12%);
+  
+    color:
+      rgb(245 158 11);
+  }
+  
+  .latencyHigh {
+    background:
+      rgb(239 68 68 / 12%);
+  
+    color:
+      rgb(239 68 68);
+  }
+  
+  .errorBadgeGood {
+    background:
+      rgb(34 197 94 / 12%);
+  
+    color:
+      rgb(34 197 94);
+  
+    border:
+      1px solid rgb(34 197 94 / 18%);
+  }
+  
+  .errorBadgeWarning {
+    background:
+      rgb(245 158 11 / 12%);
+  
+    color:
+      rgb(245 158 11);
+  
+    border:
+      1px solid rgb(245 158 11 / 18%);
+  }
+  
+  .errorBadgeCritical {
+    background:
+      rgb(239 68 68 / 12%);
+  
+    color:
+      rgb(239 68 68);
+  
+    border:
+      1px solid rgb(239 68 68 / 18%);
+  }
+  
+  .drawerContent {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .endpointHero {
+    position: relative;
+  
+    padding: 1.5rem;
+  
+    border-radius: 1rem;
+  
+    border:
+      1px solid hsl(var(--border) / 0.4);
+  
+    background:
+      linear-gradient(
+        135deg,
+        hsl(var(--primary) / 0.08),
+        transparent
+      );
+  }
+  
+  .endpointHero::after {
+    content: '';
+  
+    position: absolute;
+  
+    inset: 0;
+  
+    border-radius: inherit;
+  
+    background:
+      radial-gradient(
+        circle at top right,
+        hsl(var(--primary) / 0.12),
+        transparent 55%
+      );
+  
+    pointer-events: none;
+  }
+  
+  .endpointHeroTop {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  
+    margin-bottom: 0.75rem;
+  }
+  
+  .endpointHeroPath {
+    font-size: 1rem;
+    font-weight: 700;
+  
+    word-break: break-word;
+  
+    color:
+      hsl(var(--foreground));
+  }
+  
+  .endpointHeroService {
+    font-size: 0.875rem;
+  
+    color:
+      hsl(var(--muted-foreground));
+  }
+  
+  .drawerMetricsGrid {
+    display: grid;
+  
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  
+    gap: 1rem;
+  
+    @media (min-width: 768px) {
+      grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+    }
+  }
+  
+  .drawerMetricCard {
+    padding: 1rem;
+  
+    border-radius: 0.875rem;
+  
+    border:
+      1px solid hsl(var(--border) / 0.35);
+  
+    background:
+      hsl(var(--background) / 0.4);
+  
+    transition: all 0.2s ease;
+  }
+  
+  .drawerMetricCard:hover {
+    border-color:
+      hsl(var(--primary) / 0.35);
+  
+    transform: translateY(-2px);
+  }
+  
+  .drawerMetricCard span {
+    display: block;
+  
+    font-size: 0.75rem;
+  
+    color:
+      hsl(var(--muted-foreground));
+  
+    margin-bottom: 0.35rem;
+  }
+  
+  .drawerMetricCard strong {
+    font-size: 1.25rem;
+    font-weight: 700;
+  
+    color:
+      hsl(var(--foreground));
+  }
+  
+  .detailsCard {
+    padding: 1.25rem;
+  
+    border-radius: 1rem;
+  
+    border:
+      1px solid hsl(var(--border) / 0.35);
+  
+    background:
+      hsl(var(--background) / 0.4);
+  }
+  
+  .detailsCard h4 {
+    margin: 0 0 1rem;
+  
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  
+  .detailsGrid {
+    display: grid;
+    gap: 1rem;
+  
+    grid-template-columns:
+      repeat(1, minmax(0, 1fr));
+  
+    @media (min-width: 640px) {
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  .detailItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  
+  .detailItem span {
+    font-size: 0.75rem;
+  
+    color:
+      hsl(var(--muted-foreground));
+  }
+  
+  .detailItem strong {
+    font-size: 0.9rem;
+  
+    word-break: break-word;
+  
+    color:
+      hsl(var(--foreground));
+  }
+  
+  .methodGet {
+    color: #22c55e;
+  }
+  
+  .methodPost {
+    color: #3b82f6;
+  }
+  
+  .methodPut {
+    color: #f59e0b;
+  }
+  
+  .methodDelete {
+    color: #ef4444;
+  }
+  
+  .methodPatch {
+    color: #8b5cf6;
+  }
+  
+  @media (max-width: 768px) {
+    .toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .metricValue {
+      font-size: 1.4rem;
+    }
+  
+    .insightItem {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  
+    .tableHeader {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .endpointHero {
+      padding: 1rem;
+    }
+  
+    .drawerMetricsGrid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .metricsGrid {
+      grid-template-columns: 1fr;
+    }
+  
+    .drawerMetricsGrid {
+      grid-template-columns: 1fr;
+    }
+  
+    .endpointHeroPath {
+      font-size: 0.9rem;
+    }
+  }
+
+  .endpointDrawer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .endpointHero {
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
+  
+    h2 {
+      margin: 0.75rem 0 0.35rem;
+      font-size: 1.75rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+  
+    p {
+      margin: 0;
+      color: hsl(var(--muted-foreground));
+    }
+  }
+  
+  .methodBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
+    padding: 0 0.875rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  
+  .metricGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .metricCard {
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+    padding: 1rem;
+    background: hsl(var(--card));
+  
+    span {
+      display: block;
+      font-size: 0.8125rem;
+      color: hsl(var(--muted-foreground));
+      margin-bottom: 0.5rem;
+    }
+  
+    strong {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+  }
+  
+  .infoCard,
+  .healthCard {
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+    background: hsl(var(--card));
+    padding: 1.25rem;
+  
+    h3 {
+      margin: 0 0 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  }
+  
+  .infoRows {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+  
+    span {
+      font-size: 0.8125rem;
+      color: hsl(var(--muted-foreground));
+    }
+  
+    strong {
+      word-break: break-word;
+    }
+  }
+  
+  .healthRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
+  .healthProgress {
+    height: 0.5rem;
+    border-radius: 999px;
+    overflow: hidden;
+    background: hsl(var(--muted));
+  
+    div {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(
+        90deg,
+        #22c55e,
+        #16a34a
+      );
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .metricGrid {
+      grid-template-columns: 1fr;
+    }
+  
+    .endpointHero h2 {
+      font-size: 1.4rem;
+    }
+  }

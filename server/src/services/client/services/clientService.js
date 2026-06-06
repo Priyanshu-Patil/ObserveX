@@ -287,4 +287,95 @@ export class ClientService {
             throw error;
         }
     }
+
+    async getClients(user) {
+        try {
+            if (
+                user.role !== APPLICATION_ROLES.SUPER_ADMIN
+            ) {
+                throw new AppError(
+                    'Access denied',
+                    403
+                );
+            }
+    
+            return await this.clientRepository.findAll();
+        } catch (error) {
+            logger.error(
+                'Error getting clients',
+                error
+            );
+    
+            throw error;
+        }
+    }
+
+    async getClient(clientId, user) {
+        try {
+            if (
+                !this.canUserAccessClient(
+                    user,
+                    clientId
+                )
+            ) {
+                throw new AppError(
+                    "Access denied",
+                    403
+                );
+            }
+    
+            const client =
+                await this.clientRepository.findById(
+                    clientId
+                );
+    
+            if (!client) {
+                throw new AppError(
+                    "Client not found",
+                    404
+                );
+            }
+    
+            return client;
+        } catch (error) {
+            logger.error(
+                "Error getting client",
+                error
+            );
+    
+            throw error;
+        }
+    }
+
+    async getClientUsers(clientId, user) {
+        try {
+            if (
+                !this.canUserAccessClient(
+                    user,
+                    clientId
+                )
+            ) {
+                throw new AppError(
+                    "Access denied",
+                    403
+                );
+            }
+    
+            const users =
+                await this.userRepository.findByClientId(
+                    clientId
+                );
+    
+            return users.map((user) =>
+                this.formatClientForResponse(user)
+            );
+        } catch (error) {
+            logger.error(
+                "Error getting client users",
+                error
+            );
+    
+            throw error;
+        }
+    }
 }

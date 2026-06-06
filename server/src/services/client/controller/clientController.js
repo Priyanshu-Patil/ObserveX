@@ -98,4 +98,68 @@ export class ClientController {
             next(error)
         }
     }
+
+    async getClients(req, res, next) {
+        try {
+            const clients =
+                await this.clientService.getClients(
+                    req.user
+                );
+    
+            return res.status(200).json(
+                ResponseFormatter.success(
+                    clients,
+                    'Clients fetched successfully',
+                    200
+                )
+            );
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getClient(req, res, next) {
+        try {
+            const { clientId } =
+                req.params;
+    
+            const client =
+                await this.clientService.getClient(
+                    clientId,
+                    req.user
+                );
+    
+            return res.status(200).json(
+                ResponseFormatter.success(
+                    client,
+                    "Client fetched successfully",
+                    200
+                )
+            );
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getClientUsers(req, res, next) {
+        try {
+            const { clientId } = req.params;
+    
+            const users =
+                await this.clientService.getClientUsers(
+                    clientId,
+                    req.user
+                );
+    
+            return res.status(200).json(
+                ResponseFormatter.success(
+                    users,
+                    "Users fetched successfully",
+                    200
+                )
+            );
+        } catch (error) {
+            next(error);
+        }
+    }
 }

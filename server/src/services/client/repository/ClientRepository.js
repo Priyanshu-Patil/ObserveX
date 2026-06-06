@@ -103,6 +103,18 @@ class MongoClientRepository extends BaseClientRepository {
             throw error;
         }
     }
+
+    async findAll() {
+        try {
+            return await this.model
+                .find({})
+                .sort({ createdAt: -1 })
+                .select('-__v');
+        } catch (error) {
+            logger.error('Error finding all clients', error);
+            throw error;
+        }
+    }
 }
 
 

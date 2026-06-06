@@ -11,11 +11,17 @@ const { clientController } = clientDependencies.controller
 // Apply authentication middleware to all routes in this router
 router.use(authenticate);
 
+router.get("/admin/clients", (req, res, next) => clientController.getClients(req,res,next));
+
+router.get("/admin/clients/:clientId",(req, res, next) => clientController.getClient(req,res,next));
+
 // Onboard a new client
 router.post("/admin/clients/onboard", (req, res, next) => clientController.createClient(req, res, next))
 
 // Create a user for a client
 router.post("/admin/clients/:clientId/users", (req, res, next) => clientController.createClientUser(req, res, next))
+
+router.get("/admin/clients/:clientId/users",(req, res, next) => clientController.getClientUsers(req,res,next));
 
 // Create API key for a client
 router.post("/admin/clients/:clientId/api/keys", (req, res, next) => clientController.createApiKey(req, res, next))

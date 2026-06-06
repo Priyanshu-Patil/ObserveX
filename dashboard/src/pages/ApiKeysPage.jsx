@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+    useQuery,
+    useMutation,
+    useQueryClient,
+} from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { clientApi } from '../api/api';
 import { QUERY_KEYS, API_KEY_ENVIRONMENTS } from '../constants';
-import { getRegisteredClient } from '../lib/clientRegistry';
 import { PageHeader } from '../components/ui/PageHeader';
 import { SearchInput } from '../components/ui/SearchInput';
 import { Button } from '../components/ui/Button';
@@ -22,7 +25,16 @@ export function ApiKeysPage() {
     const { id } = useParams();
     const toast = useToast();
     const queryClient = useQueryClient();
-    const client = getRegisteredClient(id);
+    const {
+        data: clientResponse,
+        isLoading: clientLoading,
+    } = useQuery({
+        queryKey: ['client', id],
+        queryFn: () => clientApi.getClient(id),
+        enabled: !!id,
+    });
+    
+    const client = clientResponse?.data;
     const [search, setSearch] = useState('');
     const [createOpen, setCreateOpen] = useState(false);
     const [revokeTarget, setRevokeTarget] = useState(null);
@@ -53,6 +65,14 @@ export function ApiKeysPage() {
     const apiKeys = (data?.data ?? []).filter((k) =>
         !debouncedSearch || k.name?.toLowerCase().includes(debouncedSearch.toLowerCase())
     );
+
+    if (clientLoading) {
+        return (
+            <div className={styles.pageContainer}>
+                <CardGridSkeleton count={3} />
+            </div>
+        );
+    }
 
     return (
         <div className={styles.pageContainer}>

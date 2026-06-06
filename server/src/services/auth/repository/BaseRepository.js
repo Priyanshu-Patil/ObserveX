@@ -25,4 +25,10 @@ export default class BaseRepository {
     async findAll() {
         throw new Error('Method not implemented');
     }
+
+    async findByClientId(clientId) {
+        throw new Error(
+            "Method not implemented"
+        );
+    }
 }

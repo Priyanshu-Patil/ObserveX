@@ -98,6 +98,13 @@ class MongoUserRepository extends BaseRepository {
             throw error;
         }
     }
+
+    async findByClientId(clientId) {
+        return await this.model
+            .find({ clientId })
+            .select('-password')
+            .sort({ createdAt: -1 });
+    }
 }
 
 export default new MongoUserRepository()

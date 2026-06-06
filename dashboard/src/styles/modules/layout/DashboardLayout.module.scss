@@ -2,7 +2,11 @@
     min-height: 100vh;
 
     &.themeLight {
-        background: linear-gradient(to bottom right, #f9fafb, #ffffff);
+        background: linear-gradient(
+            to bottom right,
+            #f9fafb,
+            #ffffff
+        );
     }
 
     &.themeDark {
@@ -18,39 +22,106 @@
     }
 }
 
+/* =========================
+   HEADER
+========================= */
+
 .header {
     position: sticky;
     top: 0;
     z-index: 30;
     width: 100%;
-    border-bottom: 1px solid hsl(var(--border) / 0.4);
-    background: hsl(var(--background) / 0.95);
+
+    border-bottom: 1px solid
+        hsl(var(--border) / 0.4);
+
+    background: hsl(
+        var(--background) / 0.95
+    );
+
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 
     @supports (backdrop-filter: blur(8px)) {
-        background: hsl(var(--background) / 0.6);
+        background: hsl(
+            var(--background) / 0.65
+        );
     }
 }
 
 .headerContent {
     display: flex;
-    height: 4rem;
+    flex-direction: column;
+
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+
+    @media (min-width: 768px) {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+
+        min-height: 4rem;
+        padding: 0.75rem 1rem;
+        gap: 1rem;
+    }
+}
+
+/* =========================
+   TOP ROW
+========================= */
+
+.headerTop {
+    display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1rem;
+
+    gap: 0.75rem;
+    width: 100%;
 }
+
+/* =========================
+   MOBILE LAST UPDATED
+========================= */
+
+.headerBottom {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+
+    svg {
+        width: 0.875rem;
+        height: 0.875rem;
+        flex-shrink: 0;
+    }
+
+    @media (min-width: 768px) {
+        display: none;
+    }
+}
+
+/* =========================
+   MOBILE MENU BUTTON
+========================= */
 
 .mobileMenuButton {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.375rem;
+
+    width: 2.5rem;
+    height: 2.5rem;
+
     border: none;
+    border-radius: 0.5rem;
+
     background: transparent;
-    padding: 0.5rem;
+
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
 
     &:hover {
         background: hsl(var(--accent));
@@ -67,170 +138,114 @@
     }
 }
 
+/* =========================
+   PAGE TITLE SECTION
+========================= */
+
 .pageTitle {
     flex: 1;
+    min-width: 0;
 
-    @media (min-width: 1024px) {
-        flex: initial;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* =========================
+   DESKTOP BREADCRUMBS
+========================= */
+
+.desktopBreadcrumbs {
+    display: none;
+
+    @media (min-width: 768px) {
+        display: block;
+
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
+}
 
-    p {
-        font-size: 1rem;
-        color: hsl(var(--muted-foreground));
+/* =========================
+   MOBILE PAGE TITLE
+========================= */
+
+.mobileTitle {
+    display: block;
+
+    margin: 0;
+
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+
+    color: hsl(var(--foreground));
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    @media (min-width: 768px) {
+        display: none;
+    }
+}
+
+/* =========================
+   DESKTOP LAST UPDATED
+========================= */
+
+.desktopLastUpdated {
+    display: none;
+
+    @media (min-width: 768px) {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        margin: 0;
+        gap: 0.4rem;
+
+        margin-top: 0.2rem;
+
+        font-size: 0.8125rem;
+        color: hsl(var(--muted-foreground));
 
         svg {
-            width: 1rem;
-            height: 1rem;
+            width: 0.875rem;
+            height: 0.875rem;
         }
     }
 }
+
+/* =========================
+   ACTION BUTTON GROUP
+========================= */
 
 .actionButtons {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-}
 
-.toggleButton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 0.375rem;
-    border: 1px solid hsl(var(--border));
-    background: hsl(var(--background));
-    color: hsl(var(--foreground));
-    cursor: pointer;
-    transition: all 0.2s ease;
+    gap: 0.35rem;
+    flex-shrink: 0;
 
-    &:hover {
-        background: hsl(var(--accent));
-    }
-
-    &:active {
-        transform: translateY(1px);
-        filter: brightness(0.95);
-    }
-
-    &:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px hsl(var(--ring));
-    }
-
-    svg {
-        width: 1.25rem;
-        height: 1.25rem;
+    @media (min-width: 768px) {
+        gap: 0.5rem;
     }
 }
 
-.refreshButton {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem ;
-    border: 1px solid hsl(var(--border));
-    border-radius: 0.375rem;
-    background: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover:not(:disabled) {
-        background: hsl(var(--accent));
-        border-color: hsl(var(--accent-foreground) / 0.1);
-    }
-
-    &:active:not(:disabled) {
-        transform: translateY(1px);
-        filter: brightness(0.95);
-    }
-
-    &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    &:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px hsl(var(--ring));
-    }
-
-    svg {
-        width: 1rem;
-        height: 1rem;
-
-        &.spinning {
-            animation: spin 1s linear infinite;
-        }
-    }
-
-    .hiddenText {
-        display: none;
-
-        @media (min-width: 640px) {
-            display: inline;
-        }
-    }
-}
-
-.logoutButton {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    border: none;
-    border-radius: 0.375rem;
-    background: transparent;
-    color: hsl(var(--foreground));
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-        background: hsl(var(--accent));
-    }
-
-    &:active {
-        transform: translateY(1px);
-        background: hsl(var(--accent) / 0.95);
-    }
-
-    &:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px hsl(var(--ring));
-    }
-
-    svg {
-        width: 1rem;
-        height: 1rem;
-    }
-
-    .hiddenText {
-        display: none;
-
-        @media (min-width: 640px) {
-            display: inline;
-        }
-    }
-}
+/* =========================
+   CONTENT AREA
+========================= */
 
 .pageContent {
     width: 100%;
+    max-width: 80rem;
+
     margin-left: auto;
     margin-right: auto;
-    padding: 2rem 1rem;
-    max-width: 80rem; // max-w-7xl equivalent
+
+    padding: 1rem;
 
     @media (min-width: 640px) {
-        padding: 2rem 1.5rem;
+        padding: 1.5rem;
     }
 
     @media (min-width: 1024px) {
@@ -238,17 +253,193 @@
     }
 }
 
-// Animations
+/* =========================
+   THEME TOGGLE BUTTON
+========================= */
+
+.toggleButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 2.25rem;
+    height: 2.25rem;
+
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    @media (min-width: 768px) {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+
+    &:hover {
+        background: hsl(var(--accent));
+        border-color: hsl(var(--accent) / 0.5);
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px hsl(var(--ring));
+    }
+
+    svg {
+        width: 1rem;
+        height: 1rem;
+
+        @media (min-width: 768px) {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+    }
+}
+
+/* =========================
+   REFRESH BUTTON
+========================= */
+
+.refreshButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 2.25rem;
+    height: 2.25rem;
+
+    padding: 0;
+
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    @media (min-width: 768px) {
+        width: auto;
+        height: 2.5rem;
+
+        gap: 0.5rem;
+        padding: 0 0.875rem;
+    }
+
+    &:hover:not(:disabled) {
+        background: hsl(var(--accent));
+        border-color: hsl(var(--accent) / 0.5);
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px hsl(var(--ring));
+    }
+
+    svg {
+        width: 1rem;
+        height: 1rem;
+        flex-shrink: 0;
+    }
+}
+
+/* =========================
+   REFRESH TEXT
+========================= */
+
+.hiddenText {
+    display: none;
+
+    @media (min-width: 1024px) {
+        display: inline;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+}
+
+/* =========================
+   LOGOUT BUTTON
+========================= */
+
+.logoutButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    padding: 0.5rem 0.75rem;
+
+    border: none;
+    border-radius: 0.5rem;
+
+    background: transparent;
+    color: hsl(var(--foreground));
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: hsl(var(--accent));
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px hsl(var(--ring));
+    }
+
+    svg {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+/* =========================
+   SPIN ANIMATION
+========================= */
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
 @keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
     to {
         transform: rotate(360deg);
     }
 }
 
-// Theme-specific adjustments
+/* =========================
+   LIGHT THEME
+========================= */
+
 :global(.theme-light) {
     .header {
         border-bottom-color: hsl(var(--border) / 0.6);
+
         background: hsl(var(--background) / 0.98);
 
         @supports (backdrop-filter: blur(8px)) {
@@ -256,12 +447,59 @@
         }
     }
 
+    .toggleButton,
+    .refreshButton {
+        box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.05);
+
+        &:hover {
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+    }
+}
+
+/* =========================
+   DARK THEME
+========================= */
+
+:global(.theme-dark) {
+    .toggleButton,
     .refreshButton {
         border-color: hsl(var(--border));
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
-        &:hover:not(:disabled) {
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        &:hover {
+            background: hsl(var(--accent));
         }
+    }
+}
+
+/* =========================
+   MOBILE POLISH
+========================= */
+
+@media (max-width: 767px) {
+    .actionButtons {
+        gap: 0.25rem;
+    }
+
+    .toggleButton,
+    .refreshButton {
+        width: 2.15rem;
+        height: 2.15rem;
+    }
+
+    .pageContent {
+        padding-top: 1rem;
+    }
+}
+
+/* =========================
+   LARGE SCREEN POLISH
+========================= */
+
+@media (min-width: 1280px) {
+    .pageContent {
+        max-width: 90rem;
     }
 }

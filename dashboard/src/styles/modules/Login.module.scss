@@ -283,7 +283,7 @@
 .inputContainer {
     position: relative;
 
-    svg {
+    > svg {
         position: absolute;
 
         left: 16px;

@@ -9,7 +9,6 @@ import { ToastProvider } from './contexts/ToastContext';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const OnboardSuperAdminPage = lazy(() => import('./pages/OnboardSuperAdminPage').then(m => ({ default: m.OnboardSuperAdminPage })));
-const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const ClientDashboardPage = lazy(() => import('./pages/ClientDashboardPage').then(m => ({ default: m.ClientDashboardPage })));
 const AnalyticsOverviewPage = lazy(() => import('./pages/AnalyticsOverviewPage').then(m => ({ default: m.AnalyticsOverviewPage })));
 const EndpointAnalyticsPage = lazy(() => import('./pages/EndpointAnalyticsPage').then(m => ({ default: m.EndpointAnalyticsPage })));
@@ -21,6 +20,11 @@ const ApiKeysPage = lazy(() => import('./pages/ApiKeysPage').then(m => ({ defaul
 const SettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const DocumentationPage = lazy(() => import('./pages/DocumentationPage').then(m => ({ default: m.DocumentationPage })));
 const ActivityLogsPage = lazy(() => import('./pages/ActivityLogsPage').then(m => ({ default: m.ActivityLogsPage })));
+const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({default: m.LandingPage})));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
+const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
+const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
+const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
 
 const pageFallback = (
     <div style={{ height: '60vh', display: 'grid', placeItems: 'center' }}>Loading…</div>
@@ -81,24 +85,112 @@ function AuthGate() {
 
     return (
         <Routes>
-            <Route path="/onboard-super-admin" element={
-                isAuthenticated ? <Navigate to="/client/dashboard" replace /> : (
-                    <Suspense fallback={pageFallback}><OnboardSuperAdminPage /></Suspense>
-                )
-            } />
-            <Route path="/login" element={
-                isAuthenticated ? <Navigate to="/client/dashboard" replace /> : <Login />
-            } />
-            <Route path="/register" element={
-                !isAuthenticated ? <Navigate to="/login" replace /> : (
-                    <ProtectedRoute superAdminOnly>
-                        <Suspense fallback={pageFallback}><RegisterPage /></Suspense>
-                    </ProtectedRoute>
-                )
-            } />
-            <Route path="*" element={
-                isAuthenticated ? <AuthenticatedRoutes onLogout={handleLogout} /> : <Login />
-            } />
+    
+            {/* LANDING PAGE */}
+            <Route
+                path="/"
+                element={
+                    isAuthenticated ? (
+                        <Navigate
+                            to="/client/dashboard"
+                            replace
+                        />
+                    ) : (
+                        <Suspense fallback={pageFallback}>
+                            <LandingPage />
+                        </Suspense>
+                    )
+                }
+            />
+    
+            {/* PRIVACY POLICY */}
+            <Route
+                path="/privacy"
+                element={
+                    <Suspense fallback={pageFallback}>
+                        <PrivacyPage />
+                    </Suspense>
+                }
+            />
+
+            {/* TERMS OF SERVICE */}
+            <Route
+                path="/terms"
+                element={
+                    <Suspense fallback={pageFallback}>
+                        <TermsPage />
+                    </Suspense>
+                }
+            />
+
+            {/* ABOUT */}
+            <Route
+                path="/about"
+                element={
+                    <Suspense fallback={pageFallback}>
+                        <AboutPage />
+                    </Suspense>
+                }
+            />
+
+            {/* CONTACT */}
+            <Route
+                path="/contact"
+                element={
+                    <Suspense fallback={pageFallback}>
+                        <ContactPage />
+                    </Suspense>
+                }
+            />
+
+            {/* SUPER ADMIN SETUP */}
+            <Route
+                path="/onboard-super-admin"
+                element={
+                    isAuthenticated ? (
+                        <Navigate
+                            to="/client/dashboard"
+                            replace
+                        />
+                    ) : (
+                        <Suspense fallback={pageFallback}>
+                            <OnboardSuperAdminPage />
+                        </Suspense>
+                    )
+                }
+            />
+    
+            {/* LOGIN */}
+            <Route
+                path="/login"
+                element={
+                    isAuthenticated ? (
+                        <Navigate
+                            to="/client/dashboard"
+                            replace
+                        />
+                    ) : (
+                        <Login />
+                    )
+                }
+            />
+    
+            {/* AUTHENTICATED APP */}
+            <Route
+                path="*"
+                element={
+                    isAuthenticated ? (
+                        <AuthenticatedRoutes
+                            onLogout={handleLogout}
+                        />
+                    ) : (
+                        <Navigate
+                            to="/"
+                            replace
+                        />
+                    )
+                }
+            />
         </Routes>
     );
 }

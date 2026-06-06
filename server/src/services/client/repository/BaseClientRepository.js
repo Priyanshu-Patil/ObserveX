@@ -15,6 +15,12 @@ export default class BaseClientRepository {
     async create(clientData) {
         throw new Error("Method not implemented")
     };
+    
+    async findByClientId(clientId) {
+        throw new Error(
+            "Method not implemented"
+        );
+    }
 
     async findById(clientId) {
         throw new Error('Method not implemented');
