@@ -23,16 +23,18 @@
 
 ## 📋 Table of Contents
 1. [🚀 Overview](#🚀-overview)
-2. [🏗️ System Architecture](#🏗️-system-architecture)
-3. [💾 Database Design](#💾-database-design)
-4. [🛠️ Advanced System Design & Fault Tolerance Patterns](#🛠️-advanced-system-design--fault-tolerance-patterns)
-5. [🛡️ Authentication & Authorization](#🛡️-authentication-&-authorization)
-6. [🌊 Event-Driven Ingest Pipeline](#🌊-event-driven-ingest-pipeline)
-7. [📊 Analytics & Aggregation Engine](#📊-analytics-&-aggregation-engine)
-8. [🔌 API Endpoints](#🔌-api-endpoints)
-9. [💻 Frontend Application](#💻-frontend-application)
-10. [⚙️ Quick Start & Setup](#⚙️-quick-start--setup)
-11. [📝 Environment Configurations](#📝-environment-configurations)
+2. [🛠️ Tech Stack](#🛠️-tech-stack)
+3. [📁 Folder Structure](#📁-folder-structure)
+4. [🏗️ System Architecture](#🏗️-system-architecture)
+5. [💾 Database Design](#💾-database-design)
+6. [🛠️ Advanced System Design & Fault Tolerance Patterns](#🛠️-advanced-system-design--fault-tolerance-patterns)
+7. [🛡️ Authentication & Authorization](#🛡️-authentication-&-authorization)
+8. [🌊 Event-Driven Ingest Pipeline](#🌊-event-driven-ingest-pipeline)
+9. [📊 Analytics & Aggregation Engine](#📊-analytics-&-aggregation-engine)
+10. [🔌 API Endpoints](#🔌-api-endpoints)
+11. [💻 Frontend Application](#💻-frontend-application)
+12. [⚙️ Quick Start & Setup](#⚙️-quick-start--setup)
+13. [📝 Environment Configurations](#📝-environment-configurations)
 
 ---
 
@@ -46,6 +48,71 @@
 - **⏱️ Circuit Breaking & Retries**: Employs exponential backoff, jitter, and circuit breaker patterns to survive high load and transient queue downtime.
 - **🔑 Granular API Key Management**: Multi-tenant key scopes including environments, allowed IP/origins, service limits, and permissions.
 - **📊 Interactive Dashboards**: Real-time traffic, latency, and status charts using React, TanStack Query, and ApexCharts.
+
+
+---
+
+## 🛠️ Tech Stack
+
+ObserveX leverages a robust modern polyglot tech stack to handle high-throughput telemetry writes and analytical aggregations:
+
+| Technology | Category | Version | Purpose / Description |
+| :--- | :--- | :--- | :--- |
+| **Node.js** | Runtime | `^18.x` | JavaScript server runtime environment |
+| **Express.js** | Backend Framework | `^4.18.2` | Fast, minimalist web framework for ingestion & admin REST APIs |
+| **React** | Frontend Library | `^18.2.0` | Library for building the single-page admin console UI |
+| **Vite** | Build Tool / Dev Server | `^5.0.0` | Next-generation frontend tooling and fast hot module replacement |
+| **RabbitMQ** | Message Broker | `^3.10.x` | High-performance message queue for asynchronous event ingestion |
+| **MongoDB & Mongoose** | NoSQL Database & ODM | `^6.0` / `^8.0.0` | Stores raw telemetry events, tenant metadata, users, and API key policies |
+| **PostgreSQL** | Relational Database | `^15.x` | Relational store for aggregated metrics and fast dashboard query reads |
+| **TanStack React Query** | Frontend State Sync | `^5.8.4` | Powerful data fetching, caching, and server-state synchronization |
+| **ApexCharts** | Data Visualization | `^5.3.6` | Interactive charting library for real-time latencies, hits, and status codes |
+| **Zod** | Schema Validation | `^4.3.6` | Type-safe schema validation for ingestion payloads and database models |
+| **Docker & Compose** | Containerization | - | Multi-container environment orchestration for databases and microservices |
+| **SASS** | CSS Preprocessor | `^1.94.2` | Modern styling for custom layout UI |
+
+---
+
+## 📁 Folder Structure
+
+Below is the directory structure of the ObserveX repository:
+
+```text
+observex/
+├── dashboard/               # Frontend single-page application (Vite + React)
+│   ├── src/
+│   │   ├── api/             # API client configurations and endpoints
+│   │   ├── components/      # Reusable UI components & charts
+│   │   ├── contexts/        # React Contexts (e.g., Auth, Theme)
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── pages/           # Pages and route-level components
+│   │   ├── services/        # Service helper functions
+│   │   ├── App.jsx          # Main application entry and router
+│   │   └── main.jsx         # App mounting point
+│   ├── package.json         # Frontend dependencies and scripts
+│   └── vite.config.js       # Vite build configuration
+└── server/                  # Backend application (Express.js)
+    ├── scripts/             # Database initialization and setup scripts
+    ├── src/
+    │   ├── services/        # Domain-driven backend modules
+    │   │   ├── analytics/   # Analytics query handlers & routes
+    │   │   ├── auth/        # Authentication, JWT logic & routes
+    │   │   ├── client/      # Client and Tenant management
+    │   │   ├── ingest/      # API hit ingestion gateway & routes
+    │   │   └── processor/   # Background RabbitMQ consumer & PostgreSQL upserts
+    │   ├── shared/          # Shared configuration and utilities
+    │   │   ├── config/      # Shared environment configuration loaders
+    │   │   ├── constants/   # Global constants
+    │   │   ├── events/      # Circuit breaker and RabbitMQ event producer
+    │   │   ├── middlewares/ # Express authentication & verification middlewares
+    │   │   ├── models/      # Mongoose schemas for MongoDB
+    │   │   └── utils/       # Shared utility functions
+    │   └── server.js        # Main Express server entry point
+    ├── docker-compose.yml   # Multi-container local deployment spec
+    ├── Dockerfile           # Docker configuration for Ingestion Server
+    ├── Dockerfile.consumer  # Docker configuration for Background Consumer
+    └── package.json         # Backend dependencies and scripts
+```
 
 ---
 
