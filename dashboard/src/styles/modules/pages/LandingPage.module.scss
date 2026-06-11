@@ -1533,7 +1533,12 @@ html {
   }
 
   .footerTop {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem 2rem;
+  }
+
+  .footerBrand {
+    grid-column: span 2;
   }
 }
 
@@ -1571,6 +1576,11 @@ html {
   }
 
   .footerTop {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem 2rem;
+  }
+
+  .footerBrand {
+    grid-column: span 2;
   }
 }

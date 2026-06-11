@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import styles from "../styles/modules/pages/LandingPage.module.scss";
+import { Footer } from "../components/layout";
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
@@ -177,6 +178,9 @@ export function LandingPage() {
 
         <ul className={styles.navLinks}>
           <li>
+            <a href="#homepage">Home</a>
+          </li>
+          <li>
             <a href="#features">Features</a>
           </li>
           <li>
@@ -198,7 +202,7 @@ export function LandingPage() {
       </nav>
 
       {/* ── HERO ── */}
-      <section className={styles.hero}>
+      <section id="homepage" className={styles.hero}>
         <div className={styles.heroBadge}>Real-Time API Monitoring Platform</div>
 
         <h1 className={styles.heroTitle}>
@@ -585,46 +589,7 @@ export function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className={styles.footer}>
-        <div className={styles.footerInner}>
-          <div className={styles.footerTop}>
-            <div className={styles.footerBrand}>
-                <div>
-              <img src="/Logo-Dark.png" alt="" style={{height: "fit-content", width:'200px', objectFit:"contain"}} />
-              </div>
-              <p>
-                Real-time API monitoring and observability for modern engineering
-                teams. Track every request, every endpoint, every millisecond.
-              </p>
-            </div>
-
-            <div className={styles.footerCol}>
-              <h4>Product</h4>
-              <a href="#features">Features</a>
-              <a href="#integrations">Integrations</a>
-              <a href="#docs">Documentation</a>
-            </div>
-
-            
-
-            <div className={styles.footerCol}>
-              <h4>Explore</h4>
-              <a href="#">About</a>
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms</a>
-            </div>
-          </div>
-
-          <div className={styles.footerBottom}>
-            <p className={styles.footerCopy}>
-              © 2026 ObserveX. All rights reserved.
-            </p>
-            <span className={styles.footerTagline}>
-              Built for engineers who ship.
-            </span>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
