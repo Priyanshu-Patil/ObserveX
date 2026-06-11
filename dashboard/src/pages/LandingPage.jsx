@@ -1,5 +1,8 @@
+import { useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
+import Lenis from "lenis";
+import "lenis/dist/lenis.css";
 import styles from "../styles/modules/pages/LandingPage.module.scss";
 import { Footer } from "../components/layout";
 
@@ -153,6 +156,25 @@ await axios.post(
 
 export function LandingPage() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
 
   const initials = (name) =>
     name
