@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { ArrowRight } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import styles from "../styles/modules/pages/LandingPage.module.scss";
-import { Footer } from "../components/layout";
+import { Footer, Navbar } from "../components/layout";
+import MetaTags from "../components/MetaTags";
+
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
@@ -188,40 +190,14 @@ export function LandingPage() {
 
   return (
     <div className={styles.page}>
+      <MetaTags
+        title="ObserveX - Real-Time API Monitoring & Observability Platform"
+        description="Monitor every API and detect latency, failures, and endpoint performance spikes before users notice. Complete visibility in under 5 minutes."
+        keywords="api monitoring, api observability, real-time analytics, latency tracker, error detection, developer tools"
+      />
       {/* ── NAV ── */}
-      <nav className={styles.nav}>
-      <div className={styles.navLogo}>
-        <img
-            src="/Logo-Dark.png"
-            alt="ObserveX"
-            className={styles.logoText}
-        />
-        </div>
+      <Navbar />
 
-        <ul className={styles.navLinks}>
-          <li>
-            <a href="#homepage">Home</a>
-          </li>
-          <li>
-            <a href="#features">Features</a>
-          </li>
-          <li>
-            <a href="#integrations">Integrations</a>
-          </li>
-          <li>
-            <a href="#docs">Documentation</a>
-          </li>
-        </ul>
-
-        <div className={styles.navActions}>
-          <button className={styles.navSignIn} onClick={() => navigate("/login")}>
-            Login
-          </button>
-          <button className={styles.navRegister} onClick={goOnboard}>
-            Get Started →
-          </button>
-        </div>
-      </nav>
 
       {/* ── HERO ── */}
       <section id="homepage" className={styles.hero}>

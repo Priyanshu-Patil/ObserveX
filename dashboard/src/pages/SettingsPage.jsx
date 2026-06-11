@@ -11,6 +11,8 @@ import { Button } from '../components/ui/Button';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { useToast } from '../contexts/ToastContext';
 import styles from '../styles/modules/pages/SettingsPage.module.scss';
+import MetaTags from '../components/MetaTags';
+
 
 const SIDEBAR_TABS = [
   { id: 'profile', label: 'Profile Information', icon: User },
@@ -172,6 +174,10 @@ export function SettingsPage() {
 
     return (
         <div className={styles.pageContainer}>
+            <MetaTags
+                title="System Settings - ObserveX"
+                description="Manage your ObserveX account credentials, notification settings, visual appearance theme, and organization details."
+            />
             <PageHeader 
                 title="Settings" 
                 description="Manage your account, security keys, alerts and visual theme preference" 

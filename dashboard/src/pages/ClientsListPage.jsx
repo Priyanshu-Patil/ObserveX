@@ -14,6 +14,8 @@ import { useDebounce } from '../hooks/useDebounce';
 import { clientApi } from '../api/api';
 
 import styles from '../styles/modules/pages/PageComponents.module.scss';
+import MetaTags from '../components/MetaTags';
+
 
 export function ClientsListPage() {
     const navigate = useNavigate();
@@ -189,6 +191,10 @@ export function ClientsListPage() {
 
     return (
         <div className={styles.pageContainer}>
+            <MetaTags
+                title="Manage Clients - ObserveX"
+                description="Manage client organizations, settings, API access, and user permissions."
+            />
             <PageHeader
                 title="Clients"
                 description="Manage organizations and their access"

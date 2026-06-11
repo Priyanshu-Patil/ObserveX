@@ -1,47 +1,23 @@
 import { useNavigate, Link } from "react-router-dom";
 import styles from "../styles/modules/pages/LandingPage.module.scss";
 import pageStyles from "../styles/modules/pages/CompanyPages.module.scss";
-import { Footer } from "../components/layout";
+import { Footer, Navbar } from "../components/layout";
+import MetaTags from "../components/MetaTags";
+
+
 
 export function PrivacyPage() {
   const navigate = useNavigate();
 
   return (
     <div className={styles.page} style={{ background: "var(--dark)", minHeight: "100vh" }}>
+      <MetaTags
+        title="Privacy Policy - ObserveX"
+        description="Read the privacy policy of ObserveX, including telemetry practices, API ingestion safety, and data security."
+        keywords="privacy policy, observex privacy, telemetry data, api monitoring security"
+      />
       {/* ── NAV ── */}
-      <nav className={styles.nav}>
-        <div className={styles.navLogo} onClick={() => navigate("/")}>
-          <img
-            src="/Logo-Dark.png"
-            alt="ObserveX"
-            className={styles.logoText}
-          />
-        </div>
-
-        <ul className={styles.navLinks}>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/#features">Features</Link>
-          </li>
-          <li>
-            <Link to="/#integrations">Integrations</Link>
-          </li>
-          <li>
-            <Link to="/#docs">Documentation</Link>
-          </li>
-        </ul>
-
-        <div className={styles.navActions}>
-          <button className={styles.navSignIn} onClick={() => navigate("/login")}>
-            Login
-          </button>
-          <button className={styles.navRegister} onClick={() => navigate("/onboard-super-admin")}>
-            Get Started →
-          </button>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* ── CONTENT ── */}
       <div className={pageStyles.contentContainer}>

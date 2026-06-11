@@ -5,6 +5,8 @@ import { Search,ChevronRight,Rocket,Shield,Code2,LayoutDashboard,Wrench,HelpCirc
 } from "lucide-react";
 
 import styles from "../styles/modules/pages/DocsPage.module.scss";
+import MetaTags from "../components/MetaTags";
+
 
 const DOC_PAGES = [
   {
@@ -1119,6 +1121,11 @@ export function DocumentationPage() {
 
   return (
     <div className={styles.page}>
+      <MetaTags
+        title="Documentation - ObserveX"
+        description="Integration guides, SDK references, and API ingestion tutorials for ObserveX. Start monitoring Express, NestJS, Next.js, and Spring Boot."
+        keywords="documentation, observex api, nodejs integration, express middleware, nextjs monitoring, spring boot filter, docker collector"
+      />
       <Hero />
 
       <div className={styles.docsGrid}>

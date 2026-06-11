@@ -12,6 +12,8 @@ import { ActivityTimeline } from '../components/ui/ActivityTimeline';
 import TopEndpoints from '../components/TopEndpoints';
 import { ApiHitsChart } from '../components/charts';
 import styles from '../styles/modules/pages/PageComponents.module.scss';
+import MetaTags from '../components/MetaTags';
+
 
 export function ClientDashboardPage() {
     const navigate = useNavigate();
@@ -40,6 +42,10 @@ export function ClientDashboardPage() {
 
     return (
         <div className={styles.pageContainer}>
+            <MetaTags
+                title="Dashboard - ObserveX"
+                description="ObserveX real-time API monitoring dashboard. Track latency, status codes, request volumes, and system performance."
+            />
             <PageHeader
                 title={`Welcome back${user?.username ? `, ${user.username}` : ''}`}
                 description="Monitor your API traffic, performance, and health in real time"

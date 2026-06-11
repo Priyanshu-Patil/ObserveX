@@ -29,6 +29,8 @@ import {
 } from '../components/charts';
 
 import styles from '../styles/modules/pages/PageComponents.module.scss';
+import MetaTags from '../components/MetaTags';
+
 
 export function ClientDetailsPage() {
     const { id } = useParams();
@@ -487,6 +489,10 @@ export function ClientDetailsPage() {
                 styles.pageContainer
             }
         >
+            <MetaTags
+                title="Client Details - ObserveX"
+                description="View organization details, API keys, active client users, performance analytics and audit logs."
+            />
             <PageHeader
                 title={
                     client?.name ??

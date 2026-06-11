@@ -10,6 +10,8 @@ import StatsGrid from '../components/StatsGrid';
 import { ApiHitsChart, StatusDistributionChart, LatencyChart } from '../components/charts';
 import { useToast } from '../contexts/ToastContext';
 import styles from '../styles/modules/pages/PageComponents.module.scss';
+import MetaTags from '../components/MetaTags';
+
 
 export function AnalyticsOverviewPage() {
     const toast = useToast();
@@ -57,6 +59,10 @@ export function AnalyticsOverviewPage() {
 
     return (
         <div className={styles.pageContainer}>
+            <MetaTags
+                title="Analytics - ObserveX"
+                description="View and analyze detailed API performance analytics, success rates, latency percentiles, and error distributions."
+            />
             <PageHeader
                 title="Analytics Overview"
                 description="Enterprise-grade API performance insights"

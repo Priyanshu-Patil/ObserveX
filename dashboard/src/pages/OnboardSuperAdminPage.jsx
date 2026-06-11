@@ -14,6 +14,8 @@ import {
 import { useToast } from "../contexts/ToastContext";
 
 import styles from "../styles/modules/Login.module.scss";
+import MetaTags from "../components/MetaTags";
+
 
 const ONBOARD_STEPS = [
   "Create Admin Account",
@@ -147,6 +149,11 @@ export function OnboardSuperAdminPage() {
 
   return (
     <AuthLayout steps={ONBOARD_STEPS} activeStep={0} compact>
+      <MetaTags
+        title="Onboard Super Admin - ObserveX"
+        description="Configure the initial Super Admin account for your ObserveX private instance."
+        keywords="setup super admin, onboarding observex, configure admin"
+      />
       <AuthCard
         title="Create Super Admin"
         description="One-time setup for your platform administrator"

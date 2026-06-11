@@ -6,6 +6,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { AuthLayout, AuthCard } from './auth/AuthLayout';
 import styles from '../styles/modules/Login.module.scss';
+import MetaTags from './MetaTags';
+
 
 const LOGIN_STEPS = ['Connect Services', 'Configure Monitoring', 'Start Observing'];
 
@@ -56,6 +58,11 @@ function Login() {
 
     return (
         <AuthLayout steps={LOGIN_STEPS} activeStep={0}>
+            <MetaTags
+                title="Sign In - ObserveX"
+                description="Sign in to your ObserveX account to view real-time API metrics, active endpoints, and logs."
+                keywords="login, sign in, observex portal, api monitoring dashboard"
+            />
             <AuthCard
                 title="Welcome Back"
                 description="Sign in to access your dashboard"

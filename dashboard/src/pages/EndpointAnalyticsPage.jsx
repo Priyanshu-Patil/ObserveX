@@ -26,6 +26,8 @@ import { getMethodColor } from "../lib/utils";
 
 import uiStyles from "../styles/modules/ui/SharedUi.module.scss";
 import styles from "../styles/modules/pages/EndpointAnalytics.module.scss";
+import MetaTags from "../components/MetaTags";
+
 
 function MetricCard({ icon: Icon, title, value, subtitle }) {
   return (
@@ -218,6 +220,10 @@ export function EndpointAnalyticsPage() {
 
   return (
     <div className={styles.analyticsPage}>
+      <MetaTags
+        title="Endpoint Analytics - ObserveX"
+        description="Detailed endpoint analytics and performance metrics for all monitored API routes."
+      />
       <PageHeader
         title="Endpoint Analytics"
         description="Understand endpoint performance, latency and failures across all services."

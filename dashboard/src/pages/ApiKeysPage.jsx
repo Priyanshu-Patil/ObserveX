@@ -20,6 +20,8 @@ import { CardGridSkeleton } from '../components/ui/LoadingSkeleton';
 import { useDebounce } from '../hooks/useDebounce';
 import { useToast } from '../contexts/ToastContext';
 import styles from '../styles/modules/pages/PageComponents.module.scss';
+import MetaTags from '../components/MetaTags';
+
 
 export function ApiKeysPage() {
     const { id } = useParams();
@@ -76,6 +78,10 @@ export function ApiKeysPage() {
 
     return (
         <div className={styles.pageContainer}>
+            <MetaTags
+                title="API Key Management - ObserveX"
+                description="Create, view, rotate and revoke secure API keys used for real-time metric ingestion."
+            />
             <PageHeader
                 title="API Keys"
                 description={`Manage API keys for ${client?.name ?? 'client'}`}

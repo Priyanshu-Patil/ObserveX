@@ -13,6 +13,8 @@ import { PageStatus } from '../components/ui/PageStatus';
 import { useDebounce } from '../hooks/useDebounce';
 import { useToast } from '../contexts/ToastContext';
 import styles from '../styles/modules/pages/ActivityLogs.module.scss';
+import MetaTags from '../components/MetaTags';
+
 
 const EVENT_TYPES = [
     { value: 'all', label: 'All Events', icon: Activity },
@@ -130,6 +132,10 @@ export function ActivityLogsPage() {
 
     return (
         <div className={styles.pageContainer}>
+            <MetaTags
+                title="Activity & Audit Logs - ObserveX"
+                description="View and inspect system activity logs, security sessions, and real-time API telemetry logs."
+            />
             <PageHeader
                 title="Activity Logs"
                 description="Audit trail of platform and API events"

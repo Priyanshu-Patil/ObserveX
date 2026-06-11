@@ -15,6 +15,8 @@ import { isValidEmail } from "../lib/validation";
 import { useToast } from "../contexts/ToastContext";
 
 import styles from "../styles/modules/pages/PageComponents.module.scss";
+import MetaTags from "../components/MetaTags";
+
 
 const DRAFT_KEY = "observex_client_draft";
 
@@ -134,6 +136,10 @@ export function CreateClientPage() {
 
   return (
     <div className={styles.pageContainer}>
+      <MetaTags
+        title="Create New Client - ObserveX"
+        description="Onboard and configure a new client organization in ObserveX."
+      />
       <PageHeader
         title="Create Client"
         description="Onboard a new organization"

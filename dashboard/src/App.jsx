@@ -7,6 +7,8 @@ import { DashboardLayout } from './components/layout';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import ScrollToTop from './components/ScrollToTop';
+
 
 const OnboardSuperAdminPage = lazy(() => import('./pages/OnboardSuperAdminPage').then(m => ({ default: m.OnboardSuperAdminPage })));
 const ClientDashboardPage = lazy(() => import('./pages/ClientDashboardPage').then(m => ({ default: m.ClientDashboardPage })));
@@ -201,6 +203,7 @@ function App() {
             <ThemeProvider>
                 <ToastProvider>
                     <BrowserRouter>
+                        <ScrollToTop />
                         <AppWithProviders />
                     </BrowserRouter>
                 </ToastProvider>

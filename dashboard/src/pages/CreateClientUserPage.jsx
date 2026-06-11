@@ -10,6 +10,8 @@ import { Card, CardContent } from "../components/ui/Card";
 import { isValidEmail, validatePassword } from "../lib/validation";
 import { useToast } from "../contexts/ToastContext";
 import styles from "../styles/modules/pages/PageComponents.module.scss";
+import MetaTags from "../components/MetaTags";
+
 
 const PERMISSIONS = [
   { key: "canCreateApiKeys", label: "Create API Keys" },
@@ -137,6 +139,10 @@ export function CreateClientUserPage() {
 
   return (
     <div className={styles.pageContainer}>
+      <MetaTags
+        title="Add User - ObserveX"
+        description="Invite and configure permissions for a new client user under your organization."
+      />
       <PageHeader
         title="Invite User"
         description={`Add a user to ${client?.name ?? "client"}`}
