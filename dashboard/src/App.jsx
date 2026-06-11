@@ -10,6 +10,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 
 
+import LandingPage from './pages/LandingPage';
 const OnboardSuperAdminPage = lazy(() => import('./pages/OnboardSuperAdminPage').then(m => ({ default: m.OnboardSuperAdminPage })));
 const ClientDashboardPage = lazy(() => import('./pages/ClientDashboardPage').then(m => ({ default: m.ClientDashboardPage })));
 const AnalyticsOverviewPage = lazy(() => import('./pages/AnalyticsOverviewPage').then(m => ({ default: m.AnalyticsOverviewPage })));
@@ -22,7 +23,6 @@ const ApiKeysPage = lazy(() => import('./pages/ApiKeysPage').then(m => ({ defaul
 const SettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const DocumentationPage = lazy(() => import('./pages/DocumentationPage').then(m => ({ default: m.DocumentationPage })));
 const ActivityLogsPage = lazy(() => import('./pages/ActivityLogsPage').then(m => ({ default: m.ActivityLogsPage })));
-const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({default: m.LandingPage})));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
 const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));

@@ -4,9 +4,6 @@ import pageStyles from "../styles/modules/pages/CompanyPages.module.scss";
 import { Footer, Navbar } from "../components/layout";
 import MetaTags from "../components/MetaTags";
 
-
-
-
 export function AboutPage() {
   const navigate = useNavigate();
 
