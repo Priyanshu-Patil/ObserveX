@@ -21,19 +21,39 @@ export function AnalyticsOverviewPage() {
 
     const params = useMemo(() => {
         const p = isSuperAdmin ? {} : { clientId };
-        const now = new Date();
-        const start = new Date();
-        if (dateRange === '24h') start.setHours(start.getHours() - 24);
-        else if (dateRange === '7d') start.setDate(start.getDate() - 7);
-        else start.setDate(start.getDate() - 30);
-        p.startTime = start.toISOString();
-        p.endTime = now.toISOString();
+        if (dateRange === 'all') {
+            p.allTime = 'true';
+        } else {
+            const now = new Date();
+            const start = new Date();
+            if (dateRange === '24h') start.setHours(start.getHours() - 24);
+            else if (dateRange === '7d') start.setDate(start.getDate() - 7);
+            else if (dateRange === '30d') start.setDate(start.getDate() - 30);
+            p.startTime = start.toISOString();
+            p.endTime = now.toISOString();
+        }
+        if (service && service !== 'all') {
+            p.service = service;
+        }
         return p;
-    }, [dateRange, isSuperAdmin, clientId]);
+    }, [dateRange, service, isSuperAdmin, clientId]);
 
     const { data, isPending, error, refetch, isFetching } = useDashboardQuery(params);
     const stats = data?.data?.stats;
     const recentActivity = data?.data?.recentActivity ?? [];
+
+    const serviceOptions = useMemo(() => {
+        const rawServices = data?.data?.services;
+        const fallback = (data?.data?.topEndpoints ?? []).map((e) => e.serviceName);
+        const list = Array.isArray(rawServices) && rawServices.length > 0
+            ? rawServices
+            : [...new Set(fallback)];
+
+        return [
+            { value: 'all', label: 'All Services' },
+            ...list.filter(Boolean).map((s) => ({ value: s, label: s })),
+        ];
+    }, [data?.data?.services, data?.data?.topEndpoints]);
 
     const latencyData = useMemo(() => ({
         categories: recentActivity.map((_, i) => `T${i + 1}`),
@@ -65,7 +85,7 @@ export function AnalyticsOverviewPage() {
             />
             <PageHeader
                 title="Analytics Overview"
-                description="Enterprise-grade API performance insights"
+                description="Explore API performance insights"
                 breadcrumbs={[{ label: 'Home', href: '/client/dashboard' }, { label: 'Analytics' }]}
                 actions={
                     <>
@@ -78,12 +98,12 @@ export function AnalyticsOverviewPage() {
             />
             <FilterPanel filters={[
                 { id: 'range', label: 'Date Range', type: 'select', value: dateRange, onChange: setDateRange, options: [
-                    { value: '24h', label: 'Last 24 Hours' }, { value: '7d', label: 'Last 7 Days' }, { value: '30d', label: 'Last 30 Days' },
+                    { value: '24h', label: 'Last 24 Hours' },
+                    { value: '7d', label: 'Last 7 Days' },
+                    { value: '30d', label: 'Last 30 Days' },
+                    { value: 'all', label: 'All Time' },
                 ]},
-                { id: 'service', label: 'Service', type: 'select', value: service, onChange: setService, options: [
-                    { value: 'all', label: 'All Services' },
-                    ...[...new Set((data?.data?.topEndpoints ?? []).map((e) => e.serviceName))].map((s) => ({ value: s, label: s })),
-                ]},
+                { id: 'service', label: 'Service', type: 'select', value: service, onChange: setService, options: serviceOptions },
             ]} />
             <StatsGrid stats={stats} recentActivity={recentActivity} showPercentiles />
             <div className={styles.gridTwoCols}>

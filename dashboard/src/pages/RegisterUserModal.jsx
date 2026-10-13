@@ -138,7 +138,7 @@ export function RegisterUserModal({ open, onClose }) {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        padding: "1.5rem",
+        padding: "1.25rem",
       }}
       onClick={onClose}
     >
@@ -146,17 +146,17 @@ export function RegisterUserModal({ open, onClose }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%",
-          maxWidth: "540px",
+          maxWidth: "460px",
           background: "hsl(var(--card))",
           border: "1px solid hsl(var(--border))",
-          borderRadius: "20px",
+          borderRadius: "14px",
           overflow: "hidden",
           boxShadow: "0 25px 50px -12px rgba(0,0,0,.45)",
         }}
       >
         <div
           style={{
-            padding: "1.5rem 1.5rem 1rem",
+            padding: "1.15rem 1.25rem 0.85rem",
             borderBottom: "1px solid hsl(var(--border) / .5)",
             display: "flex",
             justifyContent: "space-between",
@@ -167,7 +167,7 @@ export function RegisterUserModal({ open, onClose }) {
             <h2
               style={{
                 margin: 0,
-                fontSize: "1.5rem",
+                fontSize: "1.25rem",
                 fontWeight: 700,
               }}
             >
@@ -176,9 +176,9 @@ export function RegisterUserModal({ open, onClose }) {
 
             <p
               style={{
-                marginTop: "0.35rem",
+                marginTop: "0.25rem",
                 color: "hsl(var(--muted-foreground))",
-                fontSize: ".9rem",
+                fontSize: "0.8125rem",
               }}
             >
               Create a new platform user
@@ -191,10 +191,13 @@ export function RegisterUserModal({ open, onClose }) {
               background: "transparent",
               border: "none",
               cursor: "pointer",
-              color: "white"
+              color: "white",
+              padding: "0.25rem",
+              display: "grid",
+              placeItems: "center",
             }}
           >
-            <X />
+            <X size={18} />
           </button>
         </div>
 
@@ -206,10 +209,10 @@ export function RegisterUserModal({ open, onClose }) {
           </div>
         ) : (
             <div
-  style={{
-    padding: '1.5rem',
-  }}
->
+              style={{
+                padding: '1.15rem 1.25rem 1.25rem',
+              }}
+            >
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.inputGroup}>
               <label className={styles.label}>Username</label>
@@ -343,16 +346,16 @@ export function RegisterUserModal({ open, onClose }) {
             disabled={mutation.isPending}
             style={{
                 width: '100%',
-                height: '48px',
-                borderRadius: '12px',
+                height: '40px',
+                borderRadius: '8px',
                 border: 'none',
                 background:
                 'linear-gradient(135deg,#2563eb,#3b82f6)',
                 color: '#fff',
                 fontWeight: 600,
-                fontSize: '.95rem',
+                fontSize: '.85rem',
                 cursor: 'pointer',
-                marginTop: '1rem',
+                marginTop: '0.75rem',
             }}
             >
               {mutation.isPending ? (

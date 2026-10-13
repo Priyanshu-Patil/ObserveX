@@ -66,7 +66,7 @@ export function ClientDashboardPage() {
                 </Card>
             </div>
 
-            <TopEndpoints endpoints={topEndpoints} />
+            <TopEndpoints endpoints={topEndpoints} limit={7} />
 
             {timelineEvents.length > 0 && (
                 <Card className={styles.sectionCard}>

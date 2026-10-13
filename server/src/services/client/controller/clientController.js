@@ -99,6 +99,48 @@ export class ClientController {
         }
     }
 
+    /**
+     * Regenerate an API key for a client
+     * @param {Request} req - Express request object
+     * @param {Response} res - Express response object
+     * @param {Function} next - Express next function for error handling
+     * @returns {Promise<Response>} - JSON response with regenerated API key data or error message
+     */
+    async regenerateApiKey(req, res, next) {
+        try {
+            const { clientId } = req.params;
+            const keyId = req.body?.keyId || req.params?.keyId;
+            if (!keyId) {
+                return res.status(400).json(ResponseFormatter.error("API key ID is required", 400));
+            }
+            const apiKey = await this.clientService.regenerateApiKey(clientId, keyId, req.user);
+            return res.status(200).json(ResponseFormatter.success(apiKey, "API key regenerated successfully", 200));
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * Revoke an API key for a client
+     * @param {Request} req - Express request object
+     * @param {Response} res - Express response object
+     * @param {Function} next - Express next function for error handling
+     * @returns {Promise<Response>} - JSON response with revoked API key data or error message
+     */
+    async revokeApiKey(req, res, next) {
+        try {
+            const { clientId } = req.params;
+            const keyId = req.body?.keyId || req.params?.keyId;
+            if (!keyId) {
+                return res.status(400).json(ResponseFormatter.error("API key ID is required", 400));
+            }
+            const apiKey = await this.clientService.revokeApiKey(clientId, keyId, req.user);
+            return res.status(200).json(ResponseFormatter.success(apiKey, "API key revoked successfully", 200));
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async getClients(req, res, next) {
         try {
             const clients =

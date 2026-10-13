@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     useQuery,
     useMutation,
     useQueryClient,
 } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
+import { Plus, ShieldCheck } from 'lucide-react';
 import { clientApi } from '../api/api';
 import { QUERY_KEYS, API_KEY_ENVIRONMENTS } from '../constants';
 import { PageHeader } from '../components/ui/PageHeader';
@@ -40,7 +40,8 @@ export function ApiKeysPage() {
     const [search, setSearch] = useState('');
     const [createOpen, setCreateOpen] = useState(false);
     const [revokeTarget, setRevokeTarget] = useState(null);
-    const [newKeyValue, setNewKeyValue] = useState(null);
+    const [regenerateTarget, setRegenerateTarget] = useState(null);
+    const [revealedKeyData, setRevealedKeyData] = useState(null);
     const [form, setForm] = useState({ name: '', description: '', environment: 'production' });
     const debouncedSearch = useDebounce(search);
 
@@ -54,7 +55,12 @@ export function ApiKeysPage() {
         mutationFn: () => clientApi.createApiKey(id, form),
         onSuccess: (res) => {
             if (res.success) {
-                setNewKeyValue(res.data?.keyValue);
+                setRevealedKeyData({
+                    name: form.name || 'New Key',
+                    environment: form.environment,
+                    createdAt: res.data?.createdAt || new Date().toISOString(),
+                    keyValue: res.data?.keyValue,
+                });
                 setCreateOpen(false);
                 setForm({ name: '', description: '', environment: 'production' });
                 queryClient.invalidateQueries({ queryKey: QUERY_KEYS.API_KEYS(id) });
@@ -64,9 +70,61 @@ export function ApiKeysPage() {
         onError: (err) => toast(err.response?.data?.message || 'Failed to create key', 'error'),
     });
 
+    const regenerateMutation = useMutation({
+        mutationFn: (targetKey) => {
+            const keyId = targetKey._id ?? targetKey.keyId;
+            return clientApi.regenerateApiKey(id, keyId);
+        },
+        onSuccess: (res, targetKey) => {
+            if (res.success) {
+                setRevealedKeyData({
+                    name: targetKey.name || res.data?.name || 'Regenerated Key',
+                    environment: targetKey.environment || res.data?.environment,
+                    createdAt: res.data?.createdAt || new Date().toISOString(),
+                    keyValue: res.data?.keyValue,
+                });
+                setRegenerateTarget(null);
+                queryClient.invalidateQueries({ queryKey: QUERY_KEYS.API_KEYS(id) });
+                toast('API key regenerated successfully', 'success');
+            }
+        },
+        onError: (err) => {
+            toast(err.response?.data?.message || 'Failed to regenerate key', 'error');
+            setRegenerateTarget(null);
+        },
+    });
+
+    const revokeMutation = useMutation({
+        mutationFn: (targetKey) => {
+            const keyId = targetKey._id ?? targetKey.keyId;
+            return clientApi.revokeApiKey(id, keyId);
+        },
+        onSuccess: (res) => {
+            if (res.success) {
+                setRevokeTarget(null);
+                queryClient.invalidateQueries({ queryKey: QUERY_KEYS.API_KEYS(id) });
+                toast('API key revoked successfully', 'success');
+            }
+        },
+        onError: (err) => {
+            toast(err.response?.data?.message || 'Failed to revoke key', 'error');
+            setRevokeTarget(null);
+        },
+    });
+
     const apiKeys = (data?.data ?? []).filter((k) =>
         !debouncedSearch || k.name?.toLowerCase().includes(debouncedSearch.toLowerCase())
     );
+
+    // Auto-clear newly created or regenerated API key from browser memory after 60 seconds
+    useEffect(() => {
+        if (!revealedKeyData) return;
+        const timer = setTimeout(() => {
+            setRevealedKeyData(null);
+            toast('API key display session ended. Key is securely hidden.', 'info');
+        }, 60000);
+        return () => clearTimeout(timer);
+    }, [revealedKeyData]);
 
     if (clientLoading) {
         return (
@@ -95,11 +153,19 @@ export function ApiKeysPage() {
             />
             <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search keys..." />
 
-            {newKeyValue && (
-                <div style={{ padding: '1rem', border: '2px solid hsl(var(--primary))', borderRadius: 'var(--radius)', background: 'hsl(var(--primary) / 0.05)' }}>
-                    <p style={{ fontWeight: 600, margin: '0 0 0.5rem' }}>⚠️ Copy your API key now — it won't be shown again</p>
-                    <ApiKeyCard apiKey={{ name: form.name || 'New Key', environment: form.environment, createdAt: new Date().toISOString() }} keyValue={newKeyValue} showKey />
-                    <Button variant="outline" size="sm" style={{ marginTop: '0.75rem' }} onClick={() => setNewKeyValue(null)}>I've copied the key</Button>
+            {revealedKeyData && (
+                <div style={{ padding: '1rem', border: '2px solid hsl(var(--primary))', borderRadius: 'var(--radius)', background: 'hsl(var(--primary) / 0.05)', marginBottom: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <p style={{ fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <ShieldCheck size={18} style={{ color: 'hsl(var(--primary))' }} />
+                            Copy your API key now — it won't be shown again
+                        </p>
+                        <span style={{ fontSize: '0.75rem', color: 'hsl(var(--muted-foreground))' }}>
+                            🔒 Masked in DOM to protect against browser inspection
+                        </span>
+                    </div>
+                    <ApiKeyCard apiKey={revealedKeyData} keyValue={revealedKeyData.keyValue} showKey />
+                    <Button variant="outline" size="sm" style={{ marginTop: '0.75rem' }} onClick={() => setRevealedKeyData(null)}>I've copied the key</Button>
                 </div>
             )}
 
@@ -112,7 +178,7 @@ export function ApiKeysPage() {
                             key={key._id ?? key.keyId}
                             apiKey={key}
                             onRevoke={() => setRevokeTarget(key)}
-                            onRegenerate={() => toast('Regenerate requires backend support', 'info')}
+                            onRegenerate={() => setRegenerateTarget(key)}
                         />
                     ))}
                 </div>
@@ -136,7 +202,7 @@ export function ApiKeysPage() {
                     <FormField label="Key Name" name="name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required />
                     <FormField label="Description" name="description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
                     <FormField label="Environment" name="environment">
-                        <select id="environment" value={form.environment} onChange={(e) => setForm((f) => ({ ...f, environment: e.target.value }))} style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius)', border: '1px solid hsl(var(--border))' }}>
+                        <select id="environment" value={form.environment} onChange={(e) => setForm((f) => ({ ...f, environment: e.target.value }))} className={styles.select}>
                             {API_KEY_ENVIRONMENTS.map((env) => <option key={env.value} value={env.value}>{env.label}</option>)}
                         </select>
                     </FormField>
@@ -144,15 +210,33 @@ export function ApiKeysPage() {
             </Modal>
 
             <ConfirmationModal
+                open={!!regenerateTarget}
+                onClose={() => setRegenerateTarget(null)}
+                onConfirm={() => {
+                    if (regenerateTarget) {
+                        regenerateMutation.mutate(regenerateTarget);
+                    }
+                }}
+                title="Regenerate API Key"
+                description={`Are you sure you want to regenerate "${regenerateTarget?.name}"? The current key will immediately stop working and any applications using it will need to be updated with the new key.`}
+                confirmLabel="Regenerate Key"
+                variant="default"
+                isLoading={regenerateMutation.isPending}
+            />
+
+            <ConfirmationModal
                 open={!!revokeTarget}
                 onClose={() => setRevokeTarget(null)}
                 onConfirm={() => {
-                    toast('Revoke requires backend support', 'info');
-                    setRevokeTarget(null);
+                    if (revokeTarget) {
+                        revokeMutation.mutate(revokeTarget);
+                    }
                 }}
                 title="Revoke API Key"
                 description={`Are you sure you want to revoke "${revokeTarget?.name}"? This action cannot be undone and will immediately stop all traffic using this key.`}
                 confirmLabel="Revoke Key"
+                variant="destructive"
+                isLoading={revokeMutation.isPending}
             />
         </div>
     );

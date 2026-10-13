@@ -252,16 +252,125 @@ export class ClientService {
             const formattedResponse = apiKeys.map(key => {
                 const keyObj = key.toObject ? key.toObject() : key;
                 delete keyObj.keyValue;
-                return keyObj
-            })
+                keyObj.isRevoked = !keyObj.isActive;
+                keyObj.status = keyObj.isActive ? 'active' : 'revoked';
+                return keyObj;
+            });
 
-            return formattedResponse
+            return formattedResponse;
 
         } catch (error) {
             logger.error('Error getting client API keys:', error);
             throw error;
         }
     };
+
+    /**
+     * Regenerate an existing API key for a client
+     * @param {String} clientId - The client ID
+     * @param {String} keyId - The API key ID or _id
+     * @param {Object} user - The user requesting regeneration
+     * @returns {Object} - The regenerated API key with new plain text keyValue
+     */
+    async regenerateApiKey(clientId, keyId, user) {
+        try {
+            const client = await this.clientRepository.findById(clientId);
+
+            if (!client) {
+                throw new AppError("Client not found", 404);
+            }
+
+            if (!this.canUserAccessClient(user, clientId)) {
+                throw new AppError("Access denied", 403);
+            }
+
+            const canManage = user.role === APPLICATION_ROLES.SUPER_ADMIN ||
+                user.role === APPLICATION_ROLES.CLIENT_ADMIN ||
+                user.permissions?.canCreateApiKeys;
+
+            if (!canManage) {
+                throw new AppError("Access denied - Only Super Admin, Client Admin, or authorized users can regenerate API keys", 403);
+            }
+
+            const apiKey = await this.apiKeyRepository.findById(keyId);
+
+            if (!apiKey) {
+                throw new AppError("API key not found", 404);
+            }
+
+            if (apiKey.clientId.toString() !== clientId.toString()) {
+                throw new AppError("API key does not belong to this client", 400);
+            }
+
+            const newKeyValue = this.generateApiKey();
+            apiKey.keyValue = newKeyValue;
+            apiKey.isActive = true;
+            if (!apiKey.security) {
+                apiKey.security = {};
+            }
+            apiKey.security.lastRotated = new Date();
+
+            await apiKey.save();
+
+            logger.info("API key regenerated", { keyId: apiKey.keyId, clientId });
+            return apiKey;
+        } catch (error) {
+            logger.error("Error regenerating API key:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Revoke an existing API key for a client
+     * @param {String} clientId - The client ID
+     * @param {String} keyId - The API key ID or _id
+     * @param {Object} user - The user requesting revocation
+     * @returns {Object} - The revoked API key object without plain text keyValue
+     */
+    async revokeApiKey(clientId, keyId, user) {
+        try {
+            const client = await this.clientRepository.findById(clientId);
+
+            if (!client) {
+                throw new AppError("Client not found", 404);
+            }
+
+            if (!this.canUserAccessClient(user, clientId)) {
+                throw new AppError("Access denied", 403);
+            }
+
+            const canManage = user.role === APPLICATION_ROLES.SUPER_ADMIN ||
+                user.role === APPLICATION_ROLES.CLIENT_ADMIN ||
+                user.permissions?.canCreateApiKeys;
+
+            if (!canManage) {
+                throw new AppError("Access denied - Only Super Admin, Client Admin, or authorized users can revoke API keys", 403);
+            }
+
+            const apiKey = await this.apiKeyRepository.findById(keyId);
+
+            if (!apiKey) {
+                throw new AppError("API key not found", 404);
+            }
+
+            if (apiKey.clientId.toString() !== clientId.toString()) {
+                throw new AppError("API key does not belong to this client", 400);
+            }
+
+            apiKey.isActive = false;
+            await apiKey.save();
+
+            logger.info("API key revoked", { keyId: apiKey.keyId, clientId });
+            const keyObj = apiKey.toObject ? apiKey.toObject() : apiKey;
+            delete keyObj.keyValue;
+            keyObj.isRevoked = true;
+            keyObj.status = 'revoked';
+            return keyObj;
+        } catch (error) {
+            logger.error("Error revoking API key:", error);
+            throw error;
+        }
+    }
 
     async getClientByApiKey(apiKey) {
         try {

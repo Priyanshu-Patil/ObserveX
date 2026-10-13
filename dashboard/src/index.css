@@ -19,9 +19,24 @@ body, div, header, nav, footer, aside, section, main, button, input, select, tex
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
+/* Root HTML typography scale calibrated for default 100% zoom */
+html {
+    font-size: 15px;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+}
+
+@media (min-width: 1680px) {
+    html {
+        font-size: 15.5px;
+    }
+}
+
 /* Body base styles */
 body {
     margin: 0;
+    line-height: 1.5;
     background: var(--theme-background) !important;
     color: hsl(var(--foreground));
     font-family: 'Host Grotesk', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -41,6 +56,20 @@ textarea,
 select,
 a {
     font-family: 'Poppins', 'Host Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Base Link reset */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:visited {
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: none;
 }
 
 /* Custom scrollbar */

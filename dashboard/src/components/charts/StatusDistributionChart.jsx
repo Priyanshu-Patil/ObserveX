@@ -65,7 +65,7 @@ export function StatusDistributionChart({ data }) {
                         <span>Data will appear once API requests are ingested</span>
                     </div>
                 ) : (
-                    <Chart options={options} series={series} type="donut" height={350} />
+                    <Chart options={options} series={series} type="donut" height={310} />
                 )}
             </CardContent>
         </Card>

@@ -29,4 +29,13 @@ router.post("/admin/clients/:clientId/api/keys", (req, res, next) => clientContr
 // Get all API keys for a client
 router.get("/admin/clients/:clientId/api/keys", (req, res, next) => clientController.getClientApiKeys(req, res, next))
 
+// Regenerate API key for a client (supports keyId in body or URL)
+router.post("/admin/clients/:clientId/api/keys/regenerate", (req, res, next) => clientController.regenerateApiKey(req, res, next))
+router.post("/admin/clients/:clientId/api/keys/:keyId/regenerate", (req, res, next) => clientController.regenerateApiKey(req, res, next))
+
+// Revoke API key for a client (supports keyId in body or URL)
+router.post("/admin/clients/:clientId/api/keys/revoke", (req, res, next) => clientController.revokeApiKey(req, res, next))
+router.post("/admin/clients/:clientId/api/keys/:keyId/revoke", (req, res, next) => clientController.revokeApiKey(req, res, next))
+router.delete("/admin/clients/:clientId/api/keys/:keyId", (req, res, next) => clientController.revokeApiKey(req, res, next))
+
 export default router;

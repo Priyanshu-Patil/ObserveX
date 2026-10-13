@@ -1,21 +1,22 @@
 .pageContainer {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   animation: fade-in 300ms ease-in-out;
 }
 
 .pageHeader {
   h2 {
-    font-size: 1.875rem;
+    font-size: 1.45rem;
     font-weight: 700;
     letter-spacing: -0.025em;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.25rem 0;
   }
 
   p {
     color: hsl(var(--muted-foreground));
     margin: 0;
+    font-size: 0.825rem;
   }
 }
 
@@ -31,13 +32,15 @@
 
 .sectionCard {
   border: 1px solid hsl(var(--border) / 0.5);
+  border-radius: 0.875rem;
   background: hsl(var(--card) / 0.5);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  overflow: hidden;
 }
 
 .cardContent {
-  padding: 1.5rem;
+  padding: 1.125rem 1.25rem;
 }
 
 .formGroup {
@@ -53,8 +56,48 @@
 }
 
 .formLabel {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
+}
+
+.select,
+.textarea {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid hsl(var(--border) / 0.8);
+  background: hsl(var(--background) / 0.8);
+  color: hsl(var(--foreground));
+  font-size: 0.8125rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+  }
+}
+
+.select {
+  height: 2.25rem;
+  padding: 0 2.25rem 0 0.75rem;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.45)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  cursor: pointer;
+
+  option {
+    background: #18181b;
+    color: #fff;
+  }
+}
+
+.textarea {
+  padding: 0.625rem 0.75rem;
+  resize: vertical;
+  line-height: 1.5;
 }
 
 .iconTextGroup {
@@ -191,7 +234,7 @@
 .gridTwoCols {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 1.5rem;
+  gap: 1rem;
 
   @media (min-width: 1024px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -250,20 +293,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
 
   h4 {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
   }
 }
 
 .roleBadge {
-  padding: 0.4rem 0.75rem;
+  padding: 0.35rem 0.65rem;
   border-radius: 999px;
 
-  font-size: 0.75rem;
+  font-size: 0.725rem;
   font-weight: 600;
 
   background: hsl(var(--primary) / 0.15);
@@ -273,7 +316,7 @@
 .permissionsGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.65rem;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -283,15 +326,15 @@
 .permissionCard {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65rem;
 
-  padding: 0.9rem 1rem;
+  padding: 0.75rem 0.875rem;
 
-  border-radius: 12px;
+  border-radius: 0.625rem;
 
   border: 1px solid hsl(var(--border));
 
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
 
   transition: all 0.2s ease;

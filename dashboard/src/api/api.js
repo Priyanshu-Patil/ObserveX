@@ -63,6 +63,7 @@ export const analyticsApi = {
 
         payload.data.topEndpoints = payload.data.topEndpoints ?? [];
         payload.data.recentActivity = payload.data.recentActitivy ?? payload.data.recentActivity ?? [];
+        payload.data.services = payload.data.services ?? [];
 
         return payload;
     },
@@ -120,6 +121,24 @@ export const clientApi = {
     getClientApiKeys: async (clientId) => {
         const response = await api.get(
             `/admin/clients/${clientId}/api/keys`
+        );
+
+        return response.data;
+    },
+
+    regenerateApiKey: async (clientId, keyId) => {
+        const response = await api.post(
+            `/admin/clients/${clientId}/api/keys/regenerate`,
+            { keyId }
+        );
+
+        return response.data;
+    },
+
+    revokeApiKey: async (clientId, keyId) => {
+        const response = await api.post(
+            `/admin/clients/${clientId}/api/keys/revoke`,
+            { keyId }
         );
 
         return response.data;

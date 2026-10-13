@@ -8,6 +8,17 @@ import clientContainer from '../../services/client/Dependencies/dependencies.js'
  */
 const validateApiKey = async (req, res, next) => {
     try {
+        // Enforce confidentiality: Never allow API keys in URL query parameters (browser history/access log leakage)
+        if (req.query?.apiKey || req.query?.api_key || req.query?.key) {
+            logger.warn('Insecure API key attempt in URL query parameters', {
+                path: req.path,
+                ip: req.ip,
+            });
+            return res
+                .status(400)
+                .json(ResponseFormatter.error('Confidentiality violation: API keys must NOT be exposed in URL query parameters. Pass your API key via the x-api-key HTTP header.', 400));
+        }
+
         const apiKey = req.headers['x-api-key'];
 
         if (!apiKey) {

@@ -29,23 +29,23 @@
 
 .hero {
   max-width: 760px;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 
   h1 {
     margin: 0;
-    font-size: clamp(2.75rem, 5vw, 4rem);
-    line-height: 1.05;
-    letter-spacing: -0.04em;
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
     font-weight: 800;
     color: hsl(var(--foreground));
   }
 
   p {
-    margin-top: 1rem;
-    max-width: 700px;
+    margin-top: 0.75rem;
+    max-width: 680px;
 
-    font-size: 1.125rem;
-    line-height: 1.8;
+    font-size: 1rem;
+    line-height: 1.65;
     color: hsl(var(--muted-foreground));
   }
 }

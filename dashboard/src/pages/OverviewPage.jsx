@@ -46,7 +46,7 @@ export function OverviewPage() {
                 <StatusDistributionChart data={statusData} />
             </div>
 
-            <TopEndpoints endpoints={topEndpoints} />
+            <TopEndpoints endpoints={topEndpoints} limit={7} />
         </div>
     );
 }

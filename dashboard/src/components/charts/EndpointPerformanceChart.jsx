@@ -50,7 +50,7 @@ export function EndpointPerformanceChart({ data }) {
                 <CardDescription>Most requested API endpoints</CardDescription>
             </CardHeader>
             <CardContent>
-                <Chart options={options} series={series} type="bar" height={350} />
+                <Chart options={options} series={series} type="bar" height={310} />
             </CardContent>
         </Card>
     );

@@ -171,12 +171,13 @@ export class MetricsRepository extends BaseRepository {
      * @param {Date|null} startTime - Optional start time filter
      * @returns {Promise<Array>}
      */
-    async getTopEndpoints(clientId, limit = 10, startTime = null, endTime = null) {
+    async getTopEndpoints(clientId, limit = 10, startTime = null, endTime = null, serviceName = null) {
         try {
             const safeLimit = Math.min(Math.max(1, limit), MAX_LIMIT);
 
             let query = `
                 SELECT
+                client_id,
                 service_name,
                 endpoint,
                 method,
@@ -188,30 +189,39 @@ export class MetricsRepository extends BaseRepository {
 
             const params = [];
             let paramIndex = 1;
+            const whereConditions = [];
 
             // Add client filter only if clientId is provided
             if (clientId != null) {
-                query += ` WHERE client_id = $${paramIndex}`;
+                whereConditions.push(`client_id = $${paramIndex}`);
                 params.push(clientId);
                 paramIndex++;
             }
 
+            if (serviceName && serviceName !== 'all') {
+                whereConditions.push(`service_name = $${paramIndex}`);
+                params.push(serviceName);
+                paramIndex++;
+            }
+
             if (startTime) {
-                query += clientId != null ? ` AND` : ` WHERE`;
-                query += ` time_bucket >= $${paramIndex}`;
+                whereConditions.push(`time_bucket >= $${paramIndex}`);
                 params.push(startTime);
                 paramIndex++;
             }
 
             if (endTime) {
-                query += (clientId != null || startTime) ? ` AND` : ` WHERE`;
-                query += ` time_bucket <= $${paramIndex}`;
+                whereConditions.push(`time_bucket <= $${paramIndex}`);
                 params.push(endTime);
                 paramIndex++;
             }
 
+            if (whereConditions.length > 0) {
+                query += ` WHERE ${whereConditions.join(' AND ')}`;
+            }
+
             query += `
-                GROUP BY service_name, endpoint, method
+                GROUP BY client_id, service_name, endpoint, method
                 ORDER BY total_hits DESC
                 LIMIT $${paramIndex}
             `;
@@ -231,9 +241,10 @@ export class MetricsRepository extends BaseRepository {
      * @param {string} clientId - Client ID
      * @param {Date|null} startTime - Start time filter
      * @param {Date|null} endTime - End time filter
+     * @param {string|null} serviceName - Optional service filter
      * @returns {Promise<Object>}
      */
-    async getOverallStats(clientId, startTime = null, endTime = null) {
+    async getOverallStats(clientId, startTime = null, endTime = null, serviceName = null) {
         try {
             let query = `
                 SELECT
@@ -247,32 +258,68 @@ export class MetricsRepository extends BaseRepository {
 
             const params = [];
             let paramIndex = 1;
+            const whereConditions = [];
 
             // Add client filter only if clientId is provided
             if (clientId != null) {
-                query += ` WHERE client_id = $${paramIndex}`;
+                whereConditions.push(`client_id = $${paramIndex}`);
                 params.push(clientId);
                 paramIndex++;
             }
 
+            if (serviceName && serviceName !== 'all') {
+                whereConditions.push(`service_name = $${paramIndex}`);
+                params.push(serviceName);
+                paramIndex++;
+            }
+
             if (startTime) {
-                query += clientId != null ? ` AND` : ` WHERE`;
-                query += ` time_bucket >= $${paramIndex}`;
+                whereConditions.push(`time_bucket >= $${paramIndex}`);
                 params.push(startTime);
                 paramIndex++;
             }
 
             if (endTime) {
-                query += (clientId != null || startTime) ? ` AND` : ` WHERE`;
-                query += ` time_bucket <= $${paramIndex}`;
+                whereConditions.push(`time_bucket <= $${paramIndex}`);
                 params.push(endTime);
                 paramIndex++;
+            }
+
+            if (whereConditions.length > 0) {
+                query += ` WHERE ${whereConditions.join(' AND ')}`;
             }
 
             const result = await this._query(query, params);
             return result.rows[0] || {};
         } catch (error) {
             this.logger.error('Error getting overall stats:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get distinct service names across endpoints
+     * 
+     * @param {string|null} clientId - Optional Client ID
+     * @returns {Promise<Array<string>>}
+     */
+    async getServices(clientId = null) {
+        try {
+            let query = `
+                SELECT DISTINCT service_name
+                FROM endpoint_metrics
+            `;
+            const params = [];
+            if (clientId != null) {
+                query += ` WHERE client_id = $1`;
+                params.push(clientId);
+            }
+            query += ` ORDER BY service_name ASC`;
+
+            const result = await this._query(query, params);
+            return result.rows.map(r => r.service_name).filter(Boolean);
+        } catch (error) {
+            this.logger.error('Error getting services:', error);
             throw error;
         }
     }
@@ -310,34 +357,44 @@ export class MetricsRepository extends BaseRepository {
                     max_latency,
                     time_bucket
                 FROM endpoint_metrics
-                WHERE client_id = $1
             `;
 
-            const params = [clientId];
-            let paramIndex = 2;
+            const params = [];
+            let paramIndex = 1;
+            const whereConditions = [];
 
-            if (serviceName) {
-                query += ` AND service_name = $${paramIndex}`;
+            if (clientId != null) {
+                whereConditions.push(`client_id = $${paramIndex}`);
+                params.push(clientId);
+                paramIndex++;
+            }
+
+            if (serviceName && serviceName !== 'all') {
+                whereConditions.push(`service_name = $${paramIndex}`);
                 params.push(serviceName);
                 paramIndex++;
             }
 
             if (endpoint) {
-                query += ` AND endpoint = $${paramIndex}`;
+                whereConditions.push(`endpoint = $${paramIndex}`);
                 params.push(endpoint);
                 paramIndex++;
             }
 
             if (startTime) {
-                query += ` AND time_bucket >= $${paramIndex}`;
+                whereConditions.push(`time_bucket >= $${paramIndex}`);
                 params.push(startTime);
                 paramIndex++;
             }
 
             if (endTime) {
-                query += ` AND time_bucket <= $${paramIndex}`;
+                whereConditions.push(`time_bucket <= $${paramIndex}`);
                 params.push(endTime);
                 paramIndex++;
+            }
+
+            if (whereConditions.length > 0) {
+                query += ` WHERE ${whereConditions.join(' AND ')}`;
             }
 
             query += `

@@ -55,7 +55,7 @@ export function ApiHitsChart({ stats }) {
                         <span>Data will appear once API requests are ingested</span>
                     </div>
                 ) : (
-                    <Chart options={options} series={series} type="bar" height={350} />
+                    <Chart options={options} series={series} type="bar" height={310} />
                 )}
             </CardContent>
         </Card>

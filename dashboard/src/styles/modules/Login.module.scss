@@ -3,7 +3,7 @@
     max-height: 100dvh;
     overflow: hidden;
     background: #000;
-    padding: 24px;
+    padding: 16px;
     box-sizing: border-box;
 }
 
@@ -14,7 +14,7 @@
     display: grid;
     grid-template-columns: 1.1fr 0.9fr;
     grid-template-rows: minmax(0, 1fr);
-    border-radius: 24px;
+    border-radius: 20px;
     overflow: hidden;
     background: #050505;
     box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
@@ -57,7 +57,7 @@
     flex-direction: column;
     justify-content: flex-end;
 
-    padding: 64px;
+    padding: 48px;
 
     color: white;
 }
@@ -69,20 +69,20 @@
 .brand {
     position: absolute;
 
-    top: 48px;
-    left: 48px;
+    top: 36px;
+    left: 36px;
 
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     letter-spacing: 0.3px;
 
     svg {
-        width: 22px;
-        height: 22px;
+        width: 20px;
+        height: 20px;
     }
 }
 
@@ -91,25 +91,25 @@
 ========================= */
 
 .hero {
-    max-width: 520px;
+    max-width: 480px;
 }
 
 .hero h1 {
     margin: 0;
 
-    font-size: 3.5rem;
+    font-size: clamp(2rem, 2.5vw, 2.35rem);
     font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -2px;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
 }
 
 .hero p {
-    margin-top: 18px;
+    margin-top: 10px;
 
-    max-width: 420px;
+    max-width: 380px;
 
-    font-size: 1rem;
-    line-height: 1.8;
+    font-size: 0.875rem;
+    line-height: 1.6;
 
     color: rgba(255, 255, 255, 0.75);
 }
@@ -119,23 +119,25 @@
 ========================= */
 
 .steps {
-    margin-top: 48px;
+    margin-top: 24px;
 
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
 .step {
-    width: 340px;
+    width: 290px;
 
-    padding: 14px 18px;
+    padding: 10px 14px;
 
-    border-radius: 14px;
+    border-radius: 10px;
+
+    font-size: 0.8125rem;
 
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 
     background: rgba(255, 255, 255, 0.08);
 
@@ -144,14 +146,14 @@
 
     color: rgba(255, 255, 255, 0.85);
 
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 500;
 
     transition: all 0.25s ease;
 
     span {
-        width: 26px;
-        height: 26px;
+        width: 24px;
+        height: 24px;
 
         border-radius: 50%;
 
@@ -161,7 +163,7 @@
         align-items: center;
         justify-content: center;
 
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
     }
 }
@@ -188,17 +190,17 @@
     align-items: center;
     justify-content: center;
 
-    padding: 48px 40px;
+    padding: 36px 32px;
 }
 
 .loginCard {
     width: 100%;
-    max-width: 420px;
+    max-width: 390px;
 }
 
 .cardHeader {
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
 }
 
 .title {
@@ -206,27 +208,27 @@
 
     color: white;
 
-    font-size: 2rem;
+    font-size: 1.45rem;
     font-weight: 700;
 
-    letter-spacing: -1px;
+    letter-spacing: -0.025em;
 }
 
 .logoImage {
     display: block;
-    margin: 0 auto 14px;
-    width: 200px;
+    margin: 0 auto 10px;
+    width: 155px;
     height: auto;
     object-fit: contain;
     border-radius: 8px;
 }
 
 .description {
-    margin-top: 10px;
+    margin-top: 6px;
 
     color: rgba(255, 255, 255, 0.55);
 
-    font-size: 15px;
+    font-size: 0.8125rem;
 }
 
 /* =========================
@@ -240,7 +242,7 @@
 .form {
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 14px;
 }
 
 /* =========================
@@ -248,11 +250,11 @@
 ========================= */
 
 .errorMessage {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 
-    padding: 14px 16px;
+    padding: 10px 14px;
 
-    border-radius: 10px;
+    border-radius: 8px;
 
     background: rgba(239, 68, 68, 0.08);
 
@@ -260,7 +262,7 @@
 
     color: #f87171;
 
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /* =========================
@@ -270,13 +272,13 @@
 .inputGroup {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
 }
 
 .label {
     color: white;
 
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
 }
 
@@ -286,13 +288,13 @@
     > svg {
         position: absolute;
 
-        left: 16px;
+        left: 14px;
         top: 50%;
 
         transform: translateY(-50%);
 
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
 
         color: rgba(255, 255, 255, 0.4);
     }
@@ -300,12 +302,12 @@
 
 .input {
     width: 100%;
-    height: 54px;
+    height: 42px;
 
-    padding-left: 48px;
-    padding-right: 16px;
+    padding-left: 40px;
+    padding-right: 14px;
 
-    border-radius: 10px;
+    border-radius: 8px;
 
     background: #111111;
 
@@ -313,7 +315,7 @@
 
     color: white;
 
-    font-size: 14px;
+    font-size: 13px;
 
     transition: all 0.25s ease;
 
@@ -342,17 +344,17 @@
 
 .submitButton {
     width: 100%;
-    height: 54px;
+    height: 42px;
 
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
 
     cursor: pointer;
 
     background: white;
     color: black;
 
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
 
     transition: all 0.25s ease;
@@ -373,7 +375,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 /* =========================
@@ -463,11 +465,11 @@
     }
 
     .input {
-        height: 52px;
+        height: 42px;
     }
 
     .submitButton {
-        height: 52px;
+        height: 42px;
     }
 }
 
@@ -598,14 +600,14 @@
 
 .select {
     width: 100%;
-    height: 54px;
-    padding-left: 48px;
-    padding-right: 16px;
-    border-radius: 10px;
+    height: 42px;
+    padding-left: 40px;
+    padding-right: 14px;
+    border-radius: 8px;
     background: #111111;
     border: 1px solid #202020;
     color: white;
-    font-size: 14px;
+    font-size: 13px;
     appearance: none;
     cursor: pointer;
     transition: all 0.25s ease;

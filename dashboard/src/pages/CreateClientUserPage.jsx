@@ -178,12 +178,7 @@ export function CreateClientUserPage() {
                 id="role"
                 value={form.role}
                 onChange={update("role")}
-                style={{
-                  padding: "0.5rem",
-                  borderRadius: "var(--radius)",
-                  border: "1px solid hsl(var(--border))",
-                  width: "100%",
-                }}
+                className={styles.select}
               >
                 <option value="client_admin">Client Admin</option>
                 <option value="client_viewer">Client Viewer</option>

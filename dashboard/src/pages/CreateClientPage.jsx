@@ -192,18 +192,10 @@ export function CreateClientPage() {
             <FormField label="Description" name="description">
               <textarea
                 id="description"
-                rows={5}
+                rows={4}
                 value={form.description}
                 onChange={update("description")}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  borderRadius: "var(--radius)",
-                  border: "1px solid hsl(var(--border))",
-                  background: "hsl(var(--background))",
-                  color: "hsl(var(--foreground))",
-                  resize: "vertical",
-                }}
+                className={styles.textarea}
               />
             </FormField>
 

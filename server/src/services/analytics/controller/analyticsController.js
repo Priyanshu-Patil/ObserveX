@@ -52,9 +52,9 @@ export class AnalyticsController {
 
             const isAdmin = await this.ensureCanViewAnalytics(req);
             const finalClientId = await this.resolveFinalClientId(req, isAdmin);
-            const timeRange = await this.validateTimeRange(startTime, endTime);
+            const timeRange = await this.validateTimeRange(startTime, endTime, req);
 
-            const stats = await this.analyticsService.getOverallStats(finalClientId, timeRange)
+            const stats = await this.analyticsService.getOverallStats(finalClientId, timeRange);
 
             res.status(200).json(
                 ResponseFormatter.success(stats, "Statistics retrived successfully", 200)
@@ -75,7 +75,15 @@ export class AnalyticsController {
      * @param {string|number} endTime
      * @returns {{ startTime: number|null, endTime: number|null }}
      */
-    validateTimeRange(startTime, endTime) {
+    validateTimeRange(startTime, endTime, req = null) {
+        if (
+            (req && (req.query?.allTime === 'true' || req.query?.range === 'all' || req.query?.dateRange === 'all')) ||
+            startTime === 'all' ||
+            startTime === 'all-time'
+        ) {
+            return { startTime: null, endTime: null, allTime: true };
+        }
+
         const parseValue = v => {
             if (v === undefined || v === null || v === '') return null;
             if (/^\d+$/.test(String(v))) return Number(v);
@@ -94,7 +102,7 @@ export class AnalyticsController {
             throw new AppError('Invalid time range: start > end', 400);
         }
 
-        return { startTime: start, endTime: end };
+        return { startTime: start, endTime: end, allTime: false };
     }
 
     /**
@@ -194,30 +202,37 @@ export class AnalyticsController {
      */
     async getDashboard(req, res, next) {
         try {
-            const { startTime, endTime } = req.query;
+            const { startTime, endTime, service } = req.query;
             const clientId = req.user.clientId;
 
             const isAdmin = await this.ensureCanViewAnalytics(req);
             const finalClientId = await this.resolveFinalClientId(req, isAdmin);
-            const timeRange = await this.validateTimeRange(startTime, endTime);
+            const timeRange = await this.validateTimeRange(startTime, endTime, req);
+            const serviceFilter = (service && service !== 'all') ? service : null;
 
             const result = await Promise.allSettled([
-                this.analyticsService.getOverallStats(finalClientId, timeRange),
-                this.analyticsService.getTopEndpoints(finalClientId, { limit: 5, startTime: timeRange.startTime, endTime: timeRange.endTime }),
-                this.analyticsService.getTimeSeries(finalClientId, { ...timeRange, limit: 24 })
+                this.analyticsService.getOverallStats(finalClientId, { ...timeRange, serviceName: serviceFilter }),
+                this.analyticsService.getTopEndpoints(finalClientId, { limit: 50, startTime: timeRange.startTime, endTime: timeRange.endTime, allTime: timeRange.allTime, serviceName: serviceFilter }),
+                this.analyticsService.getTimeSeries(finalClientId, { ...timeRange, serviceName: serviceFilter, limit: 24 }),
+                this.analyticsService.getServices(finalClientId),
             ]);
 
-            const [stats, topEndpoints, recentTimeSeries] = result.map(item => item.status === 'fulfilled' ? item.value : []);
+            const [statsResult, topEndpointsResult, recentTimeSeriesResult, servicesResult] = result;
+            const stats = statsResult.status === 'fulfilled' ? statsResult.value : {};
+            const topEndpoints = topEndpointsResult.status === 'fulfilled' ? topEndpointsResult.value : [];
+            const recentTimeSeries = recentTimeSeriesResult.status === 'fulfilled' ? recentTimeSeriesResult.value : [];
+            const services = servicesResult.status === 'fulfilled' ? servicesResult.value : [];
 
             const dashboard = {
                 stats,
                 topEndpoints,
-                recentActivity: recentTimeSeries
-            }
+                recentActivity: recentTimeSeries,
+                services,
+            };
 
             res.status(200).json(
                 ResponseFormatter.success(dashboard, "Dashboard data retrived successfully", 200)
-            )
+            );
         } catch (error) {
             next(error);
         }

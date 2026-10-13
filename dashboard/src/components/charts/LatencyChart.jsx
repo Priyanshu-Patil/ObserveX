@@ -54,7 +54,7 @@ export function LatencyChart({ data }) {
                 <CardDescription>Average and P95 latency metrics</CardDescription>
             </CardHeader>
             <CardContent>
-                <Chart options={options} series={series} type="line" height={350} />
+                <Chart options={options} series={series} type="line" height={310} />
             </CardContent>
         </Card>
     );

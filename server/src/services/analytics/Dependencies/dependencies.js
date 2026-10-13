@@ -33,7 +33,10 @@ class Container {
             metricsRepository: processorContainer.repositories.metricsRepository,
         };
 
-        const analyticsService = new AnalyticsService(repositories.metricsRepository);
+        const analyticsService = new AnalyticsService(
+            repositories.metricsRepository,
+            repositories.clientRepository
+        );
 
         const services = {
             analyticsService,

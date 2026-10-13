@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import logger from "../../../shared/config/logger.js";
 import ApiKey from "../../../shared/models/ApiKey.js"
 import BaseApiKeyRepository from "./BaseApiKeyRepository.js"
@@ -45,6 +46,43 @@ class MongoApiKeyRepository extends BaseApiKeyRepository {
             return apiKey;
         } catch (error) {
             logger.error('Error finding API key by value:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Find API key by ID (ObjectId or keyId)
+     * @param {string} id - API key _id or keyId
+     * @returns {Promise<Object|null>}
+     */
+    async findById(id) {
+        try {
+            const query = mongoose.Types.ObjectId.isValid(id)
+                ? { $or: [{ _id: id }, { keyId: id }] }
+                : { keyId: id };
+            const apiKey = await this.model.findOne(query);
+            return apiKey;
+        } catch (error) {
+            logger.error('Error finding API key by ID:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Update an API key by ID
+     * @param {string} id - API key _id or keyId
+     * @param {Object} updateData - Data to update
+     * @returns {Promise<Object|null>}
+     */
+    async update(id, updateData) {
+        try {
+            const query = mongoose.Types.ObjectId.isValid(id)
+                ? { $or: [{ _id: id }, { keyId: id }] }
+                : { keyId: id };
+            const apiKey = await this.model.findOneAndUpdate(query, updateData, { new: true });
+            return apiKey;
+        } catch (error) {
+            logger.error('Error updating API key:', error);
             throw error;
         }
     }

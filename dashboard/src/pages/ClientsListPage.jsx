@@ -1,27 +1,32 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Plus, Eye, Pencil } from 'lucide-react';
+import {
+    Plus,
+    Eye,
+    Pencil,
+    Building2,
+    CheckCircle2,
+    AlertCircle,
+    Globe,
+    ExternalLink,
+    Calendar,
+} from 'lucide-react';
 
 import { PageHeader } from '../components/ui/PageHeader';
 import { SearchInput } from '../components/ui/SearchInput';
-import { FilterPanel } from '../components/ui/FilterPanel';
 import { DataTable } from '../components/ui/DataTable';
-import { StatusBadge } from '../components/ui/StatusBadge';
 import { Button } from '../components/ui/Button';
 
 import { useDebounce } from '../hooks/useDebounce';
 import { clientApi } from '../api/api';
-
-import styles from '../styles/modules/pages/PageComponents.module.scss';
 import MetaTags from '../components/MetaTags';
-
+import styles from '../styles/modules/pages/ClientsListPage.module.scss';
 
 export function ClientsListPage() {
     const navigate = useNavigate();
 
     const [search, setSearch] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
     const [selectedIds, setSelectedIds] = useState([]);
 
     const debouncedSearch = useDebounce(search);
@@ -38,32 +43,26 @@ export function ClientsListPage() {
     const clients = clientsResponse?.data || [];
 
     const filtered = useMemo(() => {
+        const q = debouncedSearch.toLowerCase().trim();
         return clients.filter((client) => {
-            const q = debouncedSearch.toLowerCase();
-
-            const matchesSearch =
+            return (
                 !q ||
                 client.name?.toLowerCase().includes(q) ||
-                client.email?.toLowerCase().includes(q);
-
-            const clientStatus = client.isActive
-                ? 'active'
-                : 'disabled';
-
-            const matchesStatus =
-                statusFilter === 'all' ||
-                clientStatus === statusFilter;
-
-            return (
-                matchesSearch &&
-                matchesStatus
+                client.slug?.toLowerCase().includes(q) ||
+                client.email?.toLowerCase().includes(q) ||
+                client.website?.toLowerCase().includes(q)
             );
         });
-    }, [
-        clients,
-        debouncedSearch,
-        statusFilter,
-    ]);
+    }, [clients, debouncedSearch]);
+
+    const activeCount = useMemo(
+        () => clients.filter((c) => c.isActive).length,
+        [clients]
+    );
+    const disabledCount = useMemo(
+        () => clients.filter((c) => !c.isActive).length,
+        [clients]
+    );
 
     const columns = [
         {
@@ -72,10 +71,7 @@ export function ClientsListPage() {
             render: (row) => (
                 <Link
                     to={`/admin/clients/${row._id}`}
-                    style={{
-                        fontWeight: 500,
-                        color: 'hsl(var(--primary))',
-                    }}
+                    className={styles.clientNameLink}
                 >
                     {row.name}
                 </Link>
@@ -84,84 +80,96 @@ export function ClientsListPage() {
         {
             key: 'email',
             header: 'Email',
-            render: (row) => row.email,
+            render: (row) => row.email || '—',
         },
         {
             key: 'status',
             header: 'Status',
             render: (row) => (
-                <StatusBadge
-                    status={
+                <span
+                    className={
                         row.isActive
-                            ? 'active'
-                            : 'disabled'
+                            ? `${styles.statusPill} ${styles.statusActive}`
+                            : `${styles.statusPill} ${styles.statusDisabled}`
                     }
-                />
+                >
+                    <span className={styles.statusDot} />
+                    {row.isActive ? 'Active' : 'Disabled'}
+                </span>
             ),
         },
         {
             key: 'website',
             header: 'Website',
-            render: (row) =>
-                row.website ? (
+            render: (row) => {
+                if (!row.website) {
+                    return <span className={styles.emptyVal}>—</span>;
+                }
+                const rawUrl = row.website.startsWith('http')
+                    ? row.website
+                    : `https://${row.website}`;
+                const displayUrl = row.website
+                    .replace(/^https?:\/\/(www\.)?/, '')
+                    .replace(/\/$/, '');
+
+                return (
                     <a
-                        href={row.website}
+                        href={rawUrl}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
+                        className={styles.websiteLink}
+                        onClick={(e) => e.stopPropagation()}
                     >
-                        {row.website}
+                        <Globe size={13} className={styles.websiteIcon} />
+                        <span className={styles.websiteText}>{displayUrl}</span>
+                        <ExternalLink size={11} className={styles.externalIcon} />
                     </a>
-                ) : (
-                    '—'
-                ),
+                );
+            },
         },
         {
             key: 'createdAt',
             header: 'Created Date',
-            sortValue: (row) =>
-                new Date(row.createdAt),
-
-            render: (row) =>
-                new Date(
-                    row.createdAt
-                ).toLocaleDateString(),
+            sortValue: (row) => new Date(row.createdAt),
+            render: (row) => (
+                <div className={styles.dateCell}>
+                    <Calendar size={13} className={styles.dateIcon} />
+                    <span>
+                        {row.createdAt
+                            ? new Date(row.createdAt).toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: 'short',
+                                  day: 'numeric',
+                              })
+                            : '—'}
+                    </span>
+                </div>
+            ),
         },
         {
             key: 'actions',
             header: 'Actions',
             sortable: false,
             render: (row) => (
-                <div
-                    style={{
-                        display: 'flex',
-                        gap: '0.25rem',
-                    }}
-                >
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() =>
-                            navigate(
-                                `/admin/clients/${row._id}`
-                            )
-                        }
-                        aria-label="View"
+                <div className={styles.actionsWrapper}>
+                    <button
+                        type="button"
+                        className={styles.actionBtn}
+                        onClick={() => navigate(`/admin/clients/${row._id}`)}
+                        title="View Client Details"
+                        aria-label="View Client Details"
                     >
-                        <Eye size={16} />
-                    </Button>
-
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() =>
-                            navigate(
-                                `/admin/clients/${row._id}`
-                            )
-                        }
-                        aria-label="Edit"
+                        <Eye size={14} />
+                    </button>
+                    <button
+                        type="button"
+                        className={styles.actionBtn}
+                        onClick={() => navigate(`/admin/clients/${row._id}`)}
+                        title="Edit Client Settings"
+                        aria-label="Edit Client Settings"
                     >
-                        <Pencil size={16} />
-                    </Button>
+                        <Pencil size={14} />
+                    </button>
                 </div>
             ),
         },
@@ -209,11 +217,8 @@ export function ClientsListPage() {
                 ]}
                 actions={
                     <Button
-                        onClick={() =>
-                            navigate(
-                                '/admin/clients/create'
-                            )
-                        }
+                        onClick={() => navigate('/admin/clients/create')}
+                        style={{ borderRadius: '0.75rem', gap: '0.45rem' }}
                     >
                         <Plus size={16} />
                         Create Client
@@ -221,65 +226,66 @@ export function ClientsListPage() {
                 }
             />
 
-            <div
-                style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '1rem',
-                    alignItems: 'center',
-                    justifyContent:
-                        'space-between',
-                }}
-            >
-                <SearchInput
-                    value={search}
-                    onChange={(e) =>
-                        setSearch(
-                            e.target.value
-                        )
-                    }
-                    placeholder="Search clients..."
-                />
+            {/* Quick Metrics Summary */}
+            <div className={styles.statsGrid}>
+                <div className={styles.statCard}>
+                    <div className={styles.statInfo}>
+                        <span className={styles.statTitle}>Total Clients</span>
+                        <span className={styles.statValue}>{clients.length}</span>
+                    </div>
+                    <div className={`${styles.iconWrapper} ${styles.iconPrimary}`}>
+                        <Building2 size={20} />
+                    </div>
+                </div>
+
+                <div className={styles.statCard}>
+                    <div className={styles.statInfo}>
+                        <span className={styles.statTitle}>Active Clients</span>
+                        <span className={styles.statValue}>{activeCount}</span>
+                    </div>
+                    <div className={`${styles.iconWrapper} ${styles.iconSuccess}`}>
+                        <CheckCircle2 size={20} />
+                    </div>
+                </div>
+
+                <div className={styles.statCard}>
+                    <div className={styles.statInfo}>
+                        <span className={styles.statTitle}>Disabled Clients</span>
+                        <span className={styles.statValue}>{disabledCount}</span>
+                    </div>
+                    <div className={`${styles.iconWrapper} ${styles.iconMuted}`}>
+                        <AlertCircle size={20} />
+                    </div>
+                </div>
             </div>
 
-            <FilterPanel
-                filters={[
-                    {
-                        id: 'status',
-                        label: 'Status',
-                        type: 'select',
-                        value: statusFilter,
-                        onChange:
-                            setStatusFilter,
-                        options: [
-                            {
-                                value: 'all',
-                                label: 'All Statuses',
-                            },
-                            {
-                                value: 'active',
-                                label: 'Active',
-                            },
-                            {
-                                value: 'disabled',
-                                label: 'Disabled',
-                            },
-                        ],
-                    },
-                ]}
-            />
+            {/* Modern Table Card */}
+            <div className={styles.tableCard}>
+                <div className={styles.toolbar}>
+                    <div className={styles.searchWrap}>
+                        <SearchInput
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="Search by name, email, or domain..."
+                        />
+                    </div>
+                    {search.trim() && (
+                        <span className={styles.searchResultCount}>
+                            {filtered.length} {filtered.length === 1 ? 'organization' : 'organizations'} found
+                        </span>
+                    )}
+                </div>
 
-            <DataTable
-                columns={columns}
-                data={filtered}
-                selectable
-                selectedIds={selectedIds}
-                onSelectionChange={
-                    setSelectedIds
-                }
-                emptyTitle="No clients found"
-                emptyDescription="Create your first client organization to get started, or adjust your search filters."
-            />
+                <DataTable
+                    columns={columns}
+                    data={filtered}
+                    selectable
+                    selectedIds={selectedIds}
+                    onSelectionChange={setSelectedIds}
+                    emptyTitle="No clients found"
+                    emptyDescription="No client organizations match your current search criteria."
+                />
+            </div>
         </div>
     );
 }
