@@ -11,22 +11,47 @@ class PostgresConnection {
 
     getPool() {
         if (!this.pool) {
-            this.pool = new Pool({
-                host: config.postgres.host,
-                port: config.postgres.port,
-                database: config.postgres.database,
-                user: config.postgres.user,
-                password: config.postgres.password,
+            const isNeon = (config.postgres.host && config.postgres.host.includes('neon.tech')) ||
+                           (config.postgres.url && config.postgres.url.includes('neon.tech'));
+            const useSsl = config.postgres.ssl || isNeon;
+
+            const poolConfig = {
                 max: 20,
                 idleTimeoutMillis: 30000,
-                connectionTimeoutMillis: 2000,
-            })
+                connectionTimeoutMillis: 10000,
+            };
+
+            if (config.postgres.host && config.postgres.host !== 'localhost') {
+                poolConfig.host = config.postgres.host;
+                poolConfig.port = config.postgres.port;
+                poolConfig.database = config.postgres.database;
+                poolConfig.user = config.postgres.user;
+                poolConfig.password = config.postgres.password;
+            } else if (config.postgres.url) {
+                poolConfig.connectionString = config.postgres.url;
+            } else {
+                poolConfig.host = config.postgres.host;
+                poolConfig.port = config.postgres.port;
+                poolConfig.database = config.postgres.database;
+                poolConfig.user = config.postgres.user;
+                poolConfig.password = config.postgres.password;
+            }
+
+            if (useSsl) {
+                poolConfig.ssl = { rejectUnauthorized: false };
+            }
+
+            this.pool = new Pool(poolConfig);
+
+            this.pool.on("connect", client => {
+                client.query("SET search_path TO public");
+            });
 
             this.pool.on("error", err => {
-                logger.error("Unexpected error on idle PG client", err)
-            })
+                logger.error("Unexpected error on idle PG client", err);
+            });
 
-            logger.info("PG Pool Created")
+            logger.info("PG Pool Created");
         }
         return this.pool;
     }

@@ -1,3 +1,4 @@
+import dns from "dns"
 import mongoose from "mongoose"
 import config from "./index.js"
 import logger from "./logger.js"
@@ -21,13 +22,22 @@ class MongoConnection {
                 return this.connection
             }
 
+            if (config.mongo.uri && config.mongo.uri.startsWith("mongodb+srv://")) {
+                try {
+                    dns.setServers(['8.8.8.8', '1.1.1.1']);
+                } catch {
+                    // ignore if restricted
+                }
+            }
+
             await mongoose.connect(config.mongo.uri, {
                 dbName: config.mongo.dbName
             })
 
             this.connection = mongoose.connection;
 
-            logger.info(`MongoDB connected: ${config.mongo.uri}`);
+            const maskedUri = config.mongo.uri.replace(/:([^:@]+)@/, ':****@');
+            logger.info(`MongoDB connected: ${maskedUri}`);
 
             this.connection.on("error", err => {
                 logger.error("MongoDB connection error", err)

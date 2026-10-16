@@ -16,11 +16,13 @@ const config = {
 
     // postgreSQL
     postgres: {
+        url: process.env.DATABASE_URL || process.env.PG_URI || null,
         host: process.env.PG_HOST || 'localhost',
         port: parseInt(process.env.PG_PORT || '5432', 10),
         database: process.env.PG_DATABASE || 'api_monitoring',
         user: process.env.PG_USER || 'postgres',
         password: process.env.PG_PASSWORD || 'postgres',
+        ssl: process.env.PG_SSL === 'true' || process.env.PG_SSL === 'require',
     },
 
     // RabbitMQ

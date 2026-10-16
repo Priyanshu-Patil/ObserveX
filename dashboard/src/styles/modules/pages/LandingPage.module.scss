@@ -118,6 +118,7 @@ html {
   height: 64px;
   width: calc(100% - 4rem);
   max-width: 1200px;
+  color: white;
   border-radius: 999px;
   display: flex;
   align-items: center;
@@ -1511,6 +1512,7 @@ html {
   background: linear-gradient(180deg, var(--dark) 0%, #080016 100%);
   border-top: 1px solid var(--border-dark);
   padding: 5rem 6% 3rem;
+  color: #ffffff;
 }
 
 .footerInner {
@@ -1551,6 +1553,8 @@ html {
 }
 
 .footerCol {
+  color: #ffffff;
+
   h4 {
     font-family: var(--font-display);
     font-size: 0.825rem;
@@ -1561,18 +1565,23 @@ html {
     text-transform: uppercase;
   }
 
-  a {
+  a,
+  a:link,
+  a:visited {
     display: block;
     font-family: var(--font-body);
     font-size: 0.775rem;
-    color: var(--text-muted-dark);
+    color: #ffffff !important;
     font-weight: 400;
     text-decoration: none;
     margin-bottom: 0.75rem;
     transition: all 0.25s ease;
 
-    &:hover {
-      color: var(--text-light);
+    &:hover,
+    &:focus,
+    &:active {
+      color: #ffffff !important;
+      opacity: 0.85;
       transform: translateX(4px);
     }
   }

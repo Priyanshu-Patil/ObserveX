@@ -60,7 +60,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--text-muted-dark);
+  color: #ffffff !important;
   font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 500;
@@ -73,8 +73,15 @@
   transition: all 0.25s ease;
   cursor: pointer;
 
-  &:hover {
-    color: var(--text-light);
+  &:link,
+  &:visited {
+    color: #ffffff !important;
+  }
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: #ffffff !important;
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.15);
     transform: translateX(-4px);

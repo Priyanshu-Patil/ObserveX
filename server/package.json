@@ -7,9 +7,12 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "processor": "node src/modules/processor/consumer.js",
+    "processor": "node src/services/processor/consumer.js",
     "init": "node init-system.js",
-    "init:env": "node init-system.js --generate-env"
+    "init:env": "node init-system.js --generate-env",
+    "db:init": "node scripts/init-db.js",
+    "db:backup-mongo": "node scripts/backup-mongo.js",
+    "db:restore-mongo": "node scripts/restore-mongo.js"
   },
   "keywords": [
     "api",
