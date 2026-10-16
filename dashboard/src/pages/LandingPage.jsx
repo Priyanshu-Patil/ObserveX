@@ -195,7 +195,7 @@ export function LandingPage() {
         description="Monitor every API and detect latency, failures, and endpoint performance spikes before users notice. Complete visibility in under 5 minutes."
         keywords="api monitoring, api observability, real-time analytics, latency tracker, error detection, developer tools, system health, uptime monitoring"
         canonical="/"
-        ogImage="/HeroImage.jpeg"
+        ogImage="/1.png"
         robots="index, follow"
       />
       {/* ── NAV ── */}

@@ -14,7 +14,7 @@ export function AboutPage() {
         description="Discover the mission, architecture, and team behind ObserveX — empowering engineering teams with high-speed API performance metrics and observability."
         keywords="about observex, company, mission, values, api monitoring team, observability platform"
         canonical="/about"
-        ogImage="/HeroImage.jpeg"
+        ogImage="/1.png"
         robots="index, follow"
       />
       {/* ── NAV ── */}

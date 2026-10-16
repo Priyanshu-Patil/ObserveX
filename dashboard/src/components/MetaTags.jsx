@@ -21,12 +21,11 @@ const toAbsoluteUrl = (pathOrUrl) => {
   if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
     return pathOrUrl;
   }
+  const cleanPath = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
   if (typeof window !== 'undefined' && window.location && window.location.origin) {
-    const origin = window.location.origin;
-    const cleanPath = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
-    return `${origin}${cleanPath}`;
+    return `${window.location.origin}${cleanPath}`;
   }
-  return pathOrUrl;
+  return `https://observe-x.vercel.app${cleanPath}`;
 };
 
 export function MetaTags({
@@ -92,6 +91,8 @@ export function MetaTags({
     setMetaTag('property', 'og:type', ogType || DEFAULT_METADATA.ogType);
     setMetaTag('property', 'og:url', finalUrl);
     setMetaTag('property', 'og:image', finalOgImage);
+    setMetaTag('property', 'og:image:secure_url', finalOgImage);
+    setMetaTag('property', 'og:image:type', 'image/png');
     setMetaTag('property', 'og:image:alt', finalOgImageAlt);
 
     // 4. Twitter Cards

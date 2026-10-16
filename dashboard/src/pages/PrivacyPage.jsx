@@ -16,7 +16,7 @@ export function PrivacyPage() {
         description="Read the privacy policy of ObserveX, including telemetry practices, API ingestion safety, encryption standards, and data protection."
         keywords="privacy policy, observex privacy, telemetry data, api monitoring security, gdpr, data compliance"
         canonical="/privacy"
-        ogImage="/HeroImage.jpeg"
+        ogImage="/1.png"
         robots="index, follow"
       />
       {/* ── NAV ── */}

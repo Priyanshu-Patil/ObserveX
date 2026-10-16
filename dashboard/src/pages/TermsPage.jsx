@@ -16,7 +16,7 @@ export function TermsPage() {
         description="Terms of service governing the usage of ObserveX's real-time API monitoring dashboard, telemetry collectors, and API keys."
         keywords="terms of service, terms, observex terms, api monitoring terms, acceptable use policy"
         canonical="/terms"
-        ogImage="/HeroImage.jpeg"
+        ogImage="/1.png"
         robots="index, follow"
       />
       {/* ── NAV ── */}

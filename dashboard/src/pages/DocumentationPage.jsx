@@ -1891,7 +1891,7 @@ export function DocumentationPage() {
         description={currentPage.description || "Complete, verified developer documentation for ObserveX API hit tracking, real-time analytics, and endpoint monitoring."}
         keywords={`observex docs, ${currentPage.title.toLowerCase()}, api monitoring, developer docs, latency tracking, express middleware, telemetry`}
         canonical={`/docs?page=${activePageId}`}
-        ogImage="/HeroImage.jpeg"
+        ogImage="/1.png"
         robots="index, follow"
       />
 
