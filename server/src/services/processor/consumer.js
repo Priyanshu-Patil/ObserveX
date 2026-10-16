@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'url';
+import path from 'path';
 import { z } from 'zod';
 import rabbitmq from '../../shared/config/rabbitmq.js';
 import mongodb from '../../shared/config/mongodb.js';
@@ -71,9 +73,16 @@ class EventConsumer {
      * @returns {Promise<void>}
      */
     async start() {
+        if (this.isRunning) {
+            this._logger.warn('Event consumer is already running');
+            return;
+        }
+
         try {
             await this._connectDatabases();
-            this.channel = await this._rabbitmq.connect();
+            this.channel = typeof this._rabbitmq.createChannel === 'function'
+                ? await this._rabbitmq.createChannel()
+                : await this._rabbitmq.connect();
             const prefetch = this._config.consumer?.prefetch || 10;
             this.channel.prefetch(prefetch);
 
@@ -83,8 +92,10 @@ class EventConsumer {
             });
 
             this.channel.on('close', () => {
-                this._logger.warn('Consumer channel closed unexpectedly');
-                if (this.isRunning) this._reconnect();
+                if (this.isRunning) {
+                    this._logger.warn('Consumer channel closed unexpectedly');
+                    this._reconnect();
+                }
             });
 
             this._logger.info(`Started consuming from queue: ${this._config.rabbitmq.queue}`);
@@ -165,7 +176,9 @@ class EventConsumer {
     async _reconnect() {
         try {
             await new Promise(resolve => setTimeout(resolve, 5000))
-            this.channel = await this._rabbitmq.connect()
+            this.channel = typeof this._rabbitmq.createChannel === 'function'
+                ? await this._rabbitmq.createChannel()
+                : await this._rabbitmq.connect();
             const prefetch = this._config.consumer?.prefetch || 10;
             this.channel.prefetch(prefetch);
 
@@ -175,8 +188,10 @@ class EventConsumer {
             });
 
             this.channel.on('close', () => {
-                this._logger.warn('Consumer channel closed unexpectedly');
-                if (this.isRunning) this._reconnect();
+                if (this.isRunning) {
+                    this._logger.warn('Consumer channel closed unexpectedly');
+                    this._reconnect();
+                }
             });
 
             await this.channel.consume(
@@ -398,21 +413,24 @@ class EventConsumer {
      * 
      * - Stops message consumption
      * - Closes RabbitMQ channel
-     * - Disconnects MongoDB and PostgreSQL
+     * - Disconnects MongoDB and PostgreSQL if requested
      * 
      * Ensures no in-flight messages are abruptly lost.
      * 
+     * @param {boolean} [closeSharedConnections=true] - Whether to close shared DB and RabbitMQ connections
      * @returns {Promise<void>}
      */
-    async stop() {
+    async stop(closeSharedConnections = true) {
         try {
             await this._cleanup();
 
-            await Promise.all([
-                this._rabbitmq.close(),
-                this._mongodb.disconnect(),
-                this._postgres.close()
-            ]);
+            if (closeSharedConnections) {
+                await Promise.all([
+                    this._rabbitmq.close(),
+                    this._mongodb.disconnect(),
+                    this._postgres.close()
+                ]);
+            }
         } catch (error) {
             this._logger.error('Error stopping consumer:', error);
         }
@@ -476,28 +494,36 @@ async function startConsumerWithRetry() {
     }
 }
 
-process.on('SIGINT', async () => {
-    logger.info('Received SIGINT, shutting down gracefully...');
-    await consumer.stop();
-    process.exit(0);
-});
+const isDirectRun = Boolean(
+    process.argv[1] &&
+    fileURLToPath(import.meta.url) === path.resolve(process.argv[1])
+);
 
-process.on('SIGTERM', async () => {
-    logger.info('Received SIGTERM, shutting down gracefully...');
-    await consumer.stop();
-    process.exit(0);
-});
+if (isDirectRun) {
+    process.on('SIGINT', async () => {
+        logger.info('Received SIGINT, shutting down gracefully...');
+        await consumer.stop();
+        process.exit(0);
+    });
 
-process.on('uncaughtException', (error) => {
-    logger.error('Uncaught exception:', error);
-    process.exit(1);
-});
+    process.on('SIGTERM', async () => {
+        logger.info('Received SIGTERM, shutting down gracefully...');
+        await consumer.stop();
+        process.exit(0);
+    });
 
-process.on('unhandledRejection', (reason, promise) => {
-    logger.error('Unhandled promise rejection at:', promise, 'reason:', reason);
-    process.exit(1);
-});
+    process.on('uncaughtException', (error) => {
+        logger.error('Uncaught exception:', error);
+        process.exit(1);
+    });
 
-startConsumerWithRetry();
+    process.on('unhandledRejection', (reason, promise) => {
+        logger.error('Unhandled promise rejection at:', promise, 'reason:', reason);
+        process.exit(1);
+    });
 
+    startConsumerWithRetry();
+}
+
+export { consumer, startConsumerWithRetry };
 export default consumer;

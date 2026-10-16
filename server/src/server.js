@@ -9,6 +9,7 @@ import rabbitmq from './shared/config/rabbitmq.js';
 import errorHandler from './shared/middlewares/errorHandler.js';
 import ResponseFormatter from './shared/utils/responseFormatter.js';
 import cookieParser from "cookie-parser"
+import { consumer, startConsumerWithRetry } from './services/processor/consumer.js';
 
 // Routers
 import authRouter from "./services/auth/routes/authRouter.js";
@@ -133,6 +134,10 @@ async function startServer() {
     try {
         await initializeConnection();
 
+        if (process.env.START_CONSUMER !== 'false') {
+            await startConsumerWithRetry();
+        }
+
         const server = app.listen(config.port, '0.0.0.0', () => {
             logger.info(`Server started on port ${config.port}`);
             logger.info(`Environment: ${config.node_env}`);
@@ -142,6 +147,15 @@ async function startServer() {
 
         const gracefulShutdown = async (signal) => {
             logger.info(`${signal} received, shutting down gracefully...`);
+
+            try {
+                if (consumer && consumer.isRunning) {
+                    await consumer.stop(false);
+                    logger.info('Consumer stopped successfully');
+                }
+            } catch (consumerErr) {
+                logger.error('Error stopping consumer during shutdown:', consumerErr);
+            }
 
             server.close(async () => {
                 logger.info("HTTP server closed");
@@ -156,14 +170,14 @@ async function startServer() {
                     logger.error('Error during shutdown:', error);
                     process.exit(1);
                 }
-            })
+            });
 
             setTimeout(() => {
-                logger.error("Forced shutdown")
+                logger.error("Forced shutdown");
                 process.exit(1);
             }, 10000);
 
-        }
+        };
 
         process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
         process.on("SIGINT", () => gracefulShutdown("SIGINT"));

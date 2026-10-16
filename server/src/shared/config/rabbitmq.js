@@ -78,6 +78,13 @@ class RabbitMQConnection {
         return this.channel;
     }
 
+    async createChannel() {
+        if (!this.connection) {
+            await this.connect();
+        }
+        return await this.connection.createChannel();
+    }
+
 
     getStatus() {
         if (!this.connect || !this.channel) return "disconnected";

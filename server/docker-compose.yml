@@ -100,6 +100,7 @@ services:
       JWT_EXPIRES_IN: 24h
       RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS}
       RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS}
+      START_CONSUMER: "false"
     ports:
       - "5001:5000"
     volumes:
