@@ -7,7 +7,7 @@ const DEFAULT_METADATA = {
   author: 'ObserveX',
   robots: 'index, follow',
   ogType: 'website',
-  ogImage: '/HeroImage.jpeg',
+  ogImage: '/1.png',
   ogImageAlt: 'ObserveX API Monitoring & Observability Platform',
   twitterCard: 'summary_large_image',
   twitterSite: '@ObserveX',
