@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+export const TOKEN_STORAGE_KEY = 'observex_auth_token';
+
 const API_BASE_URL = import.meta?.env?.VITE_API_BASE_URL ?? '/api';
 
 const api = axios.create({
@@ -10,11 +12,21 @@ const api = axios.create({
     withCredentials: true,
 });
 
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        const isAuthRoute = error.config?.url?.includes('/auth/');
-        if (error.response?.status === 401 && !isAuthRoute) {
+        const url = error.config?.url || '';
+        const isLoginOrOnboard = url.includes('/auth/login') || url.includes('/auth/onboard-super-admin');
+        if (error.response?.status === 401 && !isLoginOrOnboard) {
+            localStorage.removeItem(TOKEN_STORAGE_KEY);
             window.dispatchEvent(new Event('auth:unauthorized'));
         }
         return Promise.reject(error);
@@ -24,6 +36,10 @@ api.interceptors.response.use(
 export const authApi = {
     login: async (credentials) => {
         const response = await api.post('/auth/login', credentials);
+        const token = response.data?.data?.token;
+        if (token) {
+            localStorage.setItem(TOKEN_STORAGE_KEY, token);
+        }
         return response.data;
     },
     register: async (userData) => {
@@ -32,6 +48,10 @@ export const authApi = {
     },
     onboardSuperAdmin: async (userData) => {
         const response = await api.post('/auth/onboard-super-admin', userData);
+        const token = response.data?.data?.token;
+        if (token) {
+            localStorage.setItem(TOKEN_STORAGE_KEY, token);
+        }
         return response.data;
     },
     getProfile: async (options) => {
@@ -39,8 +59,12 @@ export const authApi = {
         return response.data;
     },
     logout: async () => {
-        const response = await api.get('/auth/logout');
-        return response.data;
+        try {
+            const response = await api.get('/auth/logout');
+            return response.data;
+        } finally {
+            localStorage.removeItem(TOKEN_STORAGE_KEY);
+        }
     },
 };
 

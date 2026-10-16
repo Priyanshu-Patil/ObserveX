@@ -34,10 +34,15 @@ export class AuthController {
             res.cookie("authToken", token, {
                 httpOnly: config.cookie.httpOnly,
                 secure: config.cookie.secure,
+                sameSite: config.cookie.sameSite,
                 maxAge: config.cookie.expiresIn
             });
 
-            res.status(201).json(ResponseFormatter.success(user, "Super admin created successfully", 201))
+            res.status(201).json(ResponseFormatter.success({
+                ...user,
+                user,
+                token
+            }, "Super admin created successfully", 201))
         } catch (error) {
             next(error)
         }
@@ -58,13 +63,11 @@ export class AuthController {
 
             const { token, user } = await this.authService.register(userData);
 
-            res.cookie("authToken", token, {
-                httpOnly: config.cookie.httpOnly,
-                secure: config.cookie.secure,
-                maxAge: config.cookie.expiresIn
-            });
-
-            res.status(201).json(ResponseFormatter.success(user, "User created successfully", 201))
+            res.status(201).json(ResponseFormatter.success({
+                ...user,
+                user,
+                token
+            }, "User created successfully", 201))
         } catch (error) {
             next(error)
         }
@@ -84,10 +87,15 @@ export class AuthController {
             res.cookie("authToken", token, {
                 httpOnly: config.cookie.httpOnly,
                 secure: config.cookie.secure,
+                sameSite: config.cookie.sameSite,
                 maxAge: config.cookie.expiresIn
             });
 
-            res.status(200).json(ResponseFormatter.success(user, "User LoggedIn successfully", 200))
+            res.status(200).json(ResponseFormatter.success({
+                ...user,
+                user,
+                token
+            }, "User LoggedIn successfully", 200))
         } catch (error) {
             next(error)
         }
@@ -118,7 +126,11 @@ export class AuthController {
      */
     async logout(req, res, next) {
         try {
-            res.clearCookie("authToken")
+            res.clearCookie("authToken", {
+                httpOnly: config.cookie.httpOnly,
+                secure: config.cookie.secure,
+                sameSite: config.cookie.sameSite
+            });
             res.status(200).json(ResponseFormatter.success({}, "Logout successful", 200))
         } catch (error) {
             next(error)

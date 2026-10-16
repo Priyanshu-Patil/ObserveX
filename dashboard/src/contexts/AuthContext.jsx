@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { authApi } from '../api/api';
+import { authApi, TOKEN_STORAGE_KEY } from '../api/api';
 
 const AuthContext = createContext(null);
 
@@ -19,6 +19,7 @@ export function AuthProvider({ children, onUnauthorized }) {
             .catch((err) => {
                 if (err.name !== 'CanceledError' && err.name !== 'AbortError') {
                     setUser(null);
+                    localStorage.removeItem(TOKEN_STORAGE_KEY);
                 }
             })
             .finally(() => setIsLoading(false));
@@ -27,6 +28,7 @@ export function AuthProvider({ children, onUnauthorized }) {
 
     useEffect(() => {
         const handle401 = () => {
+            localStorage.removeItem(TOKEN_STORAGE_KEY);
             setUser(null);
             onUnauthorized?.();
         };
@@ -48,6 +50,7 @@ export function AuthProvider({ children, onUnauthorized }) {
         } catch {
             // proceed with local logout
         }
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
         setUser(null);
         onUnauthorized?.();
     }, [onUnauthorized]);

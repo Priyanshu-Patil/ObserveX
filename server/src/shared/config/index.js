@@ -3,9 +3,12 @@ import dotenv from "dotenv"
 dotenv.config()
 
 
+const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
+
 const config = {
     // Server
     node_env: process.env.NODE_ENV || 'development',
+    isProduction,
     port: parseInt(process.env.PORT || "5000", 10),
 
     // MOngodb
@@ -47,7 +50,8 @@ const config = {
 
     cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
         expiresIn: 24 * 60 * 60 * 1000
     }
 }

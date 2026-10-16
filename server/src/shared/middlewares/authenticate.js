@@ -14,8 +14,11 @@ const authenticate = async (req, res, next) => {
     try {
         let token = null;
 
-        if (req.cookies && req.cookies.authToken) {
-            token = req.cookies.authToken
+        const authHeader = req.headers.authorization || req.headers.Authorization;
+        if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+            token = authHeader.substring(7).trim();
+        } else if (req.cookies && req.cookies.authToken) {
+            token = req.cookies.authToken;
         }
 
         if (!token) {
