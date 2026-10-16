@@ -133,10 +133,10 @@ async function startServer() {
     try {
         await initializeConnection();
 
-        const server = app.listen(config.port, () => {
+        const server = app.listen(config.port, '0.0.0.0', () => {
             logger.info(`Server started on port ${config.port}`);
             logger.info(`Environment: ${config.node_env}`);
-            logger.info(`API available at: http://localhost:${config.port}`);
+            logger.info(`API available at: http://0.0.0.0:${config.port}`);
         });
 
 
