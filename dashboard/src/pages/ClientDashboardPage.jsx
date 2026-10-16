@@ -44,7 +44,9 @@ export function ClientDashboardPage() {
         <div className={styles.pageContainer}>
             <MetaTags
                 title="Dashboard - ObserveX"
-                description="ObserveX real-time API monitoring dashboard. Track latency, status codes, request volumes, and system performance."
+                description="ObserveX real-time API monitoring dashboard. Track latency, status codes, request volumes, and system performance in real time."
+                canonical="/client/dashboard"
+                robots="noindex, nofollow"
             />
             <PageHeader
                 title={`Welcome back${user?.username ? `, ${user.username}` : ''}`}

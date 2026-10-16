@@ -13,8 +13,11 @@ export function TermsPage() {
     <div className={styles.page} style={{ background: "var(--dark)", minHeight: "100vh" }}>
       <MetaTags
         title="Terms of Service - ObserveX"
-        description="Terms of service governing the usage of ObserveX's real-time API monitoring dashboard and collector endpoints."
-        keywords="terms of service, terms, observex terms, api monitoring terms"
+        description="Terms of service governing the usage of ObserveX's real-time API monitoring dashboard, telemetry collectors, and API keys."
+        keywords="terms of service, terms, observex terms, api monitoring terms, acceptable use policy"
+        canonical="/terms"
+        ogImage="/HeroImage.jpeg"
+        robots="index, follow"
       />
       {/* ── NAV ── */}
       <Navbar />

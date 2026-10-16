@@ -13,8 +13,11 @@ export function PrivacyPage() {
     <div className={styles.page} style={{ background: "var(--dark)", minHeight: "100vh" }}>
       <MetaTags
         title="Privacy Policy - ObserveX"
-        description="Read the privacy policy of ObserveX, including telemetry practices, API ingestion safety, and data security."
-        keywords="privacy policy, observex privacy, telemetry data, api monitoring security"
+        description="Read the privacy policy of ObserveX, including telemetry practices, API ingestion safety, encryption standards, and data protection."
+        keywords="privacy policy, observex privacy, telemetry data, api monitoring security, gdpr, data compliance"
+        canonical="/privacy"
+        ogImage="/HeroImage.jpeg"
+        robots="index, follow"
       />
       {/* ── NAV ── */}
       <Navbar />

@@ -135,6 +135,8 @@ export function ActivityLogsPage() {
             <MetaTags
                 title="Activity & Audit Logs - ObserveX"
                 description="View and inspect system activity logs, security sessions, and real-time API telemetry logs."
+                canonical="/activity"
+                robots="noindex, nofollow"
             />
             <PageHeader
                 title="Activity Logs"

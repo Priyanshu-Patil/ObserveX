@@ -60,8 +60,10 @@ function Login() {
         <AuthLayout steps={LOGIN_STEPS} activeStep={0}>
             <MetaTags
                 title="Sign In - ObserveX"
-                description="Sign in to your ObserveX account to view real-time API metrics, active endpoints, and logs."
-                keywords="login, sign in, observex portal, api monitoring dashboard"
+                description="Sign in to your ObserveX account to access your real-time API monitoring dashboard, endpoints, and telemetry logs."
+                keywords="login, sign in, observex portal, api monitoring dashboard, secure access"
+                canonical="/login"
+                robots="noindex, nofollow"
             />
             <AuthCard
                 title="Welcome Back"

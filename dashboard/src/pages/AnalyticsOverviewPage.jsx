@@ -80,8 +80,10 @@ export function AnalyticsOverviewPage() {
     return (
         <div className={styles.pageContainer}>
             <MetaTags
-                title="Analytics - ObserveX"
+                title="Analytics Overview - ObserveX"
                 description="View and analyze detailed API performance analytics, success rates, latency percentiles, and error distributions."
+                canonical="/analytics"
+                robots="noindex, nofollow"
             />
             <PageHeader
                 title="Analytics Overview"

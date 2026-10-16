@@ -1888,8 +1888,11 @@ export function DocumentationPage() {
     <div className={styles.page}>
       <MetaTags
         title={`${currentPage.title} - ObserveX Developer Documentation`}
-        description="Complete, verified developer documentation for ObserveX API hit tracking, real-time analytics, and endpoint monitoring."
-        keywords="observex, api monitoring, developer docs, express middleware, nodejs integration, latency tracking"
+        description={currentPage.description || "Complete, verified developer documentation for ObserveX API hit tracking, real-time analytics, and endpoint monitoring."}
+        keywords={`observex docs, ${currentPage.title.toLowerCase()}, api monitoring, developer docs, latency tracking, express middleware, telemetry`}
+        canonical={`/docs?page=${activePageId}`}
+        ogImage="/HeroImage.jpeg"
+        robots="index, follow"
       />
 
       {/* Dynamic Breadcrumb */}

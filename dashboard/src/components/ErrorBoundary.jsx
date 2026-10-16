@@ -13,6 +13,7 @@ class ErrorBoundary extends Component {
     }
 
     componentDidCatch(error, info) {
+        document.title = 'Error - ObserveX';
         reportError(error, { componentStack: info?.componentStack });
     }
 

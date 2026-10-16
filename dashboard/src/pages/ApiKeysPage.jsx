@@ -137,8 +137,10 @@ export function ApiKeysPage() {
     return (
         <div className={styles.pageContainer}>
             <MetaTags
-                title="API Key Management - ObserveX"
-                description="Create, view, rotate and revoke secure API keys used for real-time metric ingestion."
+                title={`API Keys ${client?.name ? `- ${client.name} ` : ''}- ObserveX`}
+                description={`Create, view, rotate and revoke secure API keys used for real-time metric ingestion in ${client?.name || 'your organization'}.`}
+                canonical={`/admin/clients/${id}/api-keys`}
+                robots="noindex, nofollow"
             />
             <PageHeader
                 title="API Keys"

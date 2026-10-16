@@ -5,6 +5,7 @@ import TopEndpoints from '../components/TopEndpoints';
 import { ApiHitsChart, StatusDistributionChart } from '../components/charts';
 import { PageStatus } from '../components/ui';
 import styles from '../styles/modules/pages/PageComponents.module.scss';
+import MetaTags from '../components/MetaTags';
 
 export function OverviewPage() {
     const { data, isPending, error, refetch } = useDashboardQuery();
@@ -34,6 +35,12 @@ export function OverviewPage() {
 
     return (
         <div className={styles.pageContainer}>
+            <MetaTags
+                title="Overview - ObserveX"
+                description="Overview of API metrics, hits, status distribution, and top monitored endpoints in real time."
+                canonical="/client/dashboard"
+                robots="noindex, nofollow"
+            />
             <div className={styles.pageHeader}>
                 <h2>Overview</h2>
                 <p>Welcome to your ObserveX dashboard</p>

@@ -140,8 +140,10 @@ export function CreateClientUserPage() {
   return (
     <div className={styles.pageContainer}>
       <MetaTags
-        title="Add User - ObserveX"
-        description="Invite and configure permissions for a new client user under your organization."
+        title={`Invite User ${client?.name ? `to ${client.name} ` : ''}- ObserveX`}
+        description={`Invite and configure permissions for a new client user under ${client?.name || 'your organization'}.`}
+        canonical={`/admin/clients/${id}/users/create`}
+        robots="noindex, nofollow"
       />
       <PageHeader
         title="Invite User"

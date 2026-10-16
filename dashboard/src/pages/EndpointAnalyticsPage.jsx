@@ -296,7 +296,9 @@ export function EndpointAnalyticsPage() {
     <div className={styles.analyticsPage}>
       <MetaTags
         title="Endpoint Analytics - ObserveX"
-        description="Detailed endpoint analytics and performance metrics for all monitored API routes."
+        description="Detailed endpoint analytics, response times, error rates, and throughput across all monitored API routes."
+        canonical="/analytics/endpoints"
+        robots="noindex, nofollow"
       />
 
       <PageHeader

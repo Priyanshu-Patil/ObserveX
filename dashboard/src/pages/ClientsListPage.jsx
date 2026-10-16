@@ -201,7 +201,9 @@ export function ClientsListPage() {
         <div className={styles.pageContainer}>
             <MetaTags
                 title="Manage Clients - ObserveX"
-                description="Manage client organizations, settings, API access, and user permissions."
+                description="Manage client organizations, settings, API access, and user permissions across your infrastructure."
+                canonical="/admin/clients"
+                robots="noindex, nofollow"
             />
             <PageHeader
                 title="Clients"

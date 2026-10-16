@@ -153,6 +153,8 @@ export function OnboardSuperAdminPage() {
         title="Onboard Super Admin - ObserveX"
         description="Configure the initial Super Admin account for your ObserveX private instance."
         keywords="setup super admin, onboarding observex, configure admin"
+        canonical="/onboard-super-admin"
+        robots="noindex, nofollow"
       />
       <AuthCard
         title="Create Super Admin"

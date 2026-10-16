@@ -175,8 +175,10 @@ export function SettingsPage() {
     return (
         <div className={styles.pageContainer}>
             <MetaTags
-                title="System Settings - ObserveX"
+                title="Settings - ObserveX"
                 description="Manage your ObserveX account credentials, notification settings, visual appearance theme, and organization details."
+                canonical="/settings"
+                robots="noindex, nofollow"
             />
             <PageHeader 
                 title="Settings" 

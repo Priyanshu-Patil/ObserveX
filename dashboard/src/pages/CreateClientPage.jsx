@@ -137,8 +137,10 @@ export function CreateClientPage() {
   return (
     <div className={styles.pageContainer}>
       <MetaTags
-        title="Create New Client - ObserveX"
+        title="Create Client - ObserveX"
         description="Onboard and configure a new client organization in ObserveX."
+        canonical="/admin/clients/create"
+        robots="noindex, nofollow"
       />
       <PageHeader
         title="Create Client"

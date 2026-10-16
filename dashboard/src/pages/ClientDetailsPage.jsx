@@ -490,8 +490,10 @@ export function ClientDetailsPage() {
             }
         >
             <MetaTags
-                title="Client Details - ObserveX"
-                description="View organization details, API keys, active client users, performance analytics and audit logs."
+                title={`${client?.name ? `${client.name} - ` : ''}Client Details - ObserveX`}
+                description={`View organization details, API keys, active client users, performance analytics, and audit logs for ${client?.name || 'this client'}.`}
+                canonical={`/admin/clients/${id}`}
+                robots="noindex, nofollow"
             />
             <PageHeader
                 title={

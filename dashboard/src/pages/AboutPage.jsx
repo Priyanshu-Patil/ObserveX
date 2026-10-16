@@ -11,8 +11,11 @@ export function AboutPage() {
     <div className={styles.page} style={{ background: "var(--dark)", minHeight: "100vh" }}>
       <MetaTags
         title="About Us - ObserveX"
-        description="Discover the mission, values, and team behind ObserveX — empowering engineering teams with high-speed API performance metrics."
-        keywords="about observex, company, mission, values, api monitoring team"
+        description="Discover the mission, architecture, and team behind ObserveX — empowering engineering teams with high-speed API performance metrics and observability."
+        keywords="about observex, company, mission, values, api monitoring team, observability platform"
+        canonical="/about"
+        ogImage="/HeroImage.jpeg"
+        robots="index, follow"
       />
       {/* ── NAV ── */}
       <Navbar />
