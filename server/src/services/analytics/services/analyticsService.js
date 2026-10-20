@@ -41,6 +41,23 @@ export class AnalyticsService {
      */
     async getOverallStats(clientId, filters = {}) {
         try {
+            if (!clientId || (Array.isArray(clientId) && clientId.length === 0)) {
+                const { startTime, endTime } = this.parseTimeFilters(filters);
+                return {
+                    totalHits: 0,
+                    errorHits: 0,
+                    successHits: 0,
+                    errorRate: 0,
+                    avgLatency: 0,
+                    uniqueServices: 0,
+                    uniqueEndpoints: 0,
+                    timeRange: {
+                        start: startTime,
+                        end: endTime,
+                    },
+                };
+            }
+
             const { startTime, endTime } = this.parseTimeFilters(filters);
             const { serviceName } = filters;
 
@@ -82,6 +99,9 @@ export class AnalyticsService {
      */
     async getServices(clientId = null) {
         try {
+            if (!clientId || (Array.isArray(clientId) && clientId.length === 0)) {
+                return [];
+            }
             return await this.metricsRepository.getServices(clientId);
         } catch (error) {
             logger.error("Error getting services in AnalyticsService", error);
@@ -133,6 +153,9 @@ export class AnalyticsService {
      */
     async getTopEndpoints(clientId, options = {}) {
         try {
+            if (!clientId || (Array.isArray(clientId) && clientId.length === 0)) {
+                return [];
+            }
             const { startTime, endTime, limit = 10, serviceName, allTime } = options;
             const parsedStartTime = allTime ? null : (startTime ? new Date(startTime) : null);
             const parsedEndTime = allTime ? null : (endTime ? new Date(endTime) : null);
@@ -202,6 +225,9 @@ export class AnalyticsService {
      */
     async getTimeSeries(clientId, filters = {}) {
         try {
+            if (!clientId || (Array.isArray(clientId) && clientId.length === 0)) {
+                return [];
+            }
             const { serviceName, endpoint, startTime, endTime, limit = 100 } = filters;
 
             const { startTime: start_time , endTime: end_time } = this.parseTimeFilters({ startTime, endTime });

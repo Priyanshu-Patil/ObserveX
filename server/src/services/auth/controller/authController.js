@@ -1,9 +1,9 @@
 import config from "../../../shared/config/index.js";
 import { APPLICATION_ROLES } from "../../../shared/constants/roles.js";
-import ResponseFormatter from "../../../shared/utils/responseFormatter.js"
+import ResponseFormatter from "../../../shared/utils/responseFormatter.js";
 
 /**
- * @description AuthController handles user authentication and authorization related operations such as onboarding super admin, user registration, login, fetching user profile, and logout.
+ * @description AuthController handles user authentication and authorization related operations such as onboarding super admin, user registration, login, fetching user profile, password recovery, and logout.
  * It interacts with the AuthService to perform these operations and formats the responses using ResponseFormatter.
  */
 export class AuthController {
@@ -12,8 +12,8 @@ export class AuthController {
             throw new Error("authService is Required");
         }
 
-        this.authService = authService
-    };
+        this.authService = authService;
+    }
 
     /**
      * Onboards a new super admin user.
@@ -42,11 +42,11 @@ export class AuthController {
                 ...user,
                 user,
                 token
-            }, "Super admin created successfully", 201))
+            }, "Super admin created successfully", 201));
         } catch (error) {
-            next(error)
+            next(error);
         }
-    };
+    }
 
     /**
      * Registers a new user.
@@ -67,11 +67,11 @@ export class AuthController {
                 ...user,
                 user,
                 token
-            }, "User created successfully", 201))
+            }, "User created successfully", 201));
         } catch (error) {
-            next(error)
+            next(error);
         }
-    };
+    }
 
     /**
      * Logs in a user.
@@ -82,7 +82,11 @@ export class AuthController {
     async login(req, res, next) {
         try {
             const { username, password } = req.body;
-            const { user, token } = await this.authService.login(username, password);
+            const meta = {
+                ipAddress: req.ip,
+                userAgent: req.headers['user-agent'],
+            };
+            const { user, token } = await this.authService.login(username, password, meta);
 
             res.cookie("authToken", token, {
                 httpOnly: config.cookie.httpOnly,
@@ -95,11 +99,72 @@ export class AuthController {
                 ...user,
                 user,
                 token
-            }, "User LoggedIn successfully", 200))
+            }, "User LoggedIn successfully", 200));
         } catch (error) {
-            next(error)
+            next(error);
         }
-    };
+    }
+
+    /**
+     * Handles forgot password request.
+     * @param {Request} req
+     * @param {Response} res
+     * @param {Function} next
+     */
+    async forgotPassword(req, res, next) {
+        try {
+            const { email } = req.body;
+            const meta = {
+                ipAddress: req.ip,
+                userAgent: req.headers['user-agent'],
+            };
+            const result = await this.authService.forgotPassword(email, meta);
+            res.status(200).json(ResponseFormatter.success({}, result.message, 200));
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * Handles single-use password reset.
+     * @param {Request} req
+     * @param {Response} res
+     * @param {Function} next
+     */
+    async resetPassword(req, res, next) {
+        try {
+            const { token, password } = req.body;
+            const meta = {
+                ipAddress: req.ip,
+                userAgent: req.headers['user-agent'],
+            };
+            const result = await this.authService.resetPassword(token, password, meta);
+            res.status(200).json(ResponseFormatter.success({}, result.message, 200));
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * Handles changing password for the authenticated user.
+     * @param {Request} req
+     * @param {Response} res
+     * @param {Function} next
+     */
+    async changePassword(req, res, next) {
+        try {
+            const userId = req.user.userId;
+            const { currentPassword, newPassword } = req.body;
+            const meta = {
+                ipAddress: req.ip,
+                userAgent: req.headers['user-agent'],
+            };
+            const result = await this.authService.changePassword(userId, currentPassword, newPassword, meta);
+            res.status(200).json(ResponseFormatter.success({}, result.message, 200));
+        } catch (error) {
+            next(error);
+        }
+    }
 
     /**
      * Fetches the profile of the logged-in user.
@@ -112,9 +177,9 @@ export class AuthController {
             const userId = req.user.userId;
             const result = await this.authService.getProfile(userId);
 
-            res.status(200).json(ResponseFormatter.success(result, "Profile fetched successfully", 200))
+            res.status(200).json(ResponseFormatter.success(result, "Profile fetched successfully", 200));
         } catch (error) {
-            next(error)
+            next(error);
         }
     }
 
@@ -131,9 +196,9 @@ export class AuthController {
                 secure: config.cookie.secure,
                 sameSite: config.cookie.sameSite
             });
-            res.status(200).json(ResponseFormatter.success({}, "Logout successful", 200))
+            res.status(200).json(ResponseFormatter.success({}, "Logout successful", 200));
         } catch (error) {
-            next(error)
+            next(error);
         }
     }
 }

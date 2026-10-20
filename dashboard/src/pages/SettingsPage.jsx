@@ -10,6 +10,7 @@ import { FormField } from '../components/ui/FormField';
 import { Button } from '../components/ui/Button';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { useToast } from '../contexts/ToastContext';
+import { authApi } from '../api/api';
 import styles from '../styles/modules/pages/SettingsPage.module.scss';
 import MetaTags from '../components/MetaTags';
 
@@ -31,6 +32,49 @@ export function SettingsPage() {
         systemAlerts: true,
         weeklyDigest: false,
     });
+
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [updatingPassword, setUpdatingPassword] = useState(false);
+    const [passwordError, setPasswordError] = useState('');
+    const [passwordSuccess, setPasswordSuccess] = useState('');
+
+    const handlePasswordUpdate = async (e) => {
+        e?.preventDefault();
+        setPasswordError('');
+        setPasswordSuccess('');
+
+        if (!currentPassword) {
+            setPasswordError('Current password is required');
+            return;
+        }
+
+        if (!newPassword) {
+            setPasswordError('New password is required');
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            setPasswordError('New password must be at least 8 characters long');
+            return;
+        }
+
+        setUpdatingPassword(true);
+        try {
+            const res = await authApi.changePassword({ currentPassword, newPassword });
+            setCurrentPassword('');
+            setNewPassword('');
+            const msg = res?.message || 'Password updated successfully! A confirmation email has been sent.';
+            setPasswordSuccess(msg);
+            toast(msg, 'success');
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || 'Failed to update password';
+            setPasswordError(msg);
+            toast(msg, 'error');
+        } finally {
+            setUpdatingPassword(false);
+        }
+    };
 
     const renderTabContent = () => {
         switch (activeTab) {
@@ -73,15 +117,49 @@ export function SettingsPage() {
                                 <h3 className={styles.cardTitle}><Lock size={20} /> Credentials Security</h3>
                                 <p className={styles.cardDescription}>Configure your account security configurations</p>
                             </div>
-                            <div className={styles.formGrid}>
-                                <FormField label="Current Password" name="currentPassword" type="password" placeholder="••••••••" disabled />
-                                <FormField label="New Password" name="newPassword" type="password" placeholder="••••••••" disabled />
-                            </div>
-                            <div>
-                                <Button disabled onClick={() => toast('Password updates require security server support', 'info')} style={{ borderRadius: '0.75rem' }}>
-                                    Update Password
-                                </Button>
-                            </div>
+                            <form onSubmit={handlePasswordUpdate}>
+                                <div className={styles.formGrid}>
+                                    <FormField
+                                        label="Current Password"
+                                        name="currentPassword"
+                                        type="password"
+                                        placeholder="Enter current password"
+                                        value={currentPassword}
+                                        onChange={(e) => { setCurrentPassword(e.target.value); setPasswordError(''); }}
+                                        disabled={updatingPassword}
+                                        required
+                                    />
+                                    <FormField
+                                        label="New Password"
+                                        name="newPassword"
+                                        type="password"
+                                        placeholder="Enter new password (min. 8 characters)"
+                                        value={newPassword}
+                                        onChange={(e) => { setNewPassword(e.target.value); setPasswordError(''); }}
+                                        disabled={updatingPassword}
+                                        required
+                                    />
+                                </div>
+                                {passwordError && (
+                                    <div style={{ marginTop: '0.75rem', padding: '10px 14px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#f87171', fontSize: '13px' }}>
+                                        {passwordError}
+                                    </div>
+                                )}
+                                {passwordSuccess && (
+                                    <div style={{ marginTop: '0.75rem', padding: '10px 14px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399', fontSize: '13px' }}>
+                                        {passwordSuccess}
+                                    </div>
+                                )}
+                                <div style={{ marginTop: '1rem' }}>
+                                    <Button
+                                        type="submit"
+                                        disabled={updatingPassword || !currentPassword || !newPassword}
+                                        style={{ borderRadius: '0.75rem' }}
+                                    >
+                                        {updatingPassword ? 'Updating Password...' : 'Update Password'}
+                                    </Button>
+                                </div>
+                            </form>
                         </div>
                         
                         <div className={styles.sectionCard}>

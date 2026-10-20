@@ -1,6 +1,7 @@
 import BaseRepository from "./BaseRepository.js";
 import User from "../../../shared/models/User.js"
 import logger from "../../../shared/config/logger.js"
+import { APPLICATION_ROLES } from "../../../shared/constants/roles.js";
 
 /**
  * MongoDB implementation of the UserRepository.
@@ -20,7 +21,7 @@ class MongoUserRepository extends BaseRepository {
     async create(userData) {
         try {
             let data = { ...userData }
-            if (data.role === "super_admin" && !data.permissions) {
+            if (data.role === APPLICATION_ROLES.SUPER_ADMIN && !data.permissions) {
                 data.permissions = {
                     canCreateApiKeys: true,
                     canManageUsers: true,
@@ -56,14 +57,18 @@ class MongoUserRepository extends BaseRepository {
     }
 
     /**
-     * Finds a user by their username.
+     * Finds a user by their username (case-insensitive exact match).
      * @param {string} username - The username of the user.
      * @returns {Promise<Object>} - Returns the user object if found.
      */
     async findByUsername(username) {
         try {
-            const user = await this.model.findOne({ username })
-            return user
+            if (!username) return null;
+            const escaped = username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const user = await this.model.findOne({
+                username: { $regex: new RegExp(`^${escaped}$`, 'i') }
+            });
+            return user;
         } catch (error) {
             logger.error("Error finding user by username", error)
             throw error;
@@ -71,14 +76,18 @@ class MongoUserRepository extends BaseRepository {
     }
 
     /**
-     * Finds a user by their email.
+     * Finds a user by their email (case-insensitive exact match).
      * @param {string} email - The email of the user.
      * @returns {Promise<Object>} - Returns the user object if found.
      */
     async findByEmail(email) {
         try {
-            const user = await this.model.findOne({ email })
-            return user
+            if (!email) return null;
+            const normalizedEmail = email.trim().toLowerCase();
+            const user = await this.model.findOne({
+                email: normalizedEmail
+            });
+            return user;
         } catch (error) {
             logger.error("Error finding user by email", error)
             throw error;
@@ -105,6 +114,26 @@ class MongoUserRepository extends BaseRepository {
             .select('-password')
             .sort({ createdAt: -1 });
     }
+
+    /**
+     * Finds a user with a valid, non-expired password reset token.
+     * @param {string} tokenHash - SHA-256 hash of the token.
+     * @returns {Promise<Object|null>}
+     */
+    async findByPasswordResetToken(tokenHash) {
+        try {
+            if (!tokenHash) return null;
+            const user = await this.model.findOne({
+                passwordResetTokenHash: tokenHash,
+                passwordResetExpiresAt: { $gt: new Date() }
+            }).select('+passwordResetTokenHash +passwordResetExpiresAt');
+            return user;
+        } catch (error) {
+            logger.error("Error finding user by password reset token", error);
+            throw error;
+        }
+    }
+
 }
 
 export default new MongoUserRepository()

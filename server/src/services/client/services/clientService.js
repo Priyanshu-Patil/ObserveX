@@ -1,9 +1,12 @@
 
 import logger from "../../../shared/config/logger.js";
+import config from "../../../shared/config/index.js";
 import { APPLICATION_ROLES, isValidClientRole } from "../../../shared/constants/roles.js";
 import AppError from "../../../shared/utils/AppError.js";
 import { v4 as uudiv4 } from "uuid";
 import crypto from 'crypto';
+import SecurityUtils from "../../../shared/utils/SecurityUtils.js";
+import defaultEmailService from "../../email/index.js";
 
 /**
  * ClientService class to handle business logic related to clients
@@ -16,6 +19,7 @@ export class ClientService {
      * @param {Object} dependencies.clientRepository - The client repository instance
      * @param {Object} dependencies.apiKeyRepository - The API key repository instance
      * @param {Object} dependencies.userRepository - The user repository instance
+     * @param {Object} [dependencies.emailService] - The email service instance
      * @throws Will throw an error if any of the required dependencies are missing
      */
     constructor(dependencies) {
@@ -38,6 +42,7 @@ export class ClientService {
         this.clientRepository = dependencies.clientRepository;
         this.apiKeyRepository = dependencies.apiKeyRepository;
         this.userRepository = dependencies.userRepository;
+        this.emailService = dependencies.emailService || defaultEmailService;
     };
 
     /**
@@ -65,21 +70,29 @@ export class ClientService {
     }
 
     /**
-     * Create a new client
+     * Create a new client within a Super Admin's workspace
      * @param {Object} clientData - The client data
      * @param {Object} adminUser - The admin user creating the client
      * @returns {Object} - The created client
      */
     async createClient(clientData, adminUser) {
         try {
+            if (!adminUser || adminUser.role !== APPLICATION_ROLES.SUPER_ADMIN) {
+                throw new AppError("Access denied - Only super admin can create clients", 403);
+            }
+
             const { name, email, description, website } = clientData;
 
-            const slug = this.generateSlug(name);
+            let slug = this.generateSlug(name);
+            if (!slug) {
+                slug = `client-${Date.now().toString(36)}`;
+            }
 
-            const exisitingClient = await this.clientRepository.findBySlug(slug);
+            const existingClient = await this.clientRepository.findBySlug(slug);
 
-            if (exisitingClient) {
-                throw new AppError(`Client with slug ${slug} already exists`, 400);
+            if (existingClient) {
+                const randomSuffix = crypto.randomBytes(3).toString('hex');
+                slug = `${slug}-${randomSuffix}`;
             }
 
             const client = await this.clientRepository.create({
@@ -91,6 +104,24 @@ export class ClientService {
                 createdBy: adminUser.userId
             });
 
+            // Send workspace created email notification
+            if (client.email) {
+                try {
+                    const dashboardUrl = `${process.env.APP_URL || config.appUrl || config.email?.appUrl || 'http://localhost:5173'}/admin/clients/${client._id}`;
+                    await this.emailService.sendClientCreated({
+                        to: client.email,
+                        clientName: client.name,
+                        slug: client.slug,
+                        website: client.website,
+                        description: client.description,
+                        createdByUsername: adminUser?.username || 'Super Admin',
+                        dashboardUrl
+                    });
+                } catch (emailErr) {
+                    logger.error('[ClientService] Failed to send client created email:', emailErr);
+                }
+            }
+
             return client;
         } catch (error) {
             logger.error('Error creating client:', error);
@@ -99,17 +130,47 @@ export class ClientService {
     };
 
     /**
-     * Check if a user has access to a specific client
-     * @param {Object} user - The user object
-     * @param {String} clientId - The client ID
-     * @returns {Boolean} - True if the user has access, false otherwise
+     * Check if a specific client is owned by or accessible to a super admin
+     * @param {Object} client - The client document or object
+     * @param {Object|String|ObjectId} userOrUserId - The user object or user ID
+     * @returns {Promise<Boolean>}
      */
-    canUserAccessClient(user, clientId) {
-        if (user.role === APPLICATION_ROLES.SUPER_ADMIN) {
-            return true
+    async isClientAccessibleBySuperAdmin(client, userOrUserId) {
+        if (!client || !userOrUserId) return false;
+
+        const userIdStr = (userOrUserId.userId || userOrUserId._id || userOrUserId).toString();
+
+        if (client.createdBy && client.createdBy.toString() === userIdStr) {
+            return true;
         }
 
-        return user.clientId && user.clientId.toString() === clientId.toString()
+        return false;
+    }
+
+    /**
+     * Check if a user has access to a specific client
+     * @param {Object} user - The user object
+     * @param {String|Object} clientOrClientId - The client ID or client document
+     * @returns {Promise<Boolean>} - True if the user has access, false otherwise
+     */
+    async canUserAccessClient(user, clientOrClientId) {
+        if (!user) return false;
+
+        let client = clientOrClientId;
+        if (typeof clientOrClientId === 'string' || (clientOrClientId && clientOrClientId._bsontype === 'ObjectID') || (clientOrClientId && !clientOrClientId.createdBy && !clientOrClientId._id && !clientOrClientId.slug)) {
+            client = await this.clientRepository.findById(clientOrClientId.toString());
+        }
+
+        if (!client) {
+            return false;
+        }
+
+        if (user.role === APPLICATION_ROLES.SUPER_ADMIN) {
+            return await this.isClientAccessibleBySuperAdmin(client, user);
+        }
+
+        const clientIdStr = client._id ? client._id.toString() : client.toString();
+        return !!(user.clientId && user.clientId.toString() === clientIdStr);
     }
 
     /**
@@ -121,21 +182,44 @@ export class ClientService {
      */
     async createClientUser(clientId, userData, adminUser) {
         try {
-            if (!this.canUserAccessClient(adminUser, clientId)) {
-                throw new AppError("Access denied", 403)
-            };
+            const client = await this.clientRepository.findById(clientId);
+            if (!client) {
+                throw new AppError("Client not found", 404);
+            }
+
+            const canAccess = await this.canUserAccessClient(adminUser, client);
+            if (!canAccess) {
+                throw new AppError("Access denied", 403);
+            }
+
+            const canManage = adminUser.role === APPLICATION_ROLES.SUPER_ADMIN ||
+                adminUser.role === APPLICATION_ROLES.CLIENT_ADMIN ||
+                adminUser.permissions?.canManageUsers;
+
+            if (!canManage) {
+                throw new AppError("Access denied - Insufficient permissions to create users", 403);
+            }
 
             const { username, email, password, role = APPLICATION_ROLES.CLIENT_VIEWER } = userData;
 
             if (!isValidClientRole(role)) {
-                throw new AppError("Invalid role for client user", 400)
-            };
+                throw new AppError("Invalid role for client user", 400);
+            }
 
-            const client = await this.clientRepository.findById(clientId);
+            const existingUser = await this.userRepository.findByUsername(username?.trim());
+            if (existingUser) {
+                throw new AppError("Username already exists", 409);
+            }
 
-            if (!client) {
-                throw new AppError("Client not found", 404)
-            };
+            const existingEmail = await this.userRepository.findByEmail(email?.trim().toLowerCase());
+            if (existingEmail) {
+                throw new AppError("Email already exists", 409);
+            }
+
+            const passwordValidation = SecurityUtils.validatePassword(password);
+            if (!passwordValidation.success) {
+                throw new AppError(passwordValidation.errors.join(". "), 400);
+            }
 
             // Set permissions based on role
             let permissions = {
@@ -152,28 +236,43 @@ export class ClientService {
                     canManageUsers: true,
                     canViewAnalytics: true,
                     canExportData: true,
-                }
-            };
+                };
+            }
 
             const user = await this.userRepository.create({
-                username,
-                email,
+                username: username.trim(),
+                email: email.trim().toLowerCase(),
                 password,
                 role,
-                clientId,
+                clientId: client._id,
                 permissions
             });
 
+            // Send client team member welcome email notification
+            if (user.email) {
+                try {
+                    const loginUrl = `${process.env.APP_URL || config.appUrl || config.email?.appUrl || 'http://localhost:5173'}/login`;
+                    await this.emailService.sendClientUserCreated({
+                        to: user.email,
+                        username: user.username,
+                        role: user.role,
+                        clientName: client.name,
+                        loginUrl
+                    });
+                } catch (emailErr) {
+                    logger.error('[ClientService] Failed to send client user welcome email:', emailErr);
+                }
+            }
+
             logger.info("Client user created", {
-                clientId,
+                clientId: client._id,
                 userId: user._id,
                 role
-            })
+            });
 
-            return this.formatClientForResponse(user)
-
+            return this.formatClientForResponse(user);
         } catch (error) {
-            logger.error("Error creating client user", error)
+            logger.error("Error creating client user", error);
             throw error;
         }
     };
@@ -200,17 +299,21 @@ export class ClientService {
             const client = await this.clientRepository.findById(clientId);
 
             if (!client) {
-                throw new AppError("Client not found", 404)
-            };
+                throw new AppError("Client not found", 404);
+            }
 
-            if (!this.canUserAccessClient(user, clientId)) {
-                throw new AppError("Access denied", 403)
-            };
+            const canAccess = await this.canUserAccessClient(user, client);
+            if (!canAccess) {
+                throw new AppError("Access denied", 403);
+            }
 
-            if (!(user.role === APPLICATION_ROLES.SUPER_ADMIN || user.role === APPLICATION_ROLES.CLIENT_ADMIN)) {
-                throw new AppError("Access denied - Only Super Admin and Client Admin can create API keys", 403)
-            };
+            const canManage = user.role === APPLICATION_ROLES.SUPER_ADMIN ||
+                user.role === APPLICATION_ROLES.CLIENT_ADMIN ||
+                user.permissions?.canCreateApiKeys;
 
+            if (!canManage) {
+                throw new AppError("Access denied - Only Super Admin, Client Admin, or authorized users can create API keys", 403);
+            }
 
             const { name, description, environment = "production" } = keyData;
 
@@ -220,16 +323,37 @@ export class ClientService {
             const apiKey = await this.apiKeyRepository.create({
                 keyId,
                 keyValue,
-                clientId,
+                clientId: client._id,
                 name,
                 description,
                 environment,
                 createdBy: user.userId
             });
 
+            // Send API key created security notification
+            const creatorEmail = user.email || (await this.userRepository.findById(user.userId || user._id))?.email;
+            if (creatorEmail) {
+                try {
+                    const dashboardUrl = `${process.env.APP_URL || config.appUrl || config.email?.appUrl || 'http://localhost:5173'}/admin/clients/${client._id}/keys`;
+                    const keyPrefix = keyValue ? keyValue.substring(0, 10) : 'apim_';
+                    await this.emailService.sendApiKeyCreated({
+                        to: creatorEmail,
+                        keyName: apiKey.name || 'New API Key',
+                        keyPrefix,
+                        environment: apiKey.environment || 'production',
+                        clientName: client.name,
+                        createdByUsername: user.username || 'Authorized User',
+                        timestamp: new Date().toUTCString(),
+                        dashboardUrl
+                    });
+                } catch (emailErr) {
+                    logger.error('[ClientService] Failed to send API key created email:', emailErr);
+                }
+            }
+
             return apiKey;
         } catch (error) {
-            logger.error("Error creating API key", error)
+            logger.error("Error creating API key", error);
             throw error;
         }
     };
@@ -243,9 +367,16 @@ export class ClientService {
      */
     async getClientApiKeys(clientId, user) {
         try {
-            if (!this.canUserAccessClient(user, clientId)) {
-                throw new AppError('Access denied to this client', 403);
-            };
+            const client = await this.clientRepository.findById(clientId);
+
+            if (!client) {
+                throw new AppError("Client not found", 404);
+            }
+
+            const canAccess = await this.canUserAccessClient(user, client);
+            if (!canAccess) {
+                throw new AppError('Access denied', 403);
+            }
 
             const apiKeys = await this.apiKeyRepository.findByClientId(clientId);
 
@@ -280,7 +411,8 @@ export class ClientService {
                 throw new AppError("Client not found", 404);
             }
 
-            if (!this.canUserAccessClient(user, clientId)) {
+            const canAccess = await this.canUserAccessClient(user, client);
+            if (!canAccess) {
                 throw new AppError("Access denied", 403);
             }
 
@@ -298,7 +430,7 @@ export class ClientService {
                 throw new AppError("API key not found", 404);
             }
 
-            if (apiKey.clientId.toString() !== clientId.toString()) {
+            if (apiKey.clientId.toString() !== client._id.toString()) {
                 throw new AppError("API key does not belong to this client", 400);
             }
 
@@ -312,7 +444,28 @@ export class ClientService {
 
             await apiKey.save();
 
-            logger.info("API key regenerated", { keyId: apiKey.keyId, clientId });
+            // Send API key rotated security notification
+            const actorEmail = user.email || (await this.userRepository.findById(user.userId || user._id))?.email;
+            if (actorEmail) {
+                try {
+                    const dashboardUrl = `${process.env.APP_URL || config.appUrl || config.email?.appUrl || 'http://localhost:5173'}/admin/clients/${client._id}/keys`;
+                    const keyPrefix = newKeyValue ? newKeyValue.substring(0, 10) : 'apim_';
+                    await this.emailService.sendApiKeyRotated({
+                        to: actorEmail,
+                        keyName: apiKey.name || 'API Key',
+                        keyPrefix,
+                        environment: apiKey.environment || 'production',
+                        clientName: client.name,
+                        rotatedByUsername: user.username || 'Authorized User',
+                        timestamp: new Date().toUTCString(),
+                        dashboardUrl
+                    });
+                } catch (emailErr) {
+                    logger.error('[ClientService] Failed to send API key rotated email:', emailErr);
+                }
+            }
+
+            logger.info("API key regenerated", { keyId: apiKey.keyId, clientId: client._id });
             return apiKey;
         } catch (error) {
             logger.error("Error regenerating API key:", error);
@@ -335,7 +488,8 @@ export class ClientService {
                 throw new AppError("Client not found", 404);
             }
 
-            if (!this.canUserAccessClient(user, clientId)) {
+            const canAccess = await this.canUserAccessClient(user, client);
+            if (!canAccess) {
                 throw new AppError("Access denied", 403);
             }
 
@@ -353,14 +507,33 @@ export class ClientService {
                 throw new AppError("API key not found", 404);
             }
 
-            if (apiKey.clientId.toString() !== clientId.toString()) {
+            if (apiKey.clientId.toString() !== client._id.toString()) {
                 throw new AppError("API key does not belong to this client", 400);
             }
 
             apiKey.isActive = false;
             await apiKey.save();
 
-            logger.info("API key revoked", { keyId: apiKey.keyId, clientId });
+            // Send API key revoked security notification
+            const actorEmail = user.email || (await this.userRepository.findById(user.userId || user._id))?.email;
+            if (actorEmail) {
+                try {
+                    const dashboardUrl = `${process.env.APP_URL || config.appUrl || config.email?.appUrl || 'http://localhost:5173'}/admin/clients/${client._id}/keys`;
+                    await this.emailService.sendApiKeyRevoked({
+                        to: actorEmail,
+                        keyName: apiKey.name || 'API Key',
+                        environment: apiKey.environment || 'production',
+                        clientName: client.name,
+                        revokedByUsername: user.username || 'Authorized User',
+                        timestamp: new Date().toUTCString(),
+                        dashboardUrl
+                    });
+                } catch (emailErr) {
+                    logger.error('[ClientService] Failed to send API key revoked email:', emailErr);
+                }
+            }
+
+            logger.info("API key revoked", { keyId: apiKey.keyId, clientId: client._id });
             const keyObj = apiKey.toObject ? apiKey.toObject() : apiKey;
             delete keyObj.keyValue;
             keyObj.isRevoked = true;
@@ -399,91 +572,55 @@ export class ClientService {
 
     async getClients(user) {
         try {
-            if (
-                user.role !== APPLICATION_ROLES.SUPER_ADMIN
-            ) {
-                throw new AppError(
-                    'Access denied',
-                    403
-                );
+            if (user.role !== APPLICATION_ROLES.SUPER_ADMIN) {
+                throw new AppError('Access denied', 403);
             }
-    
-            return await this.clientRepository.findAll();
+
+            return await this.clientRepository.findByOwner(user.userId);
         } catch (error) {
-            logger.error(
-                'Error getting clients',
-                error
-            );
-    
+            logger.error('Error getting clients', error);
             throw error;
         }
     }
 
     async getClient(clientId, user) {
         try {
-            if (
-                !this.canUserAccessClient(
-                    user,
-                    clientId
-                )
-            ) {
-                throw new AppError(
-                    "Access denied",
-                    403
-                );
-            }
-    
-            const client =
-                await this.clientRepository.findById(
-                    clientId
-                );
-    
+            const client = await this.clientRepository.findById(clientId);
+
             if (!client) {
-                throw new AppError(
-                    "Client not found",
-                    404
-                );
+                throw new AppError("Client not found", 404);
             }
-    
+
+            const canAccess = await this.canUserAccessClient(user, client);
+            if (!canAccess) {
+                throw new AppError("Access denied", 403);
+            }
+
             return client;
         } catch (error) {
-            logger.error(
-                "Error getting client",
-                error
-            );
-    
+            logger.error("Error getting client", error);
             throw error;
         }
     }
 
     async getClientUsers(clientId, user) {
         try {
-            if (
-                !this.canUserAccessClient(
-                    user,
-                    clientId
-                )
-            ) {
-                throw new AppError(
-                    "Access denied",
-                    403
-                );
+            const client = await this.clientRepository.findById(clientId);
+
+            if (!client) {
+                throw new AppError("Client not found", 404);
             }
-    
-            const users =
-                await this.userRepository.findByClientId(
-                    clientId
-                );
-    
-            return users.map((user) =>
-                this.formatClientForResponse(user)
-            );
+
+            const canAccess = await this.canUserAccessClient(user, client);
+            if (!canAccess) {
+                throw new AppError("Access denied", 403);
+            }
+
+            const users = await this.userRepository.findByClientId(clientId);
+
+            return users.map((u) => this.formatClientForResponse(u));
         } catch (error) {
-            logger.error(
-                "Error getting client users",
-                error
-            );
-    
+            logger.error("Error getting client users", error);
             throw error;
         }
     }

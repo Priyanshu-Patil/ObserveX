@@ -69,6 +69,7 @@ const clientSchema = new mongoose.Schema(
 );
 
 clientSchema.index({ isActive: 1 });
+clientSchema.index({ createdBy: 1, isActive: 1 });
 
 const Client = mongoose.model('Client', clientSchema);
 

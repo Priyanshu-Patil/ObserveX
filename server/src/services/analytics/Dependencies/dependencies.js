@@ -1,4 +1,5 @@
 import clientRepository from "../../client/repository/ClientRepository.js";
+import clientContainer from "../../client/Dependencies/dependencies.js";
 import processorContainer from "../../processor/Dependencies/dependencies.js";
 import authContainer from "../../auth/Dependencies/dependencies.js";
 
@@ -9,7 +10,7 @@ import { AnalyticsController } from "../controller/analyticsController.js";
  * Container class responsible for initializing Analytics module dependencies
  * 
  * This container composes dependencies from multiple modules:
- * - Client module (clientRepository)
+ * - Client module (clientRepository, clientService)
  * - Processor module (metricsRepository)
  * - Auth module (authService)
  * 
@@ -41,12 +42,14 @@ class Container {
         const services = {
             analyticsService,
             authService: authContainer.services && authContainer.services.authService,
+            clientService: clientContainer.services && clientContainer.services.clientServices,
         };
 
         const analyticsController = new AnalyticsController({
             analyticsService: services.analyticsService,
             authService: services.authService,
             clientRepository: repositories.clientRepository,
+            clientService: services.clientService,
         });
 
         const controllers = {

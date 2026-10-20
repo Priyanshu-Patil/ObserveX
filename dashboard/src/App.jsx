@@ -26,6 +26,7 @@ const ActivityLogsPage = lazy(() => import('./pages/ActivityLogsPage').then(m =>
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
 const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
 
 const pageFallback = (
     <div style={{ height: '60vh', display: 'grid', placeItems: 'center' }}>Loading…</div>
@@ -163,6 +164,23 @@ function AuthGate() {
                         />
                     ) : (
                         <Login />
+                    )
+                }
+            />
+
+            {/* RESET PASSWORD */}
+            <Route
+                path="/reset-password"
+                element={
+                    isAuthenticated ? (
+                        <Navigate
+                            to="/client/dashboard"
+                            replace
+                        />
+                    ) : (
+                        <Suspense fallback={pageFallback}>
+                            <ResetPasswordPage />
+                        </Suspense>
                     )
                 }
             />

@@ -455,8 +455,7 @@ DO UPDATE SET
   ```
 
 ### 👤 2. Authentication Router (`/api/auth`)
-Defined in [authRouter.js](server/src/services/auth/routes/authRouter.js).
-- `POST /onboard-super-admin`: Onboards the initial system administrator.
+- `POST /onboard-super-admin`: Registers a new independent Super Admin workspace.
 - `POST /register`: Registers tenant users (`super_admin` only).
 - `POST /login`: Verifies user credentials and sets secure httpOnly cookies.
 - `GET /profile`: Retrieves the active user session details.
@@ -464,8 +463,8 @@ Defined in [authRouter.js](server/src/services/auth/routes/authRouter.js).
 
 ### 🏢 3. Client & Tenant Management Router (`/api`)
 Defined in [clientRoutes.js](server/src/services/client/routes/clientRoutes.js).
-- `GET /admin/clients`: Retrieves registered clients list (`super_admin` only).
-- `POST /admin/clients/onboard`: Registers a new tenant and main user.
+- `GET /admin/clients`: Retrieves registered clients list for the authenticated Super Admin.
+- `POST /admin/clients/onboard`: Registers a new tenant under the Super Admin's workspace.
 - `POST /admin/clients/:clientId/users`: Adds a client user.
 - `POST /admin/clients/:clientId/api/keys`: Issues a new scoped API Key.
 - `GET /admin/clients/:clientId/api/keys`: Lists active API Keys.
@@ -486,7 +485,7 @@ Defined in [App.jsx](dashboard/src/App.jsx).
 - **Public Routes**:
   - `/` -> [LandingPage.jsx](dashboard/src/pages/LandingPage.jsx): Product overview and registration portal.
   - `/login`: Secure authentication portal.
-  - `/onboard-super-admin`: Guided setup wizard for the system's first Super Admin.
+  - `/onboard-super-admin`: Guided setup wizard for Super Admin workspaces.
 - **Protected Layout Console Routes**:
   - `/client/dashboard` -> [ClientDashboardPage.jsx](dashboard/src/pages/ClientDashboardPage.jsx): Tenant-scoped usage data.
   - `/analytics` -> [AnalyticsOverviewPage.jsx](dashboard/src/pages/AnalyticsOverviewPage.jsx): Traffic aggregation dashboards.
@@ -616,6 +615,17 @@ JWT_EXPIRES_IN=24h
 # Global Rate Limiting
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=1000
+
+# Frontend Application URL (used in email notifications)
+APP_URL=http://localhost:5173
+
+# Email & SMTP notifications
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your_smtp_user
+SMTP_PASS=your_smtp_password
+EMAIL_FROM=ObserveX <notifications@observex.io>
 ```
 
 ### Dashboard (`dashboard/.env`)

@@ -20,7 +20,7 @@ export class AnalyticsController {
      * @param {Object} dependencies.authService - Service for authentication & permissions
      * @param {Object} dependencies.clientRepository - Repository for client validation
      */
-    constructor({ analyticsService: analyticsSvc, authService: authSvc, clientRepository: clientRepo} = {}) {
+    constructor({ analyticsService: analyticsSvc, authService: authSvc, clientRepository: clientRepo, clientService: clientSvc } = {}) {
         if (!analyticsSvc || !authSvc || !clientRepo) {
             throw new Error("AnalyticsController requires analyticsService, authService and clientRepository");
         }
@@ -28,6 +28,7 @@ export class AnalyticsController {
         this.analyticsService = analyticsSvc;
         this.authService = authSvc;
         this.clientRepository = clientRepo;
+        this.clientService = clientSvc;
     }
 
     /**
@@ -151,14 +152,28 @@ export class AnalyticsController {
                     throw new AppError('Invalid clientId format', 400);
                 }
 
-                const clientId = await this.clientRepository.findById(queryClientId);
+                const client = await this.clientRepository.findById(queryClientId);
 
-                if (!clientId) throw new AppError('Client not found', 404);
+                if (!client) throw new AppError('Client not found', 404);
+
+                if (this.clientService) {
+                    const hasAccess = await this.clientService.canUserAccessClient(req.user, client);
+                    if (!hasAccess) {
+                        throw new AppError('Access denied', 403);
+                    }
+                } else if (!client.createdBy || client.createdBy.toString() !== req.user?.userId?.toString()) {
+                    throw new AppError('Access denied', 403);
+                }
 
                 return queryClientId;
             }
 
-            return null;
+            if (this.clientService && req.user) {
+                const clients = await this.clientService.getClients(req.user);
+                return clients.map(c => c._id.toString());
+            }
+
+            return [];
         }
 
         if (!userClientId) {
@@ -166,14 +181,14 @@ export class AnalyticsController {
         }
 
         if (!this.isValidObjectId(userClientId)) {
-            throw new AppError('Invalid client association', 400 )
+            throw new AppError('Invalid client association', 400);
         }
 
         const client = await this.clientRepository.findById(userClientId);
         
         if (!client) throw new AppError('Client not found', 404);
 
-        return userClientId;
+        return userClientId.toString();
     }
 
     /**

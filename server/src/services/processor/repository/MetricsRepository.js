@@ -109,14 +109,10 @@ export class MetricsRepository extends BaseRepository {
             `
 
             const params = [];
-            const paramIndex = 1;
+            let paramIndex = 1;
             let whereConditions = [];
 
-            if (clientId != null) {
-                whereConditions.push(`client_id = $${paramIndex}`);
-                params.push(clientId);
-                paramIndex++;
-            }
+            paramIndex = this._applyClientFilter(whereConditions, params, clientId, paramIndex);
 
             if (serviceName) {
                 whereConditions.push(`service_name = $${paramIndex}`);
@@ -191,12 +187,7 @@ export class MetricsRepository extends BaseRepository {
             let paramIndex = 1;
             const whereConditions = [];
 
-            // Add client filter only if clientId is provided
-            if (clientId != null) {
-                whereConditions.push(`client_id = $${paramIndex}`);
-                params.push(clientId);
-                paramIndex++;
-            }
+            paramIndex = this._applyClientFilter(whereConditions, params, clientId, paramIndex);
 
             if (serviceName && serviceName !== 'all') {
                 whereConditions.push(`service_name = $${paramIndex}`);
@@ -260,12 +251,7 @@ export class MetricsRepository extends BaseRepository {
             let paramIndex = 1;
             const whereConditions = [];
 
-            // Add client filter only if clientId is provided
-            if (clientId != null) {
-                whereConditions.push(`client_id = $${paramIndex}`);
-                params.push(clientId);
-                paramIndex++;
-            }
+            paramIndex = this._applyClientFilter(whereConditions, params, clientId, paramIndex);
 
             if (serviceName && serviceName !== 'all') {
                 whereConditions.push(`service_name = $${paramIndex}`);
@@ -310,9 +296,21 @@ export class MetricsRepository extends BaseRepository {
                 FROM endpoint_metrics
             `;
             const params = [];
-            if (clientId != null) {
+            if (Array.isArray(clientId)) {
+                if (clientId.length === 0) {
+                    query += ` WHERE 1 = 0`;
+                } else if (clientId.length === 1) {
+                    query += ` WHERE client_id = $1`;
+                    params.push(clientId[0]);
+                } else {
+                    query += ` WHERE client_id = ANY($1::text[])`;
+                    params.push(clientId);
+                }
+            } else if (clientId != null && clientId !== '') {
                 query += ` WHERE client_id = $1`;
                 params.push(clientId);
+            } else {
+                query += ` WHERE 1 = 0`;
             }
             query += ` ORDER BY service_name ASC`;
 
@@ -363,11 +361,7 @@ export class MetricsRepository extends BaseRepository {
             let paramIndex = 1;
             const whereConditions = [];
 
-            if (clientId != null) {
-                whereConditions.push(`client_id = $${paramIndex}`);
-                params.push(clientId);
-                paramIndex++;
-            }
+            paramIndex = this._applyClientFilter(whereConditions, params, clientId, paramIndex);
 
             if (serviceName && serviceName !== 'all') {
                 whereConditions.push(`service_name = $${paramIndex}`);
@@ -410,6 +404,34 @@ export class MetricsRepository extends BaseRepository {
             this.logger.error("Error getting time series:", error);
             throw error;
         }
+    }
+
+    /**
+     * Helper to append client ID filtering (supporting single ID, array of IDs, or empty array)
+     */
+    _applyClientFilter(whereConditions, params, clientId, paramIndex) {
+        if (Array.isArray(clientId)) {
+            if (clientId.length === 0) {
+                whereConditions.push(`1 = 0`);
+                return paramIndex;
+            } else if (clientId.length === 1) {
+                whereConditions.push(`client_id = $${paramIndex}`);
+                params.push(clientId[0]);
+                return paramIndex + 1;
+            } else {
+                whereConditions.push(`client_id = ANY($${paramIndex}::text[])`);
+                params.push(clientId);
+                return paramIndex + 1;
+            }
+        } else if (clientId != null && clientId !== '') {
+            whereConditions.push(`client_id = $${paramIndex}`);
+            params.push(clientId);
+            return paramIndex + 1;
+        } else {
+            whereConditions.push(`1 = 0`);
+            return paramIndex;
+        }
+        return paramIndex;
     }
 
     /**

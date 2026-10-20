@@ -21,13 +21,7 @@ class PostgresConnection {
                 connectionTimeoutMillis: 10000,
             };
 
-            if (config.postgres.host && config.postgres.host !== 'localhost') {
-                poolConfig.host = config.postgres.host;
-                poolConfig.port = config.postgres.port;
-                poolConfig.database = config.postgres.database;
-                poolConfig.user = config.postgres.user;
-                poolConfig.password = config.postgres.password;
-            } else if (config.postgres.url) {
+            if (config.postgres.url) {
                 poolConfig.connectionString = config.postgres.url;
             } else {
                 poolConfig.host = config.postgres.host;

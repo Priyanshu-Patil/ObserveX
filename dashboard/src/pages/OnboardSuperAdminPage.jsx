@@ -88,10 +88,12 @@ export function OnboardSuperAdminPage() {
     },
 
     onError: (err) => {
-      toast(
-        err.response?.data?.message || "Failed to create super admin",
-        "error",
-      );
+      const respData = err.response?.data;
+      let msg = respData?.message || "Failed to create super admin";
+      if (Array.isArray(respData?.data) && respData.data.length > 0) {
+        msg = `${msg}: ${respData.data.join(". ")}`;
+      }
+      toast(msg, "error");
     },
   });
 
@@ -151,14 +153,14 @@ export function OnboardSuperAdminPage() {
     <AuthLayout steps={ONBOARD_STEPS} activeStep={0} compact>
       <MetaTags
         title="Onboard Super Admin - ObserveX"
-        description="Configure the initial Super Admin account for your ObserveX private instance."
-        keywords="setup super admin, onboarding observex, configure admin"
+        description="Create your Super Admin account to manage your workspace, clients, and API monitoring."
+        keywords="setup super admin, onboarding observex, configure admin, multi-tenant workspace"
         canonical="/onboard-super-admin"
         robots="noindex, nofollow"
       />
       <AuthCard
         title="Create Super Admin"
-        description="One-time setup for your platform administrator"
+        description="Set up your independent administrator workspace"
         footer={
           <p className={styles.footerText}>
             Already have an account?{" "}

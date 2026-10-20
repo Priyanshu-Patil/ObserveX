@@ -265,6 +265,17 @@
     font-size: 13px;
 }
 
+.successMessage {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
 /* =========================
    INPUTS
 ========================= */

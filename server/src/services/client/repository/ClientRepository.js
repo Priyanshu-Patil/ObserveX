@@ -115,6 +115,27 @@ class MongoClientRepository extends BaseClientRepository {
             throw error;
         }
     }
+
+    /**
+     * Find clients belonging to a specific workspace/owner
+     * @param {string|ObjectId} ownerId - Super Admin user ID
+     * @returns {Promise<Array>}
+     */
+    async findByOwner(ownerId) {
+        try {
+            if (!ownerId) {
+                return [];
+            }
+
+            return await this.model
+                .find({ createdBy: ownerId })
+                .sort({ createdAt: -1 })
+                .select('-__v');
+        } catch (error) {
+            logger.error('Error finding clients by owner:', error);
+            throw error;
+        }
+    }
 }
 
 

@@ -97,11 +97,28 @@ const userSchema = new mongoose.Schema({
             default: false,
         },
     },
+
+    passwordResetTokenHash: {
+        type: String,
+        select: false,
+    },
+    passwordResetExpiresAt: {
+        type: Date,
+    },
+
+    lastLoginAt: {
+        type: Date,
+    },
+    lastLoginIp: {
+        type: String,
+    },
 },
 {
     timestamps: true,
     collection: "users"
 })
+
+userSchema.index({ passwordResetTokenHash: 1 }, { sparse: true });
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {

@@ -5,6 +5,8 @@ import { ClientService } from "../services/clientService.js";
 import { ClientController } from "../controller/clientController.js";
 import authContainer from "../../auth/Dependencies/dependencies.js"
 
+import emailService from "../../email/index.js";
+
 /**
  * Container class to initialize and manage dependencies for the client service
  * This class is responsible for creating instances of repositories, services, and controllers, and ensuring that all dependencies are properly injected. It provides a centralized location for managing the dependencies of the client service, making it easier to maintain and scale the application.
@@ -27,7 +29,8 @@ class Container {
             clientServices: new ClientService({
                 clientRepository: repositories.clientRepository,
                 apiKeyRepository: repositories.apiKeyRepository,
-                userRepository: repositories.userRepository
+                userRepository: repositories.userRepository,
+                emailService
             })
         };
 

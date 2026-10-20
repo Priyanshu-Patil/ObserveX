@@ -12,7 +12,8 @@
     "init:env": "node init-system.js --generate-env",
     "db:init": "node scripts/init-db.js",
     "db:backup-mongo": "node scripts/backup-mongo.js",
-    "db:restore-mongo": "node scripts/restore-mongo.js"
+    "db:restore-mongo": "node scripts/restore-mongo.js",
+    "test": "node --test test/**/*.test.js"
   },
   "keywords": [
     "api",
@@ -33,6 +34,7 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.0",
+    "nodemailer": "^10.1.7",
     "pg": "^8.11.3",
     "uuid": "^9.0.1",
     "winston": "^3.11.0",
