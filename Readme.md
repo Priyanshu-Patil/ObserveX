@@ -599,8 +599,8 @@ MONGO_DB_NAME=api_monitoring
 PG_HOST=localhost
 PG_PORT=5432
 PG_DATABASE=api_monitoring
-PG_USER=postgres
-PG_PASSWORD=postgres
+PG_USER=your_pg_user
+PG_PASSWORD=your_pg_password
 
 # Message Broker queue settings
 RABBITMQ_URL=amqp://localhost:5672
@@ -619,8 +619,8 @@ RATE_LIMIT_MAX_REQUESTS=1000
 # Frontend Application URL (used in email notifications)
 APP_URL=http://localhost:5173
 
-# Email & SMTP notifications
-SMTP_HOST=smtp-relay.brevo.com
+# Email & SMTP notifications (e.g. Brevo, Zoho, AWS SES)
+SMTP_HOST=your_smtp_host
 SMTP_PORT=587
 SMTP_SECURE=false
 SMTP_USER=your_smtp_user
