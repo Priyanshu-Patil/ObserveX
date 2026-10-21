@@ -136,6 +136,24 @@ class MongoClientRepository extends BaseClientRepository {
             throw error;
         }
     }
+
+    /**
+     * Permanently delete a client document by ID
+     * @param {string|ObjectId} clientId - The ID of the client to delete
+     * @returns {Promise<boolean>} - True if deleted, false if not found
+     */
+    async deleteById(clientId) {
+        try {
+            if (!clientId) return false;
+            const result = await this.model.deleteOne({ _id: clientId });
+            const deleted = (result.deletedCount || 0) > 0;
+            logger.info('Client deleted from MongoDB', { clientId, deleted });
+            return deleted;
+        } catch (error) {
+            logger.error('Error deleting client from db by id:', error);
+            throw error;
+        }
+    }
 }
 
 

@@ -98,4 +98,22 @@ export class ApiHitRepository extends BaseRepository {
             throw error;
         }
     }
+
+    /**
+     * Delete all API hits for a specific client
+     * 
+     * @param {string|ObjectId} clientId - Client ID
+     * @returns {Promise<number>} - Number of deleted documents
+     */
+    async deleteByClientId(clientId) {
+        try {
+            if (!clientId) return 0;
+            const result = await this.model.deleteMany({ clientId });
+            this.logger.info('Deleted API hits for client', { clientId, count: result.deletedCount });
+            return result.deletedCount;
+        } catch (error) {
+            this.logger.error('Error deleting API hits by client ID:', error);
+            throw error;
+        }
+    }
 }

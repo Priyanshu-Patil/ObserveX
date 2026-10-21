@@ -5,6 +5,7 @@ import { ClientService } from "../services/clientService.js";
 import { ClientController } from "../controller/clientController.js";
 import authContainer from "../../auth/Dependencies/dependencies.js"
 
+import processorContainer from "../../processor/Dependencies/dependencies.js";
 import emailService from "../../email/index.js";
 
 /**
@@ -21,7 +22,9 @@ class Container {
         const repositories = {
             clientRepository: MongoClientRepository,
             apiKeyRepository: MongoApiKeyRepository,
-            userRepository: MongoUserRepository
+            userRepository: MongoUserRepository,
+            metricsRepository: processorContainer.repositories.metricsRepository,
+            apiHitRepository: processorContainer.repositories.apiHitRepository,
         };
 
         // Initialize services with the required dependencies
@@ -30,6 +33,8 @@ class Container {
                 clientRepository: repositories.clientRepository,
                 apiKeyRepository: repositories.apiKeyRepository,
                 userRepository: repositories.userRepository,
+                metricsRepository: repositories.metricsRepository,
+                apiHitRepository: repositories.apiHitRepository,
                 emailService
             })
         };

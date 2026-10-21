@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     Plus,
     Eye,
     Pencil,
+    Trash2,
     Building2,
     CheckCircle2,
     AlertCircle,
@@ -17,6 +18,7 @@ import { PageHeader } from '../components/ui/PageHeader';
 import { SearchInput } from '../components/ui/SearchInput';
 import { DataTable } from '../components/ui/DataTable';
 import { Button } from '../components/ui/Button';
+import { DeleteClientModal } from '../components/ui/DeleteClientModal';
 
 import { useDebounce } from '../hooks/useDebounce';
 import { clientApi } from '../api/api';
@@ -25,9 +27,11 @@ import styles from '../styles/modules/pages/ClientsListPage.module.scss';
 
 export function ClientsListPage() {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const [search, setSearch] = useState('');
     const [selectedIds, setSelectedIds] = useState([]);
+    const [clientToDelete, setClientToDelete] = useState(null);
 
     const debouncedSearch = useDebounce(search);
 
@@ -170,6 +174,18 @@ export function ClientsListPage() {
                     >
                         <Pencil size={14} />
                     </button>
+                    <button
+                        type="button"
+                        className={`${styles.actionBtn} ${styles.actionBtnDestructive}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setClientToDelete(row);
+                        }}
+                        title={`Delete ${row.name} permanently`}
+                        aria-label={`Delete ${row.name} permanently`}
+                    >
+                        <Trash2 size={14} />
+                    </button>
                 </div>
             ),
         },
@@ -288,6 +304,18 @@ export function ClientsListPage() {
                     emptyDescription="No client organizations match your current search criteria."
                 />
             </div>
+
+            <DeleteClientModal
+                open={!!clientToDelete}
+                client={clientToDelete}
+                onClose={() => setClientToDelete(null)}
+                onDeleted={() => {
+                    queryClient.invalidateQueries({ queryKey: ['clients'] });
+                    queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+                    queryClient.invalidateQueries({ queryKey: ['stats'] });
+                    setSelectedIds((prev) => prev.filter((id) => id !== clientToDelete?._id));
+                }}
+            />
         </div>
     );
 }

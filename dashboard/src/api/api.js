@@ -179,6 +179,11 @@ export const clientApi = {
 
         return response.data;
     },
+
+    deleteClient: async (clientId) => {
+        const response = await api.delete(`/admin/clients/${clientId}`);
+        return response.data;
+    },
 };
 
 export default api;

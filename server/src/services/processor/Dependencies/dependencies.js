@@ -5,6 +5,8 @@ import { ProcessorService } from "../service/ProcessorService.js";
 import ApiHit from '../../../shared/models/ApiHits.js';
 import postgres from '../../../shared/config/postgres.js';
 import logger from '../../../shared/config/logger.js';
+import MongoClientRepository from "../../client/repository/ClientRepository.js";
+
 /**
  * Container class responsible for initializing and wiring dependencies
  * 
@@ -30,6 +32,7 @@ class Container {
         const repositories = {
             apiHitRepository: new ApiHitRepository({ model: ApiHit, logger }),
             metricsRepository: new MetricsRepository({ logger, postgres }),
+            clientRepository: MongoClientRepository,
         };
 
         const services = {

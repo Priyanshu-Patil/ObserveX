@@ -19,10 +19,11 @@ export class ProcessorService {
      * @param {Object} dependencies.apiHitRepository - Repository for raw API hits (MongoDB)
      * @param {Object} dependencies.metricsRepository - Repository for aggregated metrics (PostgreSQL)
      */
-    constructor({ apiHitRepository, metricsRepository }) {
+    constructor({ apiHitRepository, metricsRepository, clientRepository }) {
         if (!apiHitRepository || !metricsRepository) throw new Error('ProcessorService requires apiHitRepository and metricsRepository');
         this.apiHitRepository = apiHitRepository;
         this.metricsRepository = metricsRepository;
+        this.clientRepository = clientRepository;
     };
 
     /**
@@ -58,8 +59,9 @@ export class ProcessorService {
      * Process a single API hit event
      * 
      * Steps:
-     * 1. Save raw event to MongoDB (critical)
-     * 2. Update aggregated metrics in PostgreSQL (non-critical)
+     * 1. Check if client exists (drops in-flight events if client was deleted)
+     * 2. Save raw event to MongoDB (critical)
+     * 3. Update aggregated metrics in PostgreSQL (non-critical)
      * 
      * If MongoDB save fails → entire operation fails  
      * If metrics update fails → error is logged but not thrown
@@ -78,6 +80,22 @@ export class ProcessorService {
                 endpoint: eventData.endpoint,
                 method: eventData.method,
             });
+
+            // Safeguard: Drop in-flight events for deleted or nonexistent clients
+            if (this.clientRepository && eventData.clientId) {
+                try {
+                    const client = await this.clientRepository.findById(eventData.clientId);
+                    if (!client || !client.isActive) {
+                        logger.warn('Skipping event: Target client does not exist or has been deleted/deactivated', {
+                            eventId: eventData.eventId,
+                            clientId: eventData.clientId,
+                        });
+                        return;
+                    }
+                } catch (checkErr) {
+                    logger.debug('Client check error during event processing:', checkErr.message);
+                }
+            }
 
             // STEP 1: save data to MongoDB
             // Yeh succeed hoga ya fir pura operation fail hoga

@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { Users, Key, Activity, BarChart3 } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Users, Key, Activity, BarChart3, Trash2 } from 'lucide-react';
 
 import { clientApi } from '../api/api';
 import { QUERY_KEYS } from '../constants';
@@ -20,6 +21,7 @@ import { ApiKeyCard } from '../components/ui/ApiKeyCard';
 import { ActivityTimeline } from '../components/ui/ActivityTimeline';
 import { EmptyState } from '../components/ui/EmptyState';
 import { CardGridSkeleton } from '../components/ui/LoadingSkeleton';
+import { DeleteClientModal } from '../components/ui/DeleteClientModal';
 
 import { useDashboardQuery } from '../hooks/useDashboardQuery';
 
@@ -35,6 +37,8 @@ import MetaTags from '../components/MetaTags';
 export function ClientDetailsPage() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const {
         data: usersData,
@@ -551,6 +555,17 @@ export function ClientDetailsPage() {
                             />
                             API Keys
                         </Button>
+
+                        <Button
+                            variant="destructive"
+                            onClick={() => setShowDeleteModal(true)}
+                            title="Delete Client Permanently"
+                            aria-label="Delete Client Permanently"
+                            style={{ gap: '0.45rem' }}
+                        >
+                            <Trash2 size={16} />
+                            Delete Client
+                        </Button>
                     </>
                 }
             />
@@ -593,6 +608,17 @@ export function ClientDetailsPage() {
                             analyticsTab,
                     },
                 ]}
+            />
+
+            <DeleteClientModal
+                open={showDeleteModal}
+                client={client}
+                onClose={() => setShowDeleteModal(false)}
+                onDeleted={() => {
+                    queryClient.invalidateQueries({ queryKey: ['clients'] });
+                    queryClient.removeQueries({ queryKey: ['client', id] });
+                    navigate('/admin/clients');
+                }}
             />
         </div>
     );

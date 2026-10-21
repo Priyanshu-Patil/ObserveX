@@ -1,6 +1,8 @@
 import express from "express";
 import clientDependencies from "../Dependencies/dependencies.js"
 import authenticate from "../../../shared/middlewares/authenticate.js"
+import authorize from "../../../shared/middlewares/authorize.js"
+import { APPLICATION_ROLES } from "../../../shared/constants/roles.js"
 
 // Create a new router instance
 const router = express.Router();
@@ -14,6 +16,9 @@ router.use(authenticate);
 router.get("/admin/clients", (req, res, next) => clientController.getClients(req,res,next));
 
 router.get("/admin/clients/:clientId",(req, res, next) => clientController.getClient(req,res,next));
+
+// Permanently delete a client and all associated data
+router.delete("/admin/clients/:clientId", authorize([APPLICATION_ROLES.SUPER_ADMIN]), (req, res, next) => clientController.deleteClient(req, res, next));
 
 // Onboard a new client
 router.post("/admin/clients/onboard", (req, res, next) => clientController.createClient(req, res, next))

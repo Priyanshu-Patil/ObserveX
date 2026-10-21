@@ -50,6 +50,11 @@ class PostgresConnection {
         return this.pool;
     }
 
+    async getClient() {
+        const pool = this.getPool();
+        return await pool.connect();
+    }
+
     async testConnection() {
         try {
             const pool = this.getPool();

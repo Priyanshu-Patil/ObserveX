@@ -307,4 +307,13 @@
   &:active {
     transform: translateY(0);
   }
+
+  &.actionBtnDestructive {
+    &:hover {
+      background: rgba(239, 68, 68, 0.16);
+      border-color: rgba(239, 68, 68, 0.45);
+      color: #ef4444;
+      transform: translateY(-1px);
+    }
+  }
 }

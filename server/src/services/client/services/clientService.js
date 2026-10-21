@@ -1,4 +1,5 @@
 
+import mongoose from 'mongoose';
 import logger from "../../../shared/config/logger.js";
 import config from "../../../shared/config/index.js";
 import { APPLICATION_ROLES, isValidClientRole } from "../../../shared/constants/roles.js";
@@ -19,6 +20,8 @@ export class ClientService {
      * @param {Object} dependencies.clientRepository - The client repository instance
      * @param {Object} dependencies.apiKeyRepository - The API key repository instance
      * @param {Object} dependencies.userRepository - The user repository instance
+     * @param {Object} [dependencies.metricsRepository] - The PostgreSQL metrics repository instance
+     * @param {Object} [dependencies.apiHitRepository] - The MongoDB API hit repository instance
      * @param {Object} [dependencies.emailService] - The email service instance
      * @throws Will throw an error if any of the required dependencies are missing
      */
@@ -42,7 +45,10 @@ export class ClientService {
         this.clientRepository = dependencies.clientRepository;
         this.apiKeyRepository = dependencies.apiKeyRepository;
         this.userRepository = dependencies.userRepository;
+        this.metricsRepository = dependencies.metricsRepository || null;
+        this.apiHitRepository = dependencies.apiHitRepository || null;
         this.emailService = dependencies.emailService || defaultEmailService;
+        this._activeDeletions = new Set();
     };
 
     /**
@@ -622,6 +628,192 @@ export class ClientService {
         } catch (error) {
             logger.error("Error getting client users", error);
             throw error;
+        }
+    }
+
+    /**
+     * Permanently delete a client and all associated data across MongoDB and PostgreSQL
+     * Enforces strict workspace boundaries: only the owning Super Admin can delete their client.
+     * 
+     * Cleanup order:
+     * 1. Validate permissions and ownership
+     * 2. Lock client deletion to prevent concurrent duplicate deletions
+     * 3. Deactivate client and API keys to prevent incoming hits/logins
+     * 4. Delete PostgreSQL aggregated metrics (endpoint_metrics)
+     * 5. Delete MongoDB raw API hits (api_hits)
+     * 6. Delete MongoDB API keys (api_keys)
+     * 7. Delete MongoDB client users (users)
+     * 8. Delete MongoDB client document (clients)
+     * 9. Record sanitized audit log
+     * 
+     * @param {string} clientId - The ID of the client to delete
+     * @param {Object} adminUser - The Super Admin user initiating deletion
+     * @returns {Promise<Object>} - Cleanup execution summary
+     */
+    async deleteClient(clientId, adminUser) {
+        // 1. Role Authorization
+        if (!adminUser || adminUser.role !== APPLICATION_ROLES.SUPER_ADMIN) {
+            throw new AppError("Access denied - Only super admin can delete clients", 403);
+        }
+
+        // 2. Validate client identifier format
+        if (!clientId || typeof clientId !== 'string' || !mongoose.Types.ObjectId.isValid(clientId)) {
+            throw new AppError("Invalid client ID format", 400);
+        }
+
+        // 3. Verify target client existence
+        const client = await this.clientRepository.findById(clientId);
+        if (!client) {
+            throw new AppError("Client not found", 404);
+        }
+
+        // 4. Strict workspace & tenant boundaries: Only owning Super Admin can delete
+        const canAccess = await this.isClientAccessibleBySuperAdmin(client, adminUser);
+        if (!canAccess) {
+            throw new AppError("Access denied - You do not have permission to delete this client", 403);
+        }
+
+        const clientIdStr = client._id.toString();
+
+        // 5. Concurrency lock to prevent simultaneous deletion requests
+        if (this._activeDeletions.has(clientIdStr)) {
+            throw new AppError("Client deletion is already in progress for this client", 409);
+        }
+
+        this._activeDeletions.add(clientIdStr);
+
+        try {
+            logger.info('[ClientService] Initiating permanent client deletion', {
+                clientId: clientIdStr,
+                clientName: client.name,
+                adminId: adminUser.userId || adminUser._id,
+            });
+
+            // Step A: Immediately deactivate client and its API keys to reject any new inbound traffic
+            try {
+                client.isActive = false;
+                await client.save();
+                if (this.apiKeyRepository?.model) {
+                    await this.apiKeyRepository.model.updateMany(
+                        { clientId: client._id },
+                        { $set: { isActive: false } }
+                    );
+                }
+            } catch (deactivateErr) {
+                logger.warn('[ClientService] Warning during client deactivation step:', deactivateErr);
+            }
+
+            // Step B: Clean up PostgreSQL aggregated metrics
+            let pgMetricsDeleted = 0;
+            if (this.metricsRepository && typeof this.metricsRepository.deleteByClientId === 'function') {
+                try {
+                    pgMetricsDeleted = await this.metricsRepository.deleteByClientId(clientIdStr);
+                } catch (pgErr) {
+                    logger.error('[ClientService] Failed to clean up PostgreSQL metrics:', pgErr);
+                    throw new AppError(
+                        `Partial cleanup failure: Unable to delete PostgreSQL metrics (${pgErr.message}). Client is deactivated. Please retry deletion to complete cleanup.`,
+                        500
+                    );
+                }
+            }
+
+            // Step C: Clean up MongoDB raw API hits
+            let apiHitsDeleted = 0;
+            if (this.apiHitRepository && typeof this.apiHitRepository.deleteByClientId === 'function') {
+                try {
+                    apiHitsDeleted = await this.apiHitRepository.deleteByClientId(client._id);
+                } catch (hitsErr) {
+                    logger.error('[ClientService] Failed to clean up MongoDB API hits:', hitsErr);
+                    throw new AppError(
+                        `Partial cleanup failure: Unable to delete raw API hits (${hitsErr.message}). Please retry deletion to complete cleanup.`,
+                        500
+                    );
+                }
+            }
+
+            // Step D: Clean up MongoDB API keys
+            let apiKeysDeleted = 0;
+            if (this.apiKeyRepository && typeof this.apiKeyRepository.deleteByClientId === 'function') {
+                try {
+                    apiKeysDeleted = await this.apiKeyRepository.deleteByClientId(client._id);
+                } catch (keysErr) {
+                    logger.error('[ClientService] Failed to clean up MongoDB API keys:', keysErr);
+                    throw new AppError(
+                        `Partial cleanup failure: Unable to delete API keys (${keysErr.message}). Please retry deletion to complete cleanup.`,
+                        500
+                    );
+                }
+            }
+
+            // Step E: Clean up MongoDB client users
+            let usersDeleted = 0;
+            if (this.userRepository && typeof this.userRepository.deleteByClientId === 'function') {
+                try {
+                    usersDeleted = await this.userRepository.deleteByClientId(client._id);
+                } catch (usersErr) {
+                    logger.error('[ClientService] Failed to clean up MongoDB client users:', usersErr);
+                    throw new AppError(
+                        `Partial cleanup failure: Unable to delete client users (${usersErr.message}). Please retry deletion to complete cleanup.`,
+                        500
+                    );
+                }
+            }
+
+            // Step F: Permanently delete the client document
+            let clientDeleted = false;
+            try {
+                clientDeleted = await this.clientRepository.deleteById(client._id);
+            } catch (clientErr) {
+                logger.error('[ClientService] Failed to delete client document from MongoDB:', clientErr);
+                throw new AppError(
+                    `Partial cleanup failure: Unable to delete client record (${clientErr.message}). Please retry deletion to complete cleanup.`,
+                    500
+                );
+            }
+
+            // Step G: Record Audit Log (minimal sanitized data, no secrets)
+            logger.info('[AUDIT] Permanent client deletion completed successfully', {
+                action: 'PERMANENT_CLIENT_DELETION',
+                admin: {
+                    userId: (adminUser.userId || adminUser._id).toString(),
+                    username: adminUser.username || 'unknown',
+                    role: adminUser.role,
+                },
+                targetClient: {
+                    clientId: clientIdStr,
+                    clientName: client.name,
+                    slug: client.slug,
+                },
+                timestamp: new Date().toISOString(),
+                outcome: 'SUCCESS',
+                cleanupSummary: {
+                    postgresMetricsDeleted: pgMetricsDeleted,
+                    rawHitsDeleted: apiHitsDeleted,
+                    apiKeysDeleted: apiKeysDeleted,
+                    usersDeleted: usersDeleted,
+                    clientRecordDeleted: clientDeleted,
+                }
+            });
+
+            return {
+                clientId: clientIdStr,
+                clientName: client.name,
+                slug: client.slug,
+                deletedAt: new Date().toISOString(),
+                deletedBy: {
+                    userId: (adminUser.userId || adminUser._id).toString(),
+                    username: adminUser.username,
+                },
+                cleanupSummary: {
+                    postgresMetrics: pgMetricsDeleted,
+                    apiHits: apiHitsDeleted,
+                    apiKeys: apiKeysDeleted,
+                    clientUsers: usersDeleted,
+                    clientRecord: clientDeleted ? 1 : 0,
+                }
+            };
+        } finally {
+            this._activeDeletions.delete(clientIdStr);
         }
     }
 }

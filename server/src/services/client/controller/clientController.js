@@ -204,4 +204,28 @@ export class ClientController {
             next(error);
         }
     }
+
+    /**
+     * Permanently delete a client and all associated data, only accessible by super admins
+     * @param {Request} req - Express request object
+     * @param {Response} res - Express response object
+     * @param {Function} next - Express next function
+     */
+    async deleteClient(req, res, next) {
+        try {
+            const isSuperAdmin = await this.authService.checkSuperAdminPermissions(req.user.userId);
+            if (!isSuperAdmin) {
+                return res.status(403).json(ResponseFormatter.error("Access denied - Only super admin can delete clients", 403));
+            }
+
+            const { clientId } = req.params;
+            const result = await this.clientService.deleteClient(clientId, req.user);
+
+            return res.status(200).json(
+                ResponseFormatter.success(result, "Client and all associated data permanently deleted successfully", 200)
+            );
+        } catch (error) {
+            next(error);
+        }
+    }
 }

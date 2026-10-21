@@ -134,6 +134,22 @@ class MongoUserRepository extends BaseRepository {
         }
     }
 
+    /**
+     * Delete all users for a specific client
+     * @param {string|ObjectId} clientId - Client ID
+     * @returns {Promise<number>} - Count of deleted documents
+     */
+    async deleteByClientId(clientId) {
+        try {
+            if (!clientId) return 0;
+            const result = await this.model.deleteMany({ clientId });
+            logger.info("Deleted users for client from database", { clientId, count: result.deletedCount });
+            return result.deletedCount;
+        } catch (error) {
+            logger.error("Error deleting users by client ID in database:", error);
+            throw error;
+        }
+    }
 }
 
 export default new MongoUserRepository()

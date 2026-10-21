@@ -37,4 +37,8 @@ export default class BaseClientRepository {
     async count(filters) {
         throw new Error('Method not implemented');
     }
+
+    async deleteById(clientId) {
+        throw new Error('Method not implemented');
+    }
 }

@@ -21,3 +21,4 @@ export { StatusBadge } from './StatusBadge';
 export { ChartCard } from './ChartCard';
 export { ActivityTimeline } from './ActivityTimeline';
 export { ApiKeyCard } from './ApiKeyCard';
+export { DeleteClientModal } from './DeleteClientModal';

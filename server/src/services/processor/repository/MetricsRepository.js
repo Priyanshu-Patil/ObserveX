@@ -435,6 +435,29 @@ export class MetricsRepository extends BaseRepository {
     }
 
     /**
+     * Delete all aggregated metrics for a specific client
+     * 
+     * @param {string} clientId - Client identifier
+     * @returns {Promise<number>} - Count of deleted rows
+     */
+    async deleteByClientId(clientId) {
+        try {
+            if (!clientId) return 0;
+            const query = `DELETE FROM endpoint_metrics WHERE client_id = $1`;
+            const result = await this._query(query, [clientId.toString()]);
+            const deletedCount = result?.rowCount || 0;
+            this.logger.info('Deleted endpoint metrics for client from PostgreSQL', {
+                clientId: clientId.toString(),
+                deletedCount
+            });
+            return deletedCount;
+        } catch (error) {
+            this.logger.error('Error deleting endpoint metrics by client ID:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Internal helper to execute PostgreSQL queries
      * 
      * @param {string} sql - SQL query
