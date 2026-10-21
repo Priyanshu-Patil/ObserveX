@@ -114,26 +114,28 @@ export class AuthService {
 
             const token = this.generateToken(user);
 
-            // Send Super Admin account-created email
-            try {
-                const emailResult = await this.emailService.sendSuperAdminCreated({
+            // Send Super Admin account-created email asynchronously (non-blocking)
+            this.emailService
+                .sendSuperAdminCreated({
                     to: user.email,
                     username: user.username,
+                })
+                .then((emailResult) => {
+                    if (emailResult && !emailResult.success) {
+                        logger.error('[AuthService] Welcome email failed to send:', {
+                            to: user.email,
+                            error: emailResult.error
+                        });
+                    } else {
+                        logger.info('[AuthService] Super admin welcome email dispatched successfully', {
+                            to: user.email,
+                            messageId: emailResult?.messageId
+                        });
+                    }
+                })
+                .catch((emailErr) => {
+                    logger.error('[AuthService] Failed to send super admin welcome email:', emailErr);
                 });
-                if (emailResult && !emailResult.success) {
-                    logger.error('[AuthService] Welcome email failed to send:', {
-                        to: user.email,
-                        error: emailResult.error
-                    });
-                } else {
-                    logger.info('[AuthService] Super admin welcome email dispatched successfully', {
-                        to: user.email,
-                        messageId: emailResult?.messageId
-                    });
-                }
-            } catch (emailErr) {
-                logger.error('[AuthService] Failed to send super admin welcome email:', emailErr);
-            }
 
             logger.info("Admin onboarded successfully", {
                 username: user.username,
@@ -185,25 +187,27 @@ export class AuthService {
             const token = this.generateToken(user);
 
             if (user.role === APPLICATION_ROLES.SUPER_ADMIN) {
-                try {
-                    const emailResult = await this.emailService.sendSuperAdminCreated({
+                this.emailService
+                    .sendSuperAdminCreated({
                         to: user.email,
                         username: user.username,
+                    })
+                    .then((emailResult) => {
+                        if (emailResult && !emailResult.success) {
+                            logger.error('[AuthService] Welcome email failed to send:', {
+                                to: user.email,
+                                error: emailResult.error
+                            });
+                        } else {
+                            logger.info('[AuthService] Super admin welcome email dispatched successfully', {
+                                to: user.email,
+                                messageId: emailResult?.messageId
+                            });
+                        }
+                    })
+                    .catch((emailErr) => {
+                        logger.error('[AuthService] Failed to send super admin welcome email:', emailErr);
                     });
-                    if (emailResult && !emailResult.success) {
-                        logger.error('[AuthService] Welcome email failed to send:', {
-                            to: user.email,
-                            error: emailResult.error
-                        });
-                    } else {
-                        logger.info('[AuthService] Super admin welcome email dispatched successfully', {
-                            to: user.email,
-                            messageId: emailResult?.messageId
-                        });
-                    }
-                } catch (emailErr) {
-                    logger.error('[AuthService] Failed to send super admin welcome email:', emailErr);
-                }
             }
 
             logger.info("User registered successfully", {

@@ -27,7 +27,7 @@ export function OnboardSuperAdminPage() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const { refreshProfile } = useAuth();
+  const { refreshProfile, setUser } = useAuth();
 
   const [form, setForm] = useState({
     username: "",
@@ -44,18 +44,6 @@ export function OnboardSuperAdminPage() {
 
   const strength = getPasswordStrength(form.password);
 
-  useEffect(() => {
-    const handler = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-        document.getElementById("onboard-form")?.requestSubmit();
-      }
-    };
-
-    window.addEventListener("keydown", handler);
-
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
-
   const mutation = useMutation({
     mutationFn: () =>
       authApi.onboardSuperAdmin({
@@ -65,26 +53,28 @@ export function OnboardSuperAdminPage() {
       }),
 
     onSuccess: async (data) => {
-      if (!data.success) {
-        toast(data.message || "Onboarding failed", "error");
+      if (!data?.success) {
+        toast(data?.message || "Onboarding failed", "error");
         return;
+      }
+
+      // Populate user in memory immediately to ensure seamless navigation to admin routes
+      const createdUser = data.data?.user || data.data;
+      if (createdUser && typeof setUser === "function") {
+        setUser(createdUser);
       }
 
       try {
         await refreshProfile();
-
-        toast("Super admin created successfully!", "success");
-
-        navigate("/admin/clients", {
-          replace: true,
-        });
       } catch (error) {
-        toast("Account created successfully", "success");
-
-        navigate("/admin/clients", {
-          replace: true,
-        });
+        // Fallback: user state is already hydrated from response payload
       }
+
+      toast("Super admin created successfully!", "success");
+
+      navigate("/admin/clients", {
+        replace: true,
+      });
     },
 
     onError: (err) => {
@@ -96,6 +86,21 @@ export function OnboardSuperAdminPage() {
       toast(msg, "error");
     },
   });
+
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (!mutation.isPending) {
+          document.getElementById("onboard-form")?.requestSubmit();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+
+    return () => window.removeEventListener("keydown", handler);
+  }, [mutation.isPending]);
 
   const validate = () => {
     const next = {};
@@ -129,6 +134,8 @@ export function OnboardSuperAdminPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (mutation.isPending) return;
 
     if (validate()) {
       mutation.mutate();

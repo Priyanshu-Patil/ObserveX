@@ -22,17 +22,31 @@ export class EmailService {
      * @param {Object} [transporter] - Optional injected nodemailer transporter (for unit testing)
      */
     constructor(transporter = null) {
-        this.transporter = transporter || nodemailer.createTransport({
-            host: config.email?.smtp?.host || 'smtp-relay.brevo.com',
-            port: config.email?.smtp?.port || 587,
-            secure: config.email?.smtp?.secure || false,
-            auth: {
-                user: config.email?.smtp?.auth?.user,
-                pass: config.email?.smtp?.auth?.pass,
-            },
-        });
+        const smtpHost = config.email?.smtp?.host || 'smtp-relay.brevo.com';
+        const smtpPort = parseInt(config.email?.smtp?.port || '587', 10);
+        const smtpUser = config.email?.smtp?.auth?.user;
+        const smtpPass = config.email?.smtp?.auth?.pass;
+        this.hasAuth = Boolean(transporter || (smtpUser && smtpPass));
 
-        this.from = config.email?.from || 'ObserveX <observex@zohomail.in>';
+        const transportConfig = {
+            host: smtpHost,
+            port: smtpPort,
+            secure: config.email?.smtp?.secure || false,
+            connectionTimeout: 10000,
+            greetingTimeout: 5000,
+            socketTimeout: 15000,
+        };
+
+        if (smtpUser && smtpPass) {
+            transportConfig.auth = {
+                user: smtpUser,
+                pass: smtpPass,
+            };
+        }
+
+        this.transporter = transporter || nodemailer.createTransport(transportConfig);
+
+        this.from = config.email?.from || process.env.EMAIL_FROM || 'ObserveX <observex@zohomail.in>';
         this.appUrl = process.env.APP_URL || config.email?.appUrl || config.appUrl || 'http://localhost:5173';
     }
 
@@ -64,6 +78,11 @@ export class EmailService {
         try {
             if (!to) {
                 throw new Error('Recipient email (to) is required');
+            }
+
+            if (!this.hasAuth) {
+                logger.warn(`[EmailService] SMTP credentials not configured (SMTP_USER/SMTP_PASS). Email skipped for ${to}`);
+                return { success: false, error: 'SMTP credentials not configured' };
             }
 
             const mailOptions = {
