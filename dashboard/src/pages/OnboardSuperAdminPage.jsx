@@ -72,7 +72,7 @@ export function OnboardSuperAdminPage() {
 
       toast("Super admin created successfully!", "success");
 
-      navigate("/admin/clients", {
+      navigate("/client/dashboard", {
         replace: true,
       });
     },
