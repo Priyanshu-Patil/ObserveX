@@ -22,26 +22,24 @@ export class EmailService {
      * @param {Object} [transporter] - Optional injected nodemailer transporter (for unit testing)
      */
     constructor(transporter = null) {
-        const smtpHost = config.email?.smtp?.host || 'smtp-relay.brevo.com';
-        const smtpPort = parseInt(config.email?.smtp?.port || '587', 10);
+        this.smtpHost = config.email?.smtp?.host || 'smtp-relay.brevo.com';
+        this.smtpPort = parseInt(config.email?.smtp?.port || '587', 10);
         const smtpUser = config.email?.smtp?.auth?.user;
         const smtpPass = config.email?.smtp?.auth?.pass;
         this.hasAuth = Boolean(transporter || (smtpUser && smtpPass));
+        this.authConfig = smtpUser && smtpPass ? { user: smtpUser, pass: smtpPass } : null;
 
         const transportConfig = {
-            host: smtpHost,
-            port: smtpPort,
+            host: this.smtpHost,
+            port: this.smtpPort,
             secure: config.email?.smtp?.secure || false,
             connectionTimeout: 10000,
             greetingTimeout: 5000,
             socketTimeout: 15000,
         };
 
-        if (smtpUser && smtpPass) {
-            transportConfig.auth = {
-                user: smtpUser,
-                pass: smtpPass,
-            };
+        if (this.authConfig) {
+            transportConfig.auth = this.authConfig;
         }
 
         this.transporter = transporter || nodemailer.createTransport(transportConfig);
@@ -82,7 +80,7 @@ export class EmailService {
 
             if (!this.hasAuth) {
                 logger.warn(`[EmailService] SMTP credentials not configured (SMTP_USER/SMTP_PASS). Email skipped for ${to}`);
-                return { success: false, error: 'SMTP credentials not configured' };
+                return { success: false, error: 'SMTP credentials not configured in environment variables' };
             }
 
             const mailOptions = {
@@ -93,7 +91,33 @@ export class EmailService {
                 text,
             };
 
-            const info = await this.transporter.sendMail(mailOptions);
+            let info;
+            try {
+                info = await this.transporter.sendMail(mailOptions);
+            } catch (smtpErr) {
+                const isBlockedPort = smtpErr.code === 'ETIMEDOUT' ||
+                    smtpErr.code === 'ESOCKETTIMEDOUT' ||
+                    smtpErr.code === 'ECONNREFUSED' ||
+                    smtpErr.message?.toLowerCase().includes('timeout');
+
+                // If port 587 was blocked by host firewall (e.g. Render Free tier), retry via port 2525
+                if (this.smtpPort === 587 && isBlockedPort && this.authConfig) {
+                    logger.warn(`[EmailService] SMTP port 587 timed out or blocked. Retrying via alternative port 2525 for ${to}...`);
+                    const fallbackTransporter = nodemailer.createTransport({
+                        host: this.smtpHost,
+                        port: 2525,
+                        secure: false,
+                        connectionTimeout: 10000,
+                        greetingTimeout: 5000,
+                        socketTimeout: 15000,
+                        auth: this.authConfig,
+                    });
+                    info = await fallbackTransporter.sendMail(mailOptions);
+                } else {
+                    throw smtpErr;
+                }
+            }
+
             logger.info('[EmailService] Email sent successfully', {
                 to,
                 subject,
