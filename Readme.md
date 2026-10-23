@@ -8,6 +8,8 @@
 [![Express](https://img.shields.io/badge/Express.js_4-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com)
 [![React](https://img.shields.io/badge/React_18-20232F?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev)
+[![PWA](https://img.shields.io/badge/PWA-Installable-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
+[![Capacitor](https://img.shields.io/badge/Capacitor_6-119EFF?style=for-the-badge&logo=capacitor&logoColor=white)](https://capacitorjs.com)
 [![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL_15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org)
 [![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)](https://rabbitmq.com)
@@ -32,7 +34,7 @@
 8. [🌊 Event-Driven Ingest Pipeline](#🌊-event-driven-ingest-pipeline)
 9. [📊 Analytics & Aggregation Engine](#📊-analytics-&-aggregation-engine)
 10. [🔌 API Endpoints](#🔌-api-endpoints)
-11. [💻 Frontend Application](#💻-frontend-application)
+11. [💻 Frontend Application & PWA](#💻-frontend-application--pwa)
 12. [⚙️ Quick Start & Setup](#⚙️-quick-start--setup)
 13. [📝 Environment Configurations](#📝-environment-configurations)
 
@@ -48,6 +50,7 @@
 - **⏱️ Circuit Breaking & Retries**: Employs exponential backoff, jitter, and circuit breaker patterns to survive high load and transient queue downtime.
 - **🔑 Granular API Key Management**: Multi-tenant key scopes including environments, allowed IP/origins, service limits, and permissions.
 - **📊 Interactive Dashboards**: Real-time traffic, latency, and status charts using React, TanStack Query, and ApexCharts.
+- **📱 Progressive Web App (PWA) & Mobile Native**: Installable on iOS, Android, and Desktop with offline caching, mobile safe-area calibration, tactile haptic feedback, and network monitoring via Capacitor.
 
 
 ---
@@ -70,6 +73,8 @@ ObserveX leverages a robust modern polyglot tech stack to handle high-throughput
 | **Zod** | Schema Validation | `^4.3.6` | Type-safe schema validation for ingestion payloads and database models |
 | **Docker & Compose** | Containerization | - | Multi-container environment orchestration for databases and microservices |
 | **SASS** | CSS Preprocessor | `^1.94.2` | Modern styling for custom layout UI |
+| **Capacitor** | Native Mobile Runtime & Bridge | `^6.0.0` | Cross-platform hardware bridge (`@capacitor/network`, `@capacitor/haptics`, `@capacitor/app`) |
+| **vite-plugin-pwa** | Service Worker & Manifest | `^0.20.0` | Zero-config PWA generation, Workbox caching strategies, asset precaching |
 
 ---
 
@@ -80,17 +85,20 @@ Below is the directory structure of the ObserveX repository:
 ```text
 observex/
 ├── dashboard/               # Frontend single-page application (Vite + React)
+│   ├── capacitor.config.json # Capacitor cross-platform runtime configuration
+│   ├── public/              # Static assets, Web App Manifest (site.webmanifest), icons
 │   ├── src/
 │   │   ├── api/             # API client configurations and endpoints
-│   │   ├── components/      # Reusable UI components & charts
-│   │   ├── contexts/        # React Contexts (e.g., Auth, Theme)
+│   │   ├── components/      # Reusable UI components, charts, and PWA widgets
+│   │   │   ├── pwa/         # PWA banner, install guide modal, offline banner
+│   │   ├── contexts/        # React Contexts (Auth, Theme, PwaContext)
 │   │   ├── hooks/           # Custom React hooks
 │   │   ├── pages/           # Pages and route-level components
-│   │   ├── services/        # Service helper functions
-│   │   ├── App.jsx          # Main application entry and router
-│   │   └── main.jsx         # App mounting point
+│   │   ├── services/        # Service helper functions & capacitorService bridge
+│   │   ├── App.jsx          # Main application entry, routing, and PWA providers
+│   │   └── main.jsx         # App mounting point with PWA elements setup
 │   ├── package.json         # Frontend dependencies and scripts
-│   └── vite.config.js       # Vite build configuration
+│   └── vite.config.js       # Vite build & Workbox PWA configuration
 └── server/                  # Backend application (Express.js)
     ├── scripts/             # Database initialization and setup scripts
     ├── src/
@@ -476,9 +484,9 @@ Defined in [analyticsRoutes.js](server/src/services/analytics/routes/analyticsRo
 
 ---
 
-## 💻 Frontend Application
+## 💻 Frontend Application & PWA
 
-The frontend is a single-page React application hosted via Vite, integrating TanStack React Query for cached server syncs, and ApexCharts for charts.
+The frontend is a single-page React application hosted via Vite, integrating TanStack React Query for cached server syncs, ApexCharts for charts, and a full Progressive Web App (PWA) architecture with Capacitor native runtime support.
 
 ### 🗺️ Main Layout Routing Hierarchy
 Defined in [App.jsx](dashboard/src/App.jsx).
@@ -502,13 +510,33 @@ Recharts and ApexCharts are initialized dynamically inside components:
 - [LatencyChart.jsx](dashboard/src/components/charts/LatencyChart.jsx): Min/Max/Avg response times over time.
 - [StatusDistributionChart.jsx](dashboard/src/components/charts/StatusDistributionChart.jsx): Breakdown of response statuses (2xx, 3xx, 4xx, 5xx).
 
-### 📱 Progressive Web App (PWA) & Capacitor Integration
-ObserveX is built as a cross-platform Progressive Web App powered by **Capacitor** (`@capacitor/core`, `@capacitor/cli`, `@ionic/pwa-elements`):
-- **Workbox Service Worker**: Intelligent caching with runtime caching for Google Fonts and API telemetry, enabling offline dashboard access.
-- **Web App Manifest**: Full standalone app support with home screen installation, shortcuts, and custom branded icons.
-- **Capacitor Cross-Platform Bridge**: Unified APIs for `@capacitor/network` (real-time offline/online detection), `@capacitor/haptics` (tactile feedback on actions and refreshes), and `@capacitor/app`.
-- **PWA Elements**: Native-like UI component fallbacks for web browsers via `@ionic/pwa-elements`.
-- **Install Prompts & Status Indicators**: Contextual in-app install banner and status indicators when working in offline cached mode.
+### 📱 Progressive Web App (PWA) & Mobile Architecture
+ObserveX provides a production-grade Progressive Web App experience designed for instant load times, offline resilience, and installability across mobile and desktop devices.
+
+#### 1. Service Worker & Workbox Caching Strategy
+Configured in [vite.config.js](dashboard/vite.config.js) using `vite-plugin-pwa`:
+- **Pre-caching**: Automatically precaches core static bundles (HTML, JS, CSS, SVG, PNG icons) upon initial visit.
+- **Google Fonts (Stylesheets)**: Uses **Stale-While-Revalidate** caching (`google-fonts-stylesheets`) with a 7-day cache TTL for immediate rendering with background updates.
+- **Webfonts**: Uses **Cache-First** strategy (`google-fonts-webfonts`) caching font binaries for 365 days.
+- **API Telemetry & Statistics**: Uses **Network-First** strategy with automatic fallback to cached responses (`api-cache`) over a 24-hour window when network connectivity is degraded or offline.
+
+#### 2. Cross-Platform Bridge via Capacitor
+Integrated through [capacitorService.js](dashboard/src/services/capacitorService.js) and [capacitor.config.json](dashboard/capacitor.config.json):
+- **Network Status Monitoring (`@capacitor/network`)**: Real-time connectivity listener that automatically displays [OfflineIndicator.jsx](dashboard/src/components/pwa/OfflineIndicator.jsx) whenever the user loses internet access.
+- **Tactile Haptic Feedback (`@capacitor/haptics`)**: Provides subtle physical feedback (`light`, `medium`, `selection`) when users refresh data, interact with primary buttons, or copy API keys.
+- **Native Lifecycle (`@capacitor/app`)**: Listens to app state changes (foreground/background transitions) to refresh stale telemetry automatically when resumed.
+
+#### 3. Installation Flow & User Experience
+- **[PwaContext.jsx](dashboard/src/contexts/PwaContext.jsx)**: Global React context providing reactive access to `isInstallable`, `isInstalled`, `isStandalone`, and trigger methods.
+- **[PwaInstallBanner.jsx](dashboard/src/components/pwa/PwaInstallBanner.jsx)**: Native-styled ObserveX floating banner on mobile and desktop with a polite 3-second auto-dismiss timer and smooth exit animations.
+- **[PwaInstallModal.jsx](dashboard/src/components/pwa/PwaInstallModal.jsx)**: Contextual installation guide:
+  - **iOS / Safari**: Shows clear visual steps to tap *Share* followed by *Add to Home Screen*.
+  - **Android / Chrome**: Triggers the native `beforeinstallprompt` browser dialog.
+  - **Desktop Chrome / Edge**: One-click install prompt to run ObserveX in its own dedicated app window.
+
+#### 4. Mobile Viewport & Notch / Safe-Area Calibration
+- **Viewport Cover**: Configured with `viewport-fit=cover` to allow seamless edge-to-edge layouts.
+- **Notch & Status Bar**: Hardened status bar theming with `#000000` theme color and CSS `env(safe-area-inset-top)` / `env(safe-area-inset-bottom)` to ensure headers, sidebars, and auth cards naturally clear the iPhone Dynamic Island, camera notches, and home indicator bars.
 
 ---
 
@@ -639,4 +667,7 @@ EMAIL_FROM=ObserveX <notifications@observex.io>
 ### Dashboard (`dashboard/.env`)
 ```env
 VITE_API_URL=http://localhost:5000
+
+# Optional: Remote backend proxy target for mobile device testing or production
+VITE_API_PROXY_TARGET=https://observex-1.onrender.com
 ```
