@@ -9,6 +9,7 @@ import { useQueryClient, useIsFetching } from "@tanstack/react-query";
 import { useTheme } from "../../contexts/ThemeContext";
 import { QUERY_KEYS } from "../../constants";
 import { RegisterUserModal } from "../../pages/RegisterUserModal";
+import capacitorService from "../../services/capacitorService";
 import styles from "../../styles/modules/layout/DashboardLayout.module.scss";
 
 const ROUTE_LABELS = {
@@ -101,6 +102,7 @@ export function DashboardLayout({ children, onLogout }) {
   });
 
   const handleRefresh = () => {
+    capacitorService.triggerHaptic("light");
     queryClient.invalidateQueries({
       queryKey: QUERY_KEYS.DASHBOARD,
     });

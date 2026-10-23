@@ -1,0 +1,16 @@
+{
+  "appId": "com.observex.app",
+  "appName": "ObserveX",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "backgroundColor": "#090d16",
+      "showSpinner": false
+    }
+  }
+}

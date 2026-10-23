@@ -12,8 +12,10 @@ import {
   ScrollText,
   BookOpen,
   Plus,
+  Download,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { usePwa } from "../../contexts/PwaContext";
 import styles from "../../styles/modules/layout/Sidebar.module.scss";
 
 function NavSection({ title, items, onClose }) {
@@ -49,6 +51,7 @@ export function Sidebar({ isOpen, onClose, onOpenRegisterModal }) {
   const { currentTheme } = useTheme();
   const navigate = useNavigate();
   const { isSuperAdmin, clientId } = useAuth();
+  const { isInstallable, isInstalled, installPwa } = usePwa();
   const logoSrc =
     currentTheme === "dark" ? "/Logo-Dark.png" : "/Logo-Light.png";
 
@@ -183,6 +186,30 @@ export function Sidebar({ isOpen, onClose, onOpenRegisterModal }) {
 
           <div className={styles.bottomNavigation}>
             <NavSection items={bottomItems} onClose={onClose} />
+            {isInstallable && !isInstalled && (
+              <button
+                type="button"
+                className={styles.navActionButton}
+                onClick={() => {
+                  installPwa();
+                  onClose?.();
+                }}
+                style={{
+                  marginTop: '10px',
+                  background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(99, 102, 241, 0.18))',
+                  border: '1px solid rgba(56, 189, 248, 0.35)',
+                  color: '#38bdf8',
+                  borderRadius: '10px',
+                  boxShadow: '0 4px 12px rgba(14, 165, 233, 0.15)',
+                }}
+                aria-label="Install ObserveX PWA"
+              >
+                <Download size={18} />
+                <div className={styles.navItem}>
+                  <div>Install App</div>
+                </div>
+              </button>
+            )}
           </div>
         </div>
       </aside>

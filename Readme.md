@@ -502,6 +502,14 @@ Recharts and ApexCharts are initialized dynamically inside components:
 - [LatencyChart.jsx](dashboard/src/components/charts/LatencyChart.jsx): Min/Max/Avg response times over time.
 - [StatusDistributionChart.jsx](dashboard/src/components/charts/StatusDistributionChart.jsx): Breakdown of response statuses (2xx, 3xx, 4xx, 5xx).
 
+### 📱 Progressive Web App (PWA) & Capacitor Integration
+ObserveX is built as a cross-platform Progressive Web App powered by **Capacitor** (`@capacitor/core`, `@capacitor/cli`, `@ionic/pwa-elements`):
+- **Workbox Service Worker**: Intelligent caching with runtime caching for Google Fonts and API telemetry, enabling offline dashboard access.
+- **Web App Manifest**: Full standalone app support with home screen installation, shortcuts, and custom branded icons.
+- **Capacitor Cross-Platform Bridge**: Unified APIs for `@capacitor/network` (real-time offline/online detection), `@capacitor/haptics` (tactile feedback on actions and refreshes), and `@capacitor/app`.
+- **PWA Elements**: Native-like UI component fallbacks for web browsers via `@ionic/pwa-elements`.
+- **Install Prompts & Status Indicators**: Contextual in-app install banner and status indicators when working in offline cached mode.
+
 ---
 
 ## ⚙️ Quick Start & Setup

@@ -6,8 +6,11 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DashboardLayout } from './components/layout';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { PwaProvider } from './contexts/PwaContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
+import PwaInstallBanner from './components/pwa/PwaInstallBanner';
+import OfflineIndicator from './components/pwa/OfflineIndicator';
 
 
 import LandingPage from './pages/LandingPage';
@@ -219,12 +222,16 @@ function App() {
     return (
         <ErrorBoundary>
             <ThemeProvider>
-                <ToastProvider>
-                    <BrowserRouter>
-                        <ScrollToTop />
-                        <AppWithProviders />
-                    </BrowserRouter>
-                </ToastProvider>
+                <PwaProvider>
+                    <ToastProvider>
+                        <BrowserRouter>
+                            <ScrollToTop />
+                            <OfflineIndicator />
+                            <AppWithProviders />
+                            <PwaInstallBanner />
+                        </BrowserRouter>
+                    </ToastProvider>
+                </PwaProvider>
             </ThemeProvider>
         </ErrorBoundary>
     );

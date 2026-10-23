@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X, Download } from "lucide-react";
+import { usePwa } from "../../contexts/PwaContext";
 import styles from "../../styles/modules/pages/LandingPage.module.scss";
 
 export function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isInstallable, isInstalled, installPwa } = usePwa();
 
   const isHomepage = location.pathname === "/";
   const goOnboard = () => navigate("/onboard-super-admin");
@@ -64,6 +66,23 @@ export function Navbar() {
         </ul>
 
         <div className={styles.navActions}>
+          {isInstallable && !isInstalled && (
+            <button
+              className={styles.navSignIn}
+              onClick={installPwa}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                borderColor: "rgba(56, 189, 248, 0.4)",
+                color: "#38bdf8",
+              }}
+              aria-label="Install ObserveX PWA"
+            >
+              <Download size={14} />
+              <span>Install App</span>
+            </button>
+          )}
           <button className={styles.navSignIn} onClick={() => navigate("/login")}>
             Login
           </button>
@@ -121,6 +140,27 @@ export function Navbar() {
           </li>
         </ul>
         <div className={styles.mobileActions}>
+          {isInstallable && !isInstalled && (
+            <button
+              className={styles.btnSignIn}
+              onClick={() => {
+                installPwa();
+                setMobileMenuOpen(false);
+              }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                borderColor: "rgba(56, 189, 248, 0.4)",
+                color: "#38bdf8",
+              }}
+              aria-label="Install ObserveX PWA"
+            >
+              <Download size={16} />
+              <span>Install App</span>
+            </button>
+          )}
           <button className={styles.btnSignIn} onClick={() => { navigate("/login"); setMobileMenuOpen(false); }}>
             Login
           </button>
