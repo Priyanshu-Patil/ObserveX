@@ -13,12 +13,7 @@ export default defineConfig({
                 'pwa-192x192.png',
                 'pwa-512x512.png',
                 'apple-touch-icon.png',
-                'Logo-Dark.png',
-                'Logo-Light.png',
-                '1.png',
-                '2.png',
-                '3.png',
-                '4.png'
+                '2.png'
             ],
             manifest: {
                 name: 'ObserveX - API Monitoring & Observability Platform',
@@ -76,7 +71,7 @@ export default defineConfig({
                 ]
             },
             workbox: {
-                globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2,ttf}'],
+                globPatterns: ['**/*.{js,css,html,woff,woff2}'],
                 runtimeCaching: [
                     {
                         urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
@@ -93,11 +88,25 @@ export default defineConfig({
                         },
                     },
                     {
+                        urlPattern: /\.(?:png|jpg|jpeg|svg|webp|gif)$/i,
+                        handler: 'CacheFirst',
+                        options: {
+                            cacheName: 'images-cache',
+                            expiration: {
+                                maxEntries: 60,
+                                maxAgeSeconds: 60 * 60 * 24 * 30,
+                            },
+                            cacheableResponse: {
+                                statuses: [0, 200],
+                            },
+                        },
+                    },
+                    {
                         urlPattern: /\/api\/.*/i,
                         handler: 'NetworkFirst',
                         options: {
                             cacheName: 'observex-api-cache',
-                            networkTimeoutSeconds: 10,
+                            networkTimeoutSeconds: 5,
                             expiration: {
                                 maxEntries: 50,
                                 maxAgeSeconds: 60 * 60 * 24,
@@ -109,11 +118,31 @@ export default defineConfig({
                     },
                 ],
             },
-            devOptions: {
-                enabled: true,
-            },
         }),
     ],
+    build: {
+        target: 'esnext',
+        cssCodeSplit: true,
+        chunkSizeWarningLimit: 800,
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules/apexcharts') || id.includes('node_modules/react-apexcharts')) {
+                        return 'vendor-charts';
+                    }
+                    if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/') || id.includes('node_modules/react-router-dom/')) {
+                        return 'vendor-react';
+                    }
+                    if (id.includes('node_modules/@tanstack/react-query') || id.includes('node_modules/axios')) {
+                        return 'vendor-query';
+                    }
+                    if (id.includes('node_modules/lucide-react')) {
+                        return 'vendor-icons';
+                    }
+                },
+            },
+        },
+    },
     css: {
         modules: {
             localsConvention: 'camelCase',
@@ -129,8 +158,9 @@ export default defineConfig({
         port: 5173,
         proxy: {
             '/api': {
-                target: process.env.VITE_API_PROXY_TARGET || process.env.VITE_API_URL || 'http://localhost:3000',
+                target: process.env.VITE_API_PROXY_TARGET || process.env.VITE_API_URL || 'https://observex-1.onrender.com',
                 changeOrigin: true,
+                secure: false,
             },
         },
     },
