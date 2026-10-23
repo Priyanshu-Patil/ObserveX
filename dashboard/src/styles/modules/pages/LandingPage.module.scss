@@ -47,12 +47,13 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: #000000;
 }
 
 .page {
   font-family: var(--font-body);
   color: var(--text-body);
-  background: var(--white);
+  background: #000000;
   overflow-x: hidden;
   line-height: 1.6;
 }
@@ -141,8 +142,11 @@ html {
     border-left: none;
     border-right: none;
     border-top: none;
-    height: 70px;
-    padding: 0 6%;
+    padding-top: env(safe-area-inset-top, 0px);
+    height: calc(64px + env(safe-area-inset-top, 0px));
+    padding-left: max(6%, env(safe-area-inset-left, 0px));
+    padding-right: max(6%, env(safe-area-inset-right, 0px));
+    background: rgba(16, 0, 43, 0.95);
   }
 }
 
@@ -1654,7 +1658,7 @@ html {
               visibility 0.35s;
 
   @media (max-width: 768px) {
-    top: 76px;
+    top: calc(72px + env(safe-area-inset-top, 0px));
     width: calc(100% - 2rem);
     left: 1rem;
     border-radius: 16px;
@@ -1809,7 +1813,7 @@ html {
 
 @media (max-width: 768px) {
   .hero {
-    padding: 4rem 6% 3rem;
+    padding: calc(5.5rem + env(safe-area-inset-top, 0px)) 6% 3rem;
   }
 
   .heroMockup {

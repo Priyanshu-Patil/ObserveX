@@ -17,6 +17,9 @@
     left: 0;
     z-index: 40;
     height: 100vh;
+    height: 100dvh;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     transition: transform 300ms ease-in-out;
     width: 15rem;
     border-right: 1px solid hsl(var(--border) / 0.4);

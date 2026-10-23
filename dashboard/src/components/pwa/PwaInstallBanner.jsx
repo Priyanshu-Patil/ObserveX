@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePwa } from '../../contexts/PwaContext';
 import { Download, X } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -6,6 +6,28 @@ import styles from './PwaBanner.module.scss';
 
 export function PwaInstallBanner() {
     const { showBanner, installPwa, dismissBanner, isInstalled } = usePwa();
+    const [isExiting, setIsExiting] = useState(false);
+
+    useEffect(() => {
+        if (!showBanner || isInstalled) return;
+
+        // Automatically dismiss banner after 5 seconds
+        const timer = setTimeout(() => {
+            setIsExiting(true);
+            setTimeout(() => {
+                dismissBanner();
+            }, 250);
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, [showBanner, isInstalled, dismissBanner]);
+
+    const handleManualDismiss = () => {
+        setIsExiting(true);
+        setTimeout(() => {
+            dismissBanner();
+        }, 250);
+    };
 
     if (!showBanner || isInstalled) {
         return null;
@@ -13,7 +35,7 @@ export function PwaInstallBanner() {
 
     return (
         <aside
-            className={styles.bannerContainer}
+            className={`${styles.bannerContainer} ${isExiting ? styles.exiting : ''}`}
             aria-label="Install ObserveX"
             role="region"
         >
@@ -45,7 +67,7 @@ export function PwaInstallBanner() {
                     </Button>
                     <button
                         type="button"
-                        onClick={dismissBanner}
+                        onClick={handleManualDismiss}
                         className={styles.dismissBtn}
                         aria-label="Dismiss banner"
                     >
