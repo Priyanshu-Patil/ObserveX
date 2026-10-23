@@ -1,22 +1,20 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import capacitorService from '../services/capacitorService';
+import PwaInstallModal from '../components/pwa/PwaInstallModal';
 
 const PwaContext = createContext(null);
 
 export function PwaProvider({ children }) {
-    const [isInstallable, setIsInstallable] = useState(false);
+    const [canInstallDirectly, setCanInstallDirectly] = useState(false);
     const [isInstalled, setIsInstalled] = useState(capacitorService.isStandalonePwa());
     const [isOffline, setIsOffline] = useState(!capacitorService.isOnline);
-    const [showBanner, setShowBanner] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        return !sessionStorage.getItem('observex_pwa_banner_dismissed');
-    });
-    const [hasUpdate, setHasUpdate] = useState(false);
+    const [bannerDismissed, setBannerDismissed] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         // Subscribe to PWA installation state
         const unsubscribeInstall = capacitorService.onInstallChange((canInstall) => {
-            setIsInstallable(canInstall);
+            setCanInstallDirectly(canInstall);
             setIsInstalled(capacitorService.isStandalonePwa());
         });
 
@@ -25,52 +23,74 @@ export function PwaProvider({ children }) {
             setIsOffline(!isOnline);
         });
 
+        // Listen for display mode changes (e.g. user opens standalone window)
+        const displayModeQuery = window.matchMedia('(display-mode: standalone)');
+        const handleDisplayModeChange = (e) => {
+            if (e.matches) {
+                setIsInstalled(true);
+            }
+        };
+        displayModeQuery.addEventListener('change', handleDisplayModeChange);
+
         return () => {
             unsubscribeInstall();
             unsubscribeNetwork();
+            displayModeQuery.removeEventListener('change', handleDisplayModeChange);
         };
     }, []);
 
-    // Prompt user to install the PWA
+    // Prompt user to install the PWA or show browser guidance modal
     const installPwa = useCallback(async () => {
         capacitorService.triggerHaptic('medium');
-        const res = await capacitorService.promptInstall();
-        if (res.outcome === 'accepted') {
-            setShowBanner(false);
-        }
-        return res;
-    }, []);
 
-    // Dismiss the floating install banner
+        if (canInstallDirectly) {
+            const res = await capacitorService.promptInstall();
+            if (res.outcome === 'accepted') {
+                setIsInstalled(true);
+                setBannerDismissed(true);
+                return res;
+            }
+        }
+
+        // If direct prompt was already consumed or unavailable on this browser, show the guide modal
+        setIsModalOpen(true);
+    }, [canInstallDirectly]);
+
     const dismissBanner = useCallback(() => {
         capacitorService.triggerHaptic('light');
-        setShowBanner(false);
-        try {
-            sessionStorage.setItem('observex_pwa_banner_dismissed', 'true');
-        } catch {
-            // Ignore storage issues in private mode
-        }
+        setBannerDismissed(true);
     }, []);
 
-    // Trigger haptics feedback
     const triggerHaptic = useCallback((type = 'light') => {
         capacitorService.triggerHaptic(type);
     }, []);
 
     const value = {
-        isInstallable,
+        isInstallable: !isInstalled,
+        canInstallDirectly,
         isInstalled,
         isOffline,
-        showBanner: showBanner && isInstallable && !isInstalled,
-        hasUpdate,
-        platform: capacitorService.getPlatform(),
-        isNative: capacitorService.isNative(),
+        showBanner: !bannerDismissed && !isInstalled,
+        openInstallModal: () => setIsModalOpen(true),
+        closeInstallModal: () => setIsModalOpen(false),
         installPwa,
         dismissBanner,
         triggerHaptic,
+        platform: capacitorService.getPlatform(),
+        isNative: capacitorService.isNative(),
     };
 
-    return <PwaContext.Provider value={value}>{children}</PwaContext.Provider>;
+    return (
+        <PwaContext.Provider value={value}>
+            {children}
+            <PwaInstallModal
+                open={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onInstallDirectly={installPwa}
+                canInstallDirectly={canInstallDirectly}
+            />
+        </PwaContext.Provider>
+    );
 }
 
 export function usePwa() {

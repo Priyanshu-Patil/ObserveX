@@ -186,7 +186,7 @@ export function Sidebar({ isOpen, onClose, onOpenRegisterModal }) {
 
           <div className={styles.bottomNavigation}>
             <NavSection items={bottomItems} onClose={onClose} />
-            {isInstallable && !isInstalled && (
+            {!isInstalled && (
               <button
                 type="button"
                 className={styles.navActionButton}
@@ -195,14 +195,9 @@ export function Sidebar({ isOpen, onClose, onOpenRegisterModal }) {
                   onClose?.();
                 }}
                 style={{
-                  marginTop: '10px',
-                  background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(99, 102, 241, 0.18))',
-                  border: '1px solid rgba(56, 189, 248, 0.35)',
-                  color: '#38bdf8',
-                  borderRadius: '10px',
-                  boxShadow: '0 4px 12px rgba(14, 165, 233, 0.15)',
+                  marginTop: '0.5rem',
                 }}
-                aria-label="Install ObserveX PWA"
+                aria-label="Install ObserveX App"
               >
                 <Download size={18} />
                 <div className={styles.navItem}>

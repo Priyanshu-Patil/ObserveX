@@ -66,7 +66,7 @@ export function Navbar() {
         </ul>
 
         <div className={styles.navActions}>
-          {isInstallable && !isInstalled && (
+          {!isInstalled && (
             <button
               className={styles.navSignIn}
               onClick={installPwa}
@@ -74,10 +74,8 @@ export function Navbar() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "6px",
-                borderColor: "rgba(56, 189, 248, 0.4)",
-                color: "#38bdf8",
               }}
-              aria-label="Install ObserveX PWA"
+              aria-label="Install ObserveX App"
             >
               <Download size={14} />
               <span>Install App</span>
@@ -140,7 +138,7 @@ export function Navbar() {
           </li>
         </ul>
         <div className={styles.mobileActions}>
-          {isInstallable && !isInstalled && (
+          {!isInstalled && (
             <button
               className={styles.btnSignIn}
               onClick={() => {
@@ -152,10 +150,8 @@ export function Navbar() {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "8px",
-                borderColor: "rgba(56, 189, 248, 0.4)",
-                color: "#38bdf8",
               }}
-              aria-label="Install ObserveX PWA"
+              aria-label="Install ObserveX App"
             >
               <Download size={16} />
               <span>Install App</span>
