@@ -56,6 +56,7 @@ import {
   TROUBLESHOOTING_ITEMS,
 } from "../lib/docsData";
 import { CODE_SNIPPETS } from "../lib/docsContent";
+import { CodeBlock } from "../components/ui/code-block";
 
 // Icon mapping helper
 const ICON_MAP = {
@@ -93,55 +94,6 @@ const ICON_MAP = {
 function renderPageIcon(iconName, size = 16) {
   const IconComponent = ICON_MAP[iconName] || FileText;
   return <IconComponent size={size} />;
-}
-
-// ─── Copy Button Component ───────────────────────────────────────────────────
-function CopyButton({ text, label = "Copy" }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = useCallback(async (e) => {
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.warn("Failed to copy to clipboard:", err);
-    }
-  }, [text]);
-
-  return (
-    <button
-      type="button"
-      className={`${styles.copyBtn} ${copied ? styles.copied : ""}`}
-      onClick={handleCopy}
-      title="Copy to clipboard"
-    >
-      {copied ? <Check size={13} /> : <Copy size={13} />}
-      <span>{copied ? "Copied!" : label}</span>
-    </button>
-  );
-}
-
-// ─── Code Block Component ───────────────────────────────────────────────────
-function CodeBlock({ code, title, language = "javascript" }) {
-  return (
-    <div className={styles.codeBlock}>
-      <div className={styles.codeHeader}>
-        <div className={styles.codeFileTitle}>
-          <FileCode size={14} />
-          <span>{title || `${language} snippet`}</span>
-        </div>
-        <div className={styles.codeMeta}>
-          <span className={styles.codeLanguage}>{language}</span>
-          <CopyButton text={code} />
-        </div>
-      </div>
-      <pre className={styles.codePre}>
-        <code>{code}</code>
-      </pre>
-    </div>
-  );
 }
 
 // ─── Callout Component ───────────────────────────────────────────────────────

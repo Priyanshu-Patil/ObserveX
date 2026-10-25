@@ -1,11 +1,28 @@
-import { useEffect } from "react";
-import { ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import {
+  ArrowRight,
+  BookOpen,
+  Terminal,
+  Zap,
+  ShieldCheck,
+  Layers,
+  Copy,
+  Check,
+} from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import styles from "../styles/modules/pages/LandingPage.module.scss";
 import { Footer, Navbar } from "../components/layout";
 import MetaTags from "../components/MetaTags";
+import {
+  CodeBlock,
+  CodeBlockHeader,
+  CodeBlockActions,
+  CodeBlockCopyButton,
+  CodeBlockContent,
+  CodeBlockFooter,
+} from "../components/ui/code-block";
 
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
@@ -135,29 +152,104 @@ const testimonials = [
   },
 ];
 
-// Code snippet for the Developer Friendly section
-const codeSnippet = `const axios = require('axios');
+// Multi-language code examples for Developer Experience section
+const CODE_EXAMPLES = {
+  express: {
+    label: "Express.js",
+    file: "server.js",
+    pill: "app.use(observexMiddleware)",
+    status: "200 OK · 14ms",
+    code: `const express = require('express');
+const { observexMiddleware } = require('observex-node');
 
-await axios.post(
-  'https://api.observex.com/api/hit',
-  {
-    serviceName: 'payment-service',
-    endpoint: '/api/payments',
-    method: 'POST',
-    statusCode: 200,
-    latency: 145
+const app = express();
+
+// Drop-in middleware: logs latency, status codes & traffic
+app.use(observexMiddleware({
+  apiKey: process.env.OBSERVEX_API_KEY,
+  serviceName: 'payments-api',
+  environment: 'production'
+}));
+
+app.get('/api/v1/checkout', async (req, res) => {
+  res.json({ success: true, processedAt: Date.now() });
+});
+
+app.listen(3000);`,
   },
-  {
-    headers: {
-      'x-api-key': process.env.OBSERVEX_API_KEY
-    }
-  }
-);`;
+  python: {
+    label: "FastAPI / Python",
+    file: "main.py",
+    pill: "app.add_middleware()",
+    status: "200 OK · 22ms",
+    code: `from fastapi import FastAPI
+from observex import ObserveXMiddleware
+
+app = FastAPI(title="Billing Service")
+
+# Non-blocking telemetry background pipeline
+app.add_middleware(
+    ObserveXMiddleware,
+    api_key="ox_live_a89f217c4e",
+    service_name="billing-api",
+    environment="production"
+)
+
+@app.get("/api/v1/subscriptions")
+async def get_subscriptions():
+    return {"status": "active", "tier": "enterprise"}`,
+  },
+  curl: {
+    label: "cURL / Ingestion",
+    file: "ingest.sh",
+    pill: "POST /api/hit",
+    status: "201 Created · 38ms",
+    code: `curl -X POST https://api.observex.com/api/hit \\
+  -H "Content-Type: application/json" \\
+  -H "x-api-key: ox_live_a89f217c4e..." \\
+  -d '{
+    "serviceName": "auth-service",
+    "endpoint": "/api/v1/oauth/token",
+    "method": "POST",
+    "statusCode": 200,
+    "latency": 38,
+    "environment": "production"
+  }'`,
+  },
+  node: {
+    label: "Node.js (Fetch)",
+    file: "tracker.ts",
+    pill: "tracker.recordHit()",
+    status: "200 OK · 18ms",
+    code: `import { ObserveXClient } from '@observex/sdk';
+
+const tracker = new ObserveXClient({
+  apiKey: process.env.OBSERVEX_API_KEY,
+  serviceName: 'orders-worker'
+});
+
+// Record custom async job or route metrics
+await tracker.recordHit({
+  endpoint: '/workers/invoice-generate',
+  method: 'POST',
+  statusCode: 200,
+  latencyMs: 84
+});`,
+  },
+};
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("express");
+  const [copiedCode, setCopiedCode] = useState(false);
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(CODE_EXAMPLES[activeTab].code);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
 
   useEffect(() => {
     // Only enable smooth wheel on non-touch desktop to ensure maximum 120Hz native touch performance on mobile
@@ -474,66 +566,123 @@ export function LandingPage() {
         </div>
       </div>
 
-      {/* ── DEVELOPER FRIENDLY (was Smart Banking) ── */}
+      {/* ── DEVELOPER FRIENDLY ── */}
       <section id="docs" className={styles.smartSection}>
         <div className={styles.smartInner}>
-          <div className={styles.codeVisual}>
-            <div className={styles.codeHeader}>
-              <div className={styles.codeDots}>
-                <span /> <span /> <span />
+          <div className={styles.codeVisualWrapper}>
+            <div className={styles.codeGlow} />
+            <CodeBlock className={styles.codeVisual} dots={false}>
+              <CodeBlockHeader className={styles.codeHeader}>
+                <div className={styles.codeDots} aria-hidden="true">
+                  <span /> <span /> <span />
+                </div>
+                <div className={styles.codeTabs}>
+                  {Object.entries(CODE_EXAMPLES).map(([key, item]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      className={`${styles.codeTab} ${activeTab === key ? styles.codeTabActive : ""}`}
+                      onClick={() => setActiveTab(key)}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+                <CodeBlockActions style={{ flexShrink: 0, marginLeft: "auto" }}>
+                  <CodeBlockCopyButton
+                    value={CODE_EXAMPLES[activeTab].code}
+                    className={styles.codeCopyBtn}
+                  />
+                </CodeBlockActions>
+              </CodeBlockHeader>
+
+              <div className={styles.codeSubBar}>
+                <span className={styles.codeFileIndicator}>
+                  <Terminal size={12} className={styles.fileIcon} />
+                  {CODE_EXAMPLES[activeTab].file}
+                </span>
+                <span className={styles.codeLangPill}>{CODE_EXAMPLES[activeTab].label}</span>
               </div>
-              <span className={styles.codeFile}>monitor.js</span>
-            </div>
-            <pre className={styles.codeBlock}>
-              <code>{codeSnippet}</code>
-            </pre>
-            <div className={styles.codeFooter}>
-              <span className={styles.codePill}>POST /api/hit</span>
-              <span className={styles.codeStatus}>200 OK · 142ms</span>
-            </div>
+
+              <CodeBlockContent
+                lineNumbers
+                language={CODE_EXAMPLES[activeTab].label.toLowerCase()}
+                className={styles.landingCodeBlockContent}
+              >
+                {CODE_EXAMPLES[activeTab].code}
+              </CodeBlockContent>
+
+              <CodeBlockFooter className={styles.codeFooter}>
+                <div className={styles.codePillGroup}>
+                  <span className={styles.livePulseDot} />
+                  <span className={styles.codePill}>{CODE_EXAMPLES[activeTab].pill}</span>
+                </div>
+                <div className={styles.codeStatusGroup}>
+                  <span className={styles.codeStatusBadge}>
+                    {CODE_EXAMPLES[activeTab].status}
+                  </span>
+                </div>
+              </CodeBlockFooter>
+            </CodeBlock>
           </div>
 
-          <div>
-            <div className={styles.sectionLabel}>DEVELOPER FRIENDLY</div>
+          <div className={styles.smartContent}>
             <h2
               className={styles.sectionTitle}
-              style={{ marginTop: "0.5rem", marginBottom: "1rem" }}
+              style={{ marginTop: 0, marginBottom: "1rem" }}
             >
               Drop-In SDK.<br />
               Production-Ready Insights.
             </h2>
+
             <p className={styles.sectionSub}>
-              Get started in minutes with simple integration guides and API
-              references. A few lines of code is all it takes to start streaming
-              metrics into ObserveX.
+              Get started in less than 3 minutes. Lightweight drop-in SDKs batch telemetry asynchronously in background workers, guaranteeing your API response times are never affected.
             </p>
 
             <div className={styles.smartFeaturesList}>
               {[
                 {
-                  icon: "📦",
-                  title: "Official SDKs",
-                  desc: "Drop-in libraries for Node.js, Python, Go, Java, and more.",
+                  icon: <Zap size={18} />,
+                  title: "Sub-Millisecond Overhead",
+                  desc: "Non-blocking background flushing preserves full request performance.",
+                  badge: "< 0.2ms",
                 },
                 {
-                  icon: "📘",
-                  title: "Clear Documentation",
-                  desc: "Comprehensive guides, examples, and API references.",
+                  icon: <Layers size={18} />,
+                  title: "Multi-Language Ecosystem",
+                  desc: "First-class client libraries for Node.js, Express, FastAPI, Next.js, and raw HTTP.",
+                  badge: "SDKs Ready",
                 },
                 {
-                  icon: "🛡",
-                  title: "Secure By Default",
-                  desc: "API keys, scoped tokens, and per-environment isolation.",
+                  icon: <ShieldCheck size={18} />,
+                  title: "Per-Environment Isolation",
+                  desc: "Scoped API keys with isolated telemetry streams for development, staging, and production.",
+                  badge: "Enterprise",
                 },
               ].map((sf) => (
                 <div key={sf.title} className={styles.smartFeatureItem}>
                   <div className={styles.featureIcon}>{sf.icon}</div>
                   <div className={styles.featureText}>
-                    <h4>{sf.title}</h4>
+                    <div className={styles.featureTitleRow}>
+                      <h4>{sf.title}</h4>
+                      <span className={styles.featureBadge}>{sf.badge}</span>
+                    </div>
                     <p>{sf.desc}</p>
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div className={styles.docsActionRow}>
+              <Link to="/docs" className={styles.readDocsBtn}>
+                <BookOpen size={16} />
+                <span>Read Full Documentation</span>
+                <ArrowRight size={16} className={styles.readDocsArrow} />
+              </Link>
+              <Link to="/docs#quickstart" className={styles.quickstartBtn}>
+                <span>Quickstart Guide</span>
+                <span className={styles.quickstartPill}>5 min</span>
+              </Link>
             </div>
           </div>
         </div>

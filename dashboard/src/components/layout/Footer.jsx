@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import styles from "../../styles/modules/pages/LandingPage.module.scss";
 
-export function Footer() {
+export function Footer({ style }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,16 +28,15 @@ export function Footer() {
   };
 
   return (
-    <footer className={styles.footer}>
+    <footer className={styles.footer} style={style}>
       <div className={styles.footerInner}>
         <div className={styles.footerTop}>
           <div className={styles.footerBrand}>
-            <Link to="/" onClick={handleLogoClick} style={{ display: "inline-block" }}>
+            <Link to="/" onClick={handleLogoClick} className={styles.footerBrandLink}>
               <img
                 src="/Logo-Dark.png"
                 alt="ObserveX"
                 className={styles.footerLogo}
-                style={{ height: "fit-content", width: "200px", objectFit: "contain", cursor: "pointer" }}
               />
             </Link>
             <p>
@@ -51,7 +50,7 @@ export function Footer() {
             <a href="/#homepage">Home</a>
             <a href="/#features">Features</a>
             <a href="/#integrations">Integrations</a>
-            <a href="/#docs">Documentation</a>
+            <Link to="/docs">Documentation</Link>
           </div>
 
           <div className={styles.footerCol}>

@@ -11,11 +11,12 @@ export function Navbar() {
   const { isInstallable, isInstalled, installPwa } = usePwa();
 
   const isHomepage = location.pathname === "/";
+  const isDocs = location.pathname.startsWith("/docs");
   const goOnboard = () => navigate("/onboard-super-admin");
 
   return (
     <>
-      <nav className={styles.nav}>
+      <nav className={`${styles.nav} ${isDocs ? styles.navDocs : ""}`}>
         <div className={styles.navLogo} onClick={() => navigate("/")}>
           <img
             src="/Logo-Dark.png"
@@ -47,11 +48,7 @@ export function Navbar() {
             )}
           </li>
           <li>
-            {isHomepage ? (
-              <a href="#docs">Documentation</a>
-            ) : (
-              <Link to="/#docs">Documentation</Link>
-            )}
+            <Link to="/docs">Documentation</Link>
           </li>
           <li className={styles.navDropdownContainer}>
             <button className={styles.navDropdownTrigger}>
@@ -98,7 +95,7 @@ export function Navbar() {
         </button>
       </nav>
 
-      <div className={`${styles.mobileMenu} ${mobileMenuOpen ? styles.mobileMenuOpen : ""}`}>
+      <div className={`${styles.mobileMenu} ${mobileMenuOpen ? styles.mobileMenuOpen : ""} ${isDocs ? styles.mobileMenuDocs : ""}`}>
         <ul className={styles.mobileNavLinks}>
           <li>
             {isHomepage ? (
@@ -122,11 +119,7 @@ export function Navbar() {
             )}
           </li>
           <li>
-            {isHomepage ? (
-              <a href="#docs" onClick={() => setMobileMenuOpen(false)}>Documentation</a>
-            ) : (
-              <Link to="/#docs" onClick={() => setMobileMenuOpen(false)}>Documentation</Link>
-            )}
+            <Link to="/docs" onClick={() => setMobileMenuOpen(false)}>Documentation</Link>
           </li>
           <li>
             <span className={styles.mobileLabel}>Explore</span>

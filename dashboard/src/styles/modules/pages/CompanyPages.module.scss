@@ -1,7 +1,15 @@
 .contentContainer {
-  padding: 9rem 6% 6rem;
+  padding: 8rem 6% 4.5rem;
   max-width: 800px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: calc(5.5rem + env(safe-area-inset-top, 0px)) 6% 2.75rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: calc(5rem + env(safe-area-inset-top, 0px)) 5% 2rem;
+  }
 }
 
 .title {

@@ -30,6 +30,8 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ defaul
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
 const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+const PublicDocsPage = lazy(() => import('./pages/PublicDocsPage').then(m => ({ default: m.PublicDocsPage })));
 
 const pageFallback = (
     <div style={{ height: '60vh', display: 'grid', placeItems: 'center' }}>Loading…</div>
@@ -64,7 +66,7 @@ function AuthenticatedRoutes({ onLogout }) {
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/docs" element={<DocumentationPage />} />
                     <Route path="/activity" element={<ActivityLogsPage />} />
-                    <Route path="*" element={<Navigate to="/client/dashboard" replace />} />
+                    <Route path="*" element={<Navigate to="/404" replace />} />
                 </Routes>
             </Suspense>
         </DashboardLayout>
@@ -138,6 +140,18 @@ function AuthGate() {
                 }
             />
 
+            {/* DOCUMENTATION (PUBLIC) */}
+            {!isAuthenticated && (
+                <Route
+                    path="/docs"
+                    element={
+                        <Suspense fallback={pageFallback}>
+                            <PublicDocsPage />
+                        </Suspense>
+                    }
+                />
+            )}
+
 
             {/* SUPER ADMIN SETUP */}
             <Route
@@ -188,7 +202,17 @@ function AuthGate() {
                 }
             />
     
-            {/* AUTHENTICATED APP */}
+            {/* 404 NOT FOUND */}
+            <Route
+                path="/404"
+                element={
+                    <Suspense fallback={pageFallback}>
+                        <NotFoundPage />
+                    </Suspense>
+                }
+            />
+
+            {/* AUTHENTICATED APP OR 404 FALLBACK */}
             <Route
                 path="*"
                 element={
@@ -197,10 +221,9 @@ function AuthGate() {
                             onLogout={handleLogout}
                         />
                     ) : (
-                        <Navigate
-                            to="/"
-                            replace
-                        />
+                        <Suspense fallback={pageFallback}>
+                            <NotFoundPage />
+                        </Suspense>
                     )
                 }
             />
