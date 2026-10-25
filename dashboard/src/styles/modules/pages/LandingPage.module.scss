@@ -1326,7 +1326,7 @@ html {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.875rem;
+    font-size: 1rem;
     flex-shrink: 0;
   }
 
@@ -1335,16 +1335,17 @@ html {
       font-family: var(--font-display);
       font-size: 0.9rem;
       font-weight: 700;
-      color: var(--text-body);
-      margin-bottom: 0.2rem;
+      color: #f1f5f9;
+      margin-bottom: 0.25rem;
     }
 
     p {
       font-family: var(--font-body);
-      font-size: 0.8rem;
-      color: var(--text-secondary);
+      font-size: 0.825rem;
+      color: #94a3b8;
       font-weight: 400;
       line-height: 1.6;
+      margin: 0;
     }
   }
 }
@@ -1459,48 +1460,39 @@ html {
 // ─── CTA ──────────────────────────────────────────────────────────────────────
 
 .ctaSection {
-  padding: 6rem 6%;
-  background: linear-gradient(160deg, var(--dark) 0%, #240046 100%);
+  padding: 7rem 6%;
+  background: radial-gradient(circle at 50% 15%, #220848 0%, #0d021c 65%, #050010 100%);
   position: relative;
   overflow: hidden;
   text-align: center;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-    background-size: 56px 56px;
-    pointer-events: none;
-  }
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .ctaInner {
   position: relative;
   z-index: 2;
-  max-width: 680px;
+  max-width: 640px;
   margin: 0 auto;
 }
 
 .ctaTitle {
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-size: clamp(2.2rem, 4.5vw, 3.25rem);
   font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1.05;
-  color: var(--text-light);
-  margin: 0.75rem 0 1rem;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  color: #ffffff;
+  margin: 0.75rem 0 1.25rem;
 }
 
 .ctaSub {
   font-family: var(--font-body);
   font-size: 0.95rem;
-  color: var(--text-muted-dark);
+  color: #94a3b8;
   font-weight: 400;
   line-height: 1.7;
-  margin-bottom: 2rem;
+  margin: 0 auto 2.25rem;
+  max-width: 520px;
 }
 
 .ctaActions {
@@ -1510,11 +1502,11 @@ html {
   flex-wrap: wrap;
 }
 
-// ─── FOOTER ───────────────────────────────────────────────────────────────────
+// ─── FOOTER (MINIMAL & MODERN) ────────────────────────────────────────────────
 
 .footer {
-  background: linear-gradient(180deg, var(--dark) 0%, #080016 100%);
-  border-top: 1px solid var(--border-dark);
+  background: #050010;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
   padding: 5rem 6% 3rem;
   color: #ffffff;
 }
@@ -1526,17 +1518,22 @@ html {
 
 .footerTop {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 2.2fr 1fr 1fr;
   gap: 4rem;
   margin-bottom: 4rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
 }
 
 .footerBrand {
   .footerLogo {
     height: 32px;
-    width: 32;
+    width: auto;
     object-fit: contain;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.15rem;
     filter: brightness(0) invert(1);
     opacity: 0.95;
     transition: opacity 0.2s ease;
@@ -1548,11 +1545,12 @@ html {
 
   p {
     font-family: var(--font-body);
-    font-size: 0.8rem;
-    color: var(--text-muted-dark);
+    font-size: 0.825rem;
+    color: #64748b;
     font-weight: 400;
-    line-height: 1.75;
+    line-height: 1.7;
     max-width: 320px;
+    margin: 0;
   }
 }
 
@@ -1560,12 +1558,12 @@ html {
   color: #ffffff;
 
   h4 {
-    font-family: var(--font-display);
-    font-size: 0.825rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
     font-weight: 700;
-    color: var(--text-light);
+    color: #94a3b8;
     margin-bottom: 1.25rem;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
@@ -1574,43 +1572,50 @@ html {
   a:visited {
     display: block;
     font-family: var(--font-body);
-    font-size: 0.775rem;
-    color: #ffffff !important;
+    font-size: 0.825rem;
+    color: #cbd5e1 !important;
     font-weight: 400;
     text-decoration: none;
     margin-bottom: 0.75rem;
-    transition: all 0.25s ease;
+    transition: all 0.2s ease;
 
     &:hover,
     &:focus,
     &:active {
       color: #ffffff !important;
-      opacity: 0.85;
-      transform: translateX(4px);
+      opacity: 1;
+      transform: translateX(3px);
     }
   }
 }
 
 .footerBottom {
-  border-top: 1px solid var(--border-dark);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding-top: 1.75rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
 }
 
 .footerCopy {
   font-family: var(--font-body);
-  font-size: 0.75rem;
-  color: var(--text-muted-dark);
+  font-size: 0.78rem;
+  color: #64748b;
   font-weight: 400;
+  margin: 0;
 }
 
 .footerTagline {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 0.75rem;
-  color: var(--text-muted-dark);
-  font-weight: 600;
+  color: #a78bfa;
+  font-weight: 500;
 }
 
 // ─── RESPONSIVE ───────────────────────────────────────────────────────────────
@@ -1878,4 +1883,11 @@ html {
   .footerBrand {
     grid-column: span 2;
   }
+}
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 6px #34d399;
 }
