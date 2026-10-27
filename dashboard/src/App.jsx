@@ -1,5 +1,5 @@
 import { useCallback, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import Login from './components/Login';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -76,11 +76,13 @@ function AuthenticatedRoutes({ onLogout }) {
 function AuthGate() {
     const { isLoading, isAuthenticated, logout } = useAuth();
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     const handleLogout = useCallback(async () => {
         await logout();
         queryClient.clear();
-    }, [logout, queryClient]);
+        navigate('/', { replace: true });
+    }, [logout, queryClient, navigate]);
 
     if (isLoading) {
         return (
@@ -233,9 +235,13 @@ function AuthGate() {
 
 function AppWithProviders() {
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     return (
-        <AuthProvider onUnauthorized={() => queryClient.clear()}>
+        <AuthProvider onUnauthorized={() => {
+            queryClient.clear();
+            navigate('/', { replace: true });
+        }}>
             <AuthGate />
         </AuthProvider>
     );
