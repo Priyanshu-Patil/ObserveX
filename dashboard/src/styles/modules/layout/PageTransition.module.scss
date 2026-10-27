@@ -1,0 +1,13 @@
+.pageTransitionWrapper {
+    width: 100%;
+    min-height: 100%;
+    position: relative;
+    will-change: opacity, transform;
+    isolation: isolate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pageTransitionWrapper {
+        will-change: auto;
+    }
+}

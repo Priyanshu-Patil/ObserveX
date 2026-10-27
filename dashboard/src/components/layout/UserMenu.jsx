@@ -39,10 +39,10 @@ export function UserMenu({ onLogout }) {
                         <p className={styles.dropdownEmail}>{user?.email}</p>
                         <span className={styles.roleBadge}>{user?.role?.replace('_', ' ')}</span>
                     </div>
-                    <Link to="/settings" className={styles.dropdownItem} role="menuitem" onClick={() => setOpen(false)}>
+                    <Link to="/settings" viewTransition className={styles.dropdownItem} role="menuitem" onClick={() => setOpen(false)}>
                         <Settings size={16} aria-hidden="true" /> Settings
                     </Link>
-                    <Link to="/settings" className={styles.dropdownItem} role="menuitem" onClick={() => setOpen(false)}>
+                    <Link to="/settings" viewTransition className={styles.dropdownItem} role="menuitem" onClick={() => setOpen(false)}>
                         <User size={16} aria-hidden="true" /> Profile
                     </Link>
                     <button type="button" className={styles.dropdownItem} role="menuitem" onClick={() => { setOpen(false); onLogout?.(); }}>

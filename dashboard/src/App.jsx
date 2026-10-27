@@ -1,9 +1,10 @@
 import { useCallback, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import Login from './components/Login';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { DashboardLayout } from './components/layout';
+import { DashboardLayout, PageTransition, NavigationProgressBar } from './components/layout';
+import { PageFallback } from './components/ui';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { PwaProvider } from './contexts/PwaContext';
@@ -33,10 +34,6 @@ const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage').then(m 
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const PublicDocsPage = lazy(() => import('./pages/PublicDocsPage').then(m => ({ default: m.PublicDocsPage })));
 
-const pageFallback = (
-    <div style={{ height: '60vh', display: 'grid', placeItems: 'center' }}>Loading…</div>
-);
-
 function ProtectedRoute({ children, superAdminOnly }) {
     const { isSuperAdmin } = useAuth();
     if (superAdminOnly && !isSuperAdmin) {
@@ -46,28 +43,31 @@ function ProtectedRoute({ children, superAdminOnly }) {
 }
 
 function AuthenticatedRoutes({ onLogout }) {
+    const location = useLocation();
     return (
         <DashboardLayout onLogout={onLogout}>
-            <Suspense fallback={pageFallback}>
-                <Routes>
-                    <Route path="/" element={<Navigate to="/client/dashboard" replace />} />
-                    <Route path="/client/dashboard" element={<ClientDashboardPage />} />
-                    <Route path="/analytics" element={<AnalyticsOverviewPage />} />
-                    <Route path="/analytics/endpoints" element={<EndpointAnalyticsPage />} />
-                    <Route path="/admin/clients" element={
-                        <ProtectedRoute superAdminOnly><ClientsListPage /></ProtectedRoute>
-                    } />
-                    <Route path="/admin/clients/create" element={
-                        <ProtectedRoute superAdminOnly><CreateClientPage /></ProtectedRoute>
-                    } />
-                    <Route path="/admin/clients/:id" element={<ClientDetailsPage />} />
-                    <Route path="/admin/clients/:id/users/create" element={<CreateClientUserPage />} />
-                    <Route path="/admin/clients/:id/api-keys" element={<ApiKeysPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/docs" element={<DocumentationPage />} />
-                    <Route path="/activity" element={<ActivityLogsPage />} />
-                    <Route path="*" element={<Navigate to="/404" replace />} />
-                </Routes>
+            <Suspense fallback={<PageFallback message="Loading view..." subtitle="Preparing dashboard analytics" />}>
+                <PageTransition pageKey={location.pathname}>
+                    <Routes location={location}>
+                        <Route path="/" element={<Navigate to="/client/dashboard" replace />} />
+                        <Route path="/client/dashboard" element={<ClientDashboardPage />} />
+                        <Route path="/analytics" element={<AnalyticsOverviewPage />} />
+                        <Route path="/analytics/endpoints" element={<EndpointAnalyticsPage />} />
+                        <Route path="/admin/clients" element={
+                            <ProtectedRoute superAdminOnly><ClientsListPage /></ProtectedRoute>
+                        } />
+                        <Route path="/admin/clients/create" element={
+                            <ProtectedRoute superAdminOnly><CreateClientPage /></ProtectedRoute>
+                        } />
+                        <Route path="/admin/clients/:id" element={<ClientDetailsPage />} />
+                        <Route path="/admin/clients/:id/users/create" element={<CreateClientUserPage />} />
+                        <Route path="/admin/clients/:id/api-keys" element={<ApiKeysPage />} />
+                        <Route path="/settings" element={<SettingsPage />} />
+                        <Route path="/docs" element={<DocumentationPage />} />
+                        <Route path="/activity" element={<ActivityLogsPage />} />
+                        <Route path="*" element={<Navigate to="/404" replace />} />
+                    </Routes>
+                </PageTransition>
             </Suspense>
         </DashboardLayout>
     );
@@ -77,6 +77,7 @@ function AuthGate() {
     const { isLoading, isAuthenticated, logout } = useAuth();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleLogout = useCallback(async () => {
         await logout();
@@ -87,149 +88,136 @@ function AuthGate() {
     if (isLoading) {
         return (
             <div style={{ height: '100vh', display: 'grid', placeItems: 'center' }}>
-                Checking authentication…
+                <PageFallback message="Checking authentication..." subtitle="Verifying session credentials" />
             </div>
         );
     }
 
+    // Keep authenticated dashboard inside a single key so sidebar/header don't re-animate when changing inner tabs
+    const isDashboardPath = isAuthenticated && (
+        location.pathname.startsWith('/client') ||
+        location.pathname.startsWith('/analytics') ||
+        location.pathname.startsWith('/admin') ||
+        location.pathname === '/settings' ||
+        location.pathname === '/activity' ||
+        (location.pathname === '/docs' && isAuthenticated)
+    );
+    const authGateKey = isDashboardPath ? 'dashboard-shell' : location.pathname;
+
     return (
-        <Routes>
-    
-            {/* LANDING PAGE */}
-            <Route
-                path="/"
-                element={
-                    isAuthenticated ? (
-                        <Navigate
-                            to="/client/dashboard"
-                            replace
+        <Suspense fallback={<PageFallback />}>
+            <PageTransition pageKey={authGateKey}>
+                <Routes location={location}>
+            
+                    {/* LANDING PAGE */}
+                    <Route
+                        path="/"
+                        element={
+                            isAuthenticated ? (
+                                <Navigate
+                                    to="/client/dashboard"
+                                    replace
+                                />
+                            ) : (
+                                <LandingPage />
+                            )
+                        }
+                    />
+            
+                    {/* PRIVACY POLICY */}
+                    <Route
+                        path="/privacy"
+                        element={<PrivacyPage />}
+                    />
+
+                    {/* TERMS OF SERVICE */}
+                    <Route
+                        path="/terms"
+                        element={<TermsPage />}
+                    />
+
+                    {/* ABOUT */}
+                    <Route
+                        path="/about"
+                        element={<AboutPage />}
+                    />
+
+                    {/* DOCUMENTATION (PUBLIC) */}
+                    {!isAuthenticated && (
+                        <Route
+                            path="/docs"
+                            element={<PublicDocsPage />}
                         />
-                    ) : (
-                        <Suspense fallback={pageFallback}>
-                            <LandingPage />
-                        </Suspense>
-                    )
-                }
-            />
-    
-            {/* PRIVACY POLICY */}
-            <Route
-                path="/privacy"
-                element={
-                    <Suspense fallback={pageFallback}>
-                        <PrivacyPage />
-                    </Suspense>
-                }
-            />
-
-            {/* TERMS OF SERVICE */}
-            <Route
-                path="/terms"
-                element={
-                    <Suspense fallback={pageFallback}>
-                        <TermsPage />
-                    </Suspense>
-                }
-            />
-
-            {/* ABOUT */}
-            <Route
-                path="/about"
-                element={
-                    <Suspense fallback={pageFallback}>
-                        <AboutPage />
-                    </Suspense>
-                }
-            />
-
-            {/* DOCUMENTATION (PUBLIC) */}
-            {!isAuthenticated && (
-                <Route
-                    path="/docs"
-                    element={
-                        <Suspense fallback={pageFallback}>
-                            <PublicDocsPage />
-                        </Suspense>
-                    }
-                />
-            )}
+                    )}
 
 
-            {/* SUPER ADMIN SETUP */}
-            <Route
-                path="/onboard-super-admin"
-                element={
-                    isAuthenticated ? (
-                        <Navigate
-                            to="/client/dashboard"
-                            replace
-                        />
-                    ) : (
-                        <Suspense fallback={pageFallback}>
-                            <OnboardSuperAdminPage />
-                        </Suspense>
-                    )
-                }
-            />
-    
-            {/* LOGIN */}
-            <Route
-                path="/login"
-                element={
-                    isAuthenticated ? (
-                        <Navigate
-                            to="/client/dashboard"
-                            replace
-                        />
-                    ) : (
-                        <Login />
-                    )
-                }
-            />
+                    {/* SUPER ADMIN SETUP */}
+                    <Route
+                        path="/onboard-super-admin"
+                        element={
+                            isAuthenticated ? (
+                                <Navigate
+                                    to="/client/dashboard"
+                                    replace
+                                />
+                            ) : (
+                                <OnboardSuperAdminPage />
+                            )
+                        }
+                    />
+            
+                    {/* LOGIN */}
+                    <Route
+                        path="/login"
+                        element={
+                            isAuthenticated ? (
+                                <Navigate
+                                    to="/client/dashboard"
+                                    replace
+                                />
+                            ) : (
+                                <Login />
+                            )
+                        }
+                    />
 
-            {/* RESET PASSWORD */}
-            <Route
-                path="/reset-password"
-                element={
-                    isAuthenticated ? (
-                        <Navigate
-                            to="/client/dashboard"
-                            replace
-                        />
-                    ) : (
-                        <Suspense fallback={pageFallback}>
-                            <ResetPasswordPage />
-                        </Suspense>
-                    )
-                }
-            />
-    
-            {/* 404 NOT FOUND */}
-            <Route
-                path="/404"
-                element={
-                    <Suspense fallback={pageFallback}>
-                        <NotFoundPage />
-                    </Suspense>
-                }
-            />
+                    {/* RESET PASSWORD */}
+                    <Route
+                        path="/reset-password"
+                        element={
+                            isAuthenticated ? (
+                                <Navigate
+                                    to="/client/dashboard"
+                                    replace
+                                />
+                            ) : (
+                                <ResetPasswordPage />
+                            )
+                        }
+                    />
+            
+                    {/* 404 NOT FOUND */}
+                    <Route
+                        path="/404"
+                        element={<NotFoundPage />}
+                    />
 
-            {/* AUTHENTICATED APP OR 404 FALLBACK */}
-            <Route
-                path="*"
-                element={
-                    isAuthenticated ? (
-                        <AuthenticatedRoutes
-                            onLogout={handleLogout}
-                        />
-                    ) : (
-                        <Suspense fallback={pageFallback}>
-                            <NotFoundPage />
-                        </Suspense>
-                    )
-                }
-            />
-        </Routes>
+                    {/* AUTHENTICATED APP OR 404 FALLBACK */}
+                    <Route
+                        path="*"
+                        element={
+                            isAuthenticated ? (
+                                <AuthenticatedRoutes
+                                    onLogout={handleLogout}
+                                />
+                            ) : (
+                                <NotFoundPage />
+                            )
+                        }
+                    />
+                </Routes>
+            </PageTransition>
+        </Suspense>
     );
 }
 
@@ -254,6 +242,7 @@ function App() {
                 <PwaProvider>
                     <ToastProvider>
                         <BrowserRouter>
+                            <NavigationProgressBar />
                             <ScrollToTop />
                             <OfflineIndicator />
                             <AppWithProviders />

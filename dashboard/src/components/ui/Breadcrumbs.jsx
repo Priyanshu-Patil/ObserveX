@@ -15,7 +15,7 @@ export function Breadcrumbs({ items = [] }) {
                         {isLast || !item.href ? (
                             <span className={styles.breadcrumbCurrent} aria-current="page">{item.label}</span>
                         ) : (
-                            <Link to={item.href} className={styles.breadcrumbLink}>{item.label}</Link>
+                            <Link to={item.href} viewTransition className={styles.breadcrumbLink}>{item.label}</Link>
                         )}
                     </span>
                 );

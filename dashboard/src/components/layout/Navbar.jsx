@@ -12,12 +12,12 @@ export function Navbar() {
 
   const isHomepage = location.pathname === "/";
   const isDocs = location.pathname.startsWith("/docs");
-  const goOnboard = () => navigate("/onboard-super-admin");
+  const goOnboard = () => navigate("/onboard-super-admin", { viewTransition: true });
 
   return (
     <>
       <nav className={`${styles.nav} ${isDocs ? styles.navDocs : ""}`}>
-        <div className={styles.navLogo} onClick={() => navigate("/")}>
+        <div className={styles.navLogo} onClick={() => navigate("/", { viewTransition: true })}>
           <img
             src="/Logo-Dark.png"
             alt="ObserveX"
@@ -30,7 +30,7 @@ export function Navbar() {
             {isHomepage ? (
               <a href="#homepage">Home</a>
             ) : (
-              <Link to="/">Home</Link>
+              <Link to="/" viewTransition>Home</Link>
             )}
           </li>
           <li>
@@ -48,16 +48,23 @@ export function Navbar() {
             )}
           </li>
           <li>
-            <Link to="/docs">Documentation</Link>
+            {isHomepage ? (
+              <a href="#faq">FAQ</a>
+            ) : (
+              <Link to="/#faq">FAQ</Link>
+            )}
+          </li>
+          <li>
+            <Link to="/docs" viewTransition>Documentation</Link>
           </li>
           <li className={styles.navDropdownContainer}>
             <button className={styles.navDropdownTrigger}>
               Explore <ChevronDown size={14} className={styles.dropdownChevron} />
             </button>
             <div className={styles.navDropdownMenu}>
-              <Link to="/about">About Us</Link>
-              <Link to="/privacy">Privacy Policy</Link>
-              <Link to="/terms">Terms of Service</Link>
+              <Link to="/about" viewTransition>About Us</Link>
+              <Link to="/privacy" viewTransition>Privacy Policy</Link>
+              <Link to="/terms" viewTransition>Terms of Service</Link>
             </div>
           </li>
         </ul>
@@ -78,7 +85,7 @@ export function Navbar() {
               <span>Install App</span>
             </button>
           )}
-          <button className={styles.navSignIn} onClick={() => navigate("/login")}>
+          <button className={styles.navSignIn} onClick={() => navigate("/login", { viewTransition: true })}>
             Login
           </button>
           <button className={styles.navRegister} onClick={goOnboard}>
@@ -101,7 +108,7 @@ export function Navbar() {
             {isHomepage ? (
               <a href="#homepage" onClick={() => setMobileMenuOpen(false)}>Home</a>
             ) : (
-              <Link to="/" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+              <Link to="/" viewTransition onClick={() => setMobileMenuOpen(false)}>Home</Link>
             )}
           </li>
           <li>
@@ -119,14 +126,21 @@ export function Navbar() {
             )}
           </li>
           <li>
-            <Link to="/docs" onClick={() => setMobileMenuOpen(false)}>Documentation</Link>
+            {isHomepage ? (
+              <a href="#faq" onClick={() => setMobileMenuOpen(false)}>FAQ</a>
+            ) : (
+              <Link to="/#faq" onClick={() => setMobileMenuOpen(false)}>FAQ</Link>
+            )}
+          </li>
+          <li>
+            <Link to="/docs" viewTransition onClick={() => setMobileMenuOpen(false)}>Documentation</Link>
           </li>
           <li>
             <span className={styles.mobileLabel}>Explore</span>
             <div className={styles.mobileExploreList}>
-              <Link to="/about" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
-              <Link to="/privacy" onClick={() => setMobileMenuOpen(false)}>Privacy Policy</Link>
-              <Link to="/terms" onClick={() => setMobileMenuOpen(false)}>Terms of Service</Link>
+              <Link to="/about" viewTransition onClick={() => setMobileMenuOpen(false)}>About Us</Link>
+              <Link to="/privacy" viewTransition onClick={() => setMobileMenuOpen(false)}>Privacy Policy</Link>
+              <Link to="/terms" viewTransition onClick={() => setMobileMenuOpen(false)}>Terms of Service</Link>
             </div>
           </li>
         </ul>
@@ -150,7 +164,7 @@ export function Navbar() {
               <span>Install App</span>
             </button>
           )}
-          <button className={styles.btnSignIn} onClick={() => { navigate("/login"); setMobileMenuOpen(false); }}>
+          <button className={styles.btnSignIn} onClick={() => { navigate("/login", { viewTransition: true }); setMobileMenuOpen(false); }}>
             Login
           </button>
           <button className={styles.btnRegister} onClick={() => { goOnboard(); setMobileMenuOpen(false); }}>

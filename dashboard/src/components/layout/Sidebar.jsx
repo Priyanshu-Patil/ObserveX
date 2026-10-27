@@ -30,6 +30,7 @@ function NavSection({ title, items, onClose }) {
               key={item.href}
               to={item.href}
               end={item.end}
+              viewTransition
               onClick={onClose}
               className={({ isActive }) =>
                 cn(styles.navLink, isActive && styles.active)
@@ -122,7 +123,7 @@ export function Sidebar({ isOpen, onClose, onOpenRegisterModal }) {
           <div
             className={styles.logoSection}
             onClick={() => {
-              navigate("/client/dashboard");
+              navigate("/client/dashboard", { viewTransition: true });
               onClose?.();
             }}
             role="button"
@@ -130,7 +131,7 @@ export function Sidebar({ isOpen, onClose, onOpenRegisterModal }) {
             style={{ cursor: "pointer" }}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
-                navigate("/client/dashboard");
+                navigate("/client/dashboard", { viewTransition: true });
                 onClose?.();
               }
             }}

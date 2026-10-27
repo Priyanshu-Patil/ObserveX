@@ -50,14 +50,15 @@ export function Footer({ style }) {
             <a href="/#homepage">Home</a>
             <a href="/#features">Features</a>
             <a href="/#integrations">Integrations</a>
-            <Link to="/docs">Documentation</Link>
+            <a href="/#faq">FAQ</a>
+            <Link to="/docs" viewTransition>Documentation</Link>
           </div>
 
           <div className={styles.footerCol}>
             <h4>Explore</h4>
-            <Link to="/about">About</Link>
-            <Link to="/privacy">Privacy Policy</Link>
-            <Link to="/terms">Terms</Link>
+            <Link to="/about" viewTransition>About</Link>
+            <Link to="/privacy" viewTransition>Privacy Policy</Link>
+            <Link to="/terms" viewTransition>Terms</Link>
           </div>
         </div>
 

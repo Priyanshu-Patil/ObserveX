@@ -9,6 +9,7 @@ export { Breadcrumbs } from './Breadcrumbs';
 export { EmptyState } from './EmptyState';
 export { SearchInput } from './SearchInput';
 export { LoadingSkeleton, TableSkeleton, CardGridSkeleton } from './LoadingSkeleton';
+export { PageFallback } from './PageFallback';
 export { FormField } from './FormField';
 export { DataTable } from './DataTable';
 export { Pagination } from './Pagination';
