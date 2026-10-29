@@ -17,7 +17,7 @@
 **ObserveX** is a high-throughput, multi-tenant API telemetry and monitoring solution.  
 **Track hits. Aggregate metrics. Analyze latency. Secure endpoints.**
 
-[🚀 Getting Started](#⚙️-quick-start--setup) &nbsp;&middot;&nbsp; [🏗️ System Architecture](#🏗️-system-architecture) &nbsp;&middot;&nbsp; [🌊 Core Pipelines](#🌊-event-driven-ingest-pipeline) &nbsp;&middot;&nbsp; [🔌 API Reference](#🔌-api-endpoints)
+[🚀 Getting Started](#⚙️-quick-start--setup) &nbsp;&middot;&nbsp; [🏗️ System Architecture](#🏗️-system-architecture) &nbsp;&middot;&nbsp; [🏛️ SOLID Architecture](#🏛️-solid-principles-architecture) &nbsp;&middot;&nbsp; [🌊 Core Pipelines](#🌊-event-driven-ingest-pipeline) &nbsp;&middot;&nbsp; [🔌 API Reference](#🔌-api-endpoints)
 
 </div>
 
@@ -30,13 +30,14 @@
 4. [🏗️ System Architecture](#🏗️-system-architecture)
 5. [💾 Database Design](#💾-database-design)
 6. [🛠️ Advanced System Design & Fault Tolerance Patterns](#🛠️-advanced-system-design--fault-tolerance-patterns)
-7. [🛡️ Authentication & Authorization](#🛡️-authentication-&-authorization)
-8. [🌊 Event-Driven Ingest Pipeline](#🌊-event-driven-ingest-pipeline)
-9. [📊 Analytics & Aggregation Engine](#📊-analytics-&-aggregation-engine)
-10. [🔌 API Endpoints](#🔌-api-endpoints)
-11. [💻 Frontend Application & PWA](#💻-frontend-application--pwa)
-12. [⚙️ Quick Start & Setup](#⚙️-quick-start--setup)
-13. [📝 Environment Configurations](#📝-environment-configurations)
+7. [🏛️ SOLID Principles Architecture](#🏛️-solid-principles-architecture)
+8. [🛡️ Authentication & Authorization](#🛡️-authentication-&-authorization)
+9. [🌊 Event-Driven Ingest Pipeline](#🌊-event-driven-ingest-pipeline)
+10. [📊 Analytics & Aggregation Engine](#📊-analytics-&-aggregation-engine)
+11. [🔌 API Endpoints](#🔌-api-endpoints)
+12. [💻 Frontend Application & PWA](#💻-frontend-application--pwa)
+13. [⚙️ Quick Start & Setup](#⚙️-quick-start--setup)
+14. [📝 Environment Configurations](#📝-environment-configurations)
 
 ---
 
@@ -327,6 +328,137 @@ To support at-least-once message delivery guarantees without creating duplicate 
 To ensure clean code boundaries and ease unit testing:
 - **Repository Pattern**: Abstracted database interfaces encapsulate raw queries (MongoDB queries in [ApiHitRepository.js](server/src/services/processor/repository/ApiHitRepository.js) and SQL aggregates in [MetricsRepository.js](server/src/services/processor/repository/MetricsRepository.js)).
 - **DI Container Pattern**: Instantiated in [dependencies.js](server/src/services/processor/Dependencies/dependencies.js) to wire up services and inject repository instances dynamically.
+
+---
+
+## 🏛️ SOLID Principles Architecture
+
+ObserveX adheres to the **SOLID** software design principles across both backend microservices and frontend client applications to guarantee maintainability, testability, loose coupling, and clean boundaries.
+
+| Principle | Adherence | Architectural Implementation in ObserveX | Key Repository References |
+| :--- | :---: | :--- | :--- |
+| **S** – Single Responsibility | **100% (Followed)** | Strict layered separation across Controllers, Services, Repositories, Validation schemas, and discrete single-purpose Middlewares. Infrastructure primitives (Circuit Breaker, Confirm Channel Manager, Retry Strategy) and React Contexts are completely isolated. | [ProcessorService.js](server/src/services/processor/service/ProcessorService.js), [CircuitBreaker.js](server/src/shared/events/producer/CircuitBreaker.js), [AuthContext.jsx](dashboard/src/contexts/AuthContext.jsx) |
+| **O** – Open / Closed | **100% (Followed)** | Systems are open for extension but closed for modification using abstract base repositories (`BaseRepository`), modular Express middleware pipelines, schema-agnostic Zod validation, and decoupled email templates. | [BaseRepository.js](server/src/services/processor/repository/BaseRepository.js), [validate.js](server/src/shared/middlewares/validate.js), [emailTemplates.js](server/src/services/email/emailTemplates.js) |
+| **L** – Liskov Substitution | **100% (Followed)** | Concrete storage repositories strictly inherit and implement abstract contracts (`BaseRepository`, `BaseClientRepository`, `BaseApiKeyRepository`), allowing transparent substitution of database adapters. `EmailService` accepts interchangeable transport drivers (Nodemailer, mock, or alternative SMTP engines). | [ApiHitRepository.js](server/src/services/processor/repository/ApiHitRepository.js), [ClientRepository.js](server/src/services/client/repository/ClientRepository.js), [EmailService.js](server/src/services/email/emailService.js) |
+| **I** – Interface Segregation | **100% (Followed)** | Domain-segregated repositories avoid bloated "God interfaces". Services depend solely on the precise repositories they need. Express middlewares attach only relevant scopes (`req.user`, `req.client`), and frontend contexts are segregated into focused domains. | [ApiKeyRepository.js](server/src/services/client/repository/ApiKeyRepository.js), [validateApiKey.js](server/src/shared/middlewares/validateApiKey.js), [contexts/](dashboard/src/contexts/) |
+| **D** – Dependency Inversion | **100% (Followed)** | High-level business logic modules depend on abstractions rather than low-level database drivers (`mongoose`, `pg`) or network libraries. Dedicated Dependency Injection (DI) containers in each module wire dependencies and pass them via constructor injection. | [dependencies.js (Processor)](server/src/services/processor/Dependencies/dependencies.js), [dependencies.js (Client)](server/src/services/client/Dependencies/dependencies.js), [dependencies.js (Auth)](server/src/services/auth/Dependencies/dependencies.js) |
+
+---
+
+### 1. 🔹 Single Responsibility Principle (SRP)
+> *"A class or module should have one, and only one, reason to change."*
+
+ObserveX enforces strict separation of concerns across every tier of the application:
+
+- **Backend Layered Decoupling**:
+  - **Routing Layer (`routes/`)**: Focuses solely on path definitions, HTTP verbs, and composing middleware chains (e.g. [ingestRoutes.js](server/src/services/ingest/routes/ingestRoutes.js), [clientRoutes.js](server/src/services/client/routes/clientRoutes.js)).
+  - **Controller Layer (`controller/`)**: Acts as the HTTP transport boundary; extracts headers/params, delegates to domain services, and serializes status codes and response bodies (e.g. [ingestController.js](server/src/services/ingest/controller/ingestController.js), [clientController.js](server/src/services/client/controller/clientController.js)).
+  - **Service Layer (`service/` / `services/`)**: Encapsulates pure business rules and domain orchestration without direct dependency on HTTP request/response objects (e.g. [ProcessorService.js](server/src/services/processor/service/ProcessorService.js), [clientService.js](server/src/services/client/services/clientService.js), [authService.js](server/src/services/auth/service/authService.js)).
+  - **Repository Layer (`repository/`)**: Confined solely to persistence operations and database-specific querying for MongoDB and PostgreSQL (e.g. [ApiHitRepository.js](server/src/services/processor/repository/ApiHitRepository.js), [MetricsRepository.js](server/src/services/processor/repository/MetricsRepository.js)).
+  - **Validation Layer (`validation/`)**: Isolated Zod schemas that validate payload structures independently of HTTP handlers or database models (e.g. [authValidation.js](server/src/services/auth/validation/authValidation.js)).
+  - **Single-Purpose Middlewares (`middlewares/`)**: Discrete cross-cutting concerns are divided into dedicated files rather than bundled together: [authenticate.js](server/src/shared/middlewares/authenticate.js) (JWT validation), [authorize.js](server/src/shared/middlewares/authorize.js) (RBAC access checks), [validateApiKey.js](server/src/shared/middlewares/validateApiKey.js) (API key verification), and [errorHandler.js](server/src/shared/middlewares/errorHandler.js) (centralized exception handling).
+
+- **Isolated Infrastructure Components**:
+  - [CircuitBreaker.js](server/src/shared/events/producer/CircuitBreaker.js): Manages circuit trip states (`CLOSED`, `OPEN`, `HALF_OPEN`) without concern for network transport mechanics.
+  - [RetryStrategy.js](server/src/shared/events/producer/RetryStrategy.js): Exclusively computes exponential backoff and randomized jitter delays.
+  - [ConfirmChannelManager.js](server/src/shared/events/producer/ConfirmChannelManager.js): Dedicated to RabbitMQ channel allocation, publisher confirms, and broker reconnection.
+
+- **Frontend State Isolation**:
+  - Instead of a single monolithic state store, React contexts are split into granular responsibilities: [AuthContext.jsx](dashboard/src/contexts/AuthContext.jsx) (authentication), [ThemeContext.jsx](dashboard/src/contexts/ThemeContext.jsx) (UI theme), [PwaContext.jsx](dashboard/src/contexts/PwaContext.jsx) (PWA install/offline events), and [ToastContext.jsx](dashboard/src/contexts/ToastContext.jsx) (notifications).
+
+---
+
+### 2. 🔹 Open/Closed Principle (OCP)
+> *"Software entities should be open for extension, but closed for modification."*
+
+ObserveX is designed so that new features, storage engines, and processing pipelines can be introduced without modifying existing, tested code:
+
+- **Pluggable Base Repositories**:
+  - Abstract base classes ([BaseRepository.js](server/src/services/processor/repository/BaseRepository.js), [BaseClientRepository.js](server/src/services/client/repository/BaseClientRepository.js), [BaseApiKeyRepository.js](server/src/services/client/repository/BaseApiKeyRepository.js)) define standard persistence contracts. New storage engines (e.g., Redis caching, DynamoDB, or Elasticsearch) can be added simply by extending these base classes without altering consuming services.
+- **Middleware Pipeline Extension**:
+  - Express middleware architecture allows plugging new operational behaviors (rate limiting, audit logs, tracing, compression) into the request processing lifecycle without modifying core route logic or controllers.
+- **Schema-Agnostic Validation Middleware**:
+  - The [validate.js](server/src/shared/middlewares/validate.js) middleware is a higher-order function that accepts any Zod schema:
+    ```javascript
+    export const validate = (schema) => (req, res, next) => { ... };
+    ```
+    New validation constraints for new endpoints are introduced by defining schemas, leaving the validation middleware completely untouched.
+- **Decoupled Notification Templates**:
+  - [emailTemplates.js](server/src/services/email/emailTemplates.js) separates visual email rendering from SMTP delivery logic in [EmailService.js](server/src/services/email/emailService.js). Adding new notification email designs does not require touching the transmission engine.
+
+---
+
+### 3. 🔹 Liskov Substitution Principle (LSP)
+> *"Subtypes must be substitutable for their base types without altering program correctness."*
+
+ObserveX guarantees that derived classes adhere strictly to base class behavioral contracts:
+
+- **Repository Polymorphism**:
+  - [ApiHitRepository](server/src/services/processor/repository/ApiHitRepository.js) subclasses [BaseRepository](server/src/services/processor/repository/BaseRepository.js) implementing its interface methods (`save`, `find`, `count`, `deleteOldHits`).
+  - [ClientRepository](server/src/services/client/repository/ClientRepository.js) subclasses [BaseClientRepository](server/src/services/client/repository/BaseClientRepository.js) implementing (`create`, `findById`, `findBySlug`, `find`, `count`, `deleteById`).
+  - Any consumer (such as [ProcessorService](server/src/services/processor/service/ProcessorService.js) or [clientService](server/src/services/client/services/clientService.js)) depends on the base contract; any concrete or mock repository subclass can be substituted transparently with no changes to the consumer.
+- **Transporter Interchangeability**:
+  - [EmailService](server/src/services/email/emailService.js) accepts an optional `transporter` in its constructor:
+    ```javascript
+    constructor(transporter = null) {
+        this.transporter = transporter || nodemailer.createTransport(transportConfig);
+    }
+    ```
+    During automated integration testing or migration to different cloud providers (AWS SES, SendGrid), an alternative or mock transporter can be substituted without modifying any caller code.
+
+---
+
+### 4. 🔹 Interface Segregation Principle (ISP)
+> *"Clients should not be forced to depend upon interfaces that they do not use."*
+
+In JavaScript and React, ISP is applied through granular domain interfaces, specialized repositories, and focused state hooks:
+
+- **Domain-Specific Repositories**:
+  - Rather than a bloated, monolithic `DatabaseService` containing dozens of unrelated queries, persistence is strictly split by domain:
+    - [ApiHitRepository.js](server/src/services/processor/repository/ApiHitRepository.js): Raw telemetry hits and retention cleanup.
+    - [MetricsRepository.js](server/src/services/processor/repository/MetricsRepository.js): Aggregated time-bucketed metrics and analytics.
+    - [UserRepository.js](server/src/services/auth/repository/UserRepository.js): User identity and credentials.
+    - [ApiKeyRepository.js](server/src/services/client/repository/ApiKeyRepository.js): API key access management.
+    - [ClientRepository.js](server/src/services/client/repository/ClientRepository.js): Multi-tenant client metadata.
+  - Services only inject and depend on the exact repositories they require. For example, [AuthService](server/src/services/auth/service/authService.js) only depends on `UserRepository` and `EmailService`.
+- **Targeted Middleware Attachments**:
+  - Middlewares only expose and inject the specific context required:
+    - `authenticate.js` attaches only `req.user`.
+    - `validateApiKey.js` attaches only `req.client` and `req.apiKey`.
+- **Frontend Context Segregation**:
+  - Rather than storing global state in a single giant context, the dashboard splits state into isolated contexts (`AuthContext`, `ThemeContext`, `PwaContext`, `ToastContext`). Components subscribing to `useTheme()` do not suffer re-renders when authentication tokens or PWA status change.
+
+---
+
+### 5. 🔹 Dependency Inversion Principle (DIP)
+> *"High-level modules should not depend on low-level modules; both should depend on abstractions."*
+
+ObserveX avoids hardcoded dependencies by implementing explicit Dependency Injection (DI) across all modules:
+
+- **Explicit DI Containers (`Dependencies/dependencies.js`)**:
+  - Every domain module implements an explicit Dependency Injection container that instantiates and wires components from the ground up:
+    - **Processor DI Container** ([dependencies.js](server/src/services/processor/Dependencies/dependencies.js)): Instantiates `ApiHitRepository` and `MetricsRepository`, injecting them into `ProcessorService`:
+      ```javascript
+      class Container {
+          static init() {
+              const repositories = {
+                  apiHitRepository: new ApiHitRepository({ model: ApiHit, logger }),
+                  metricsRepository: new MetricsRepository({ logger, postgres }),
+                  clientRepository: MongoClientRepository,
+              };
+              const services = {
+                  processorService: new ProcessorService(repositories),
+              };
+              return { repositories, services };
+          }
+      }
+      ```
+    - **Client DI Container** ([dependencies.js](server/src/services/client/Dependencies/dependencies.js)): Wires repositories and injects them into `ClientService`, which in turn is injected into `ClientController`.
+    - **Auth DI Container** ([dependencies.js](server/src/services/auth/Dependencies/dependencies.js)): Injects `UserRepository` and `emailService` into `AuthService`, which is then injected into `AuthController`.
+- **Decoupled Low-Level Infrastructure**:
+  - High-level business logic in `ProcessorService`, `ClientService`, or `AuthService` never directly imports or creates Mongoose models, raw SQL clients, or SMTP sockets. They interact exclusively with injected abstractions.
+- **Effortless Unit Testing & Mocking**:
+  - Because all dependencies are supplied via constructor parameters, unit test suites can pass in mock repositories, mock event producers, and mock email services without monkey-patching globals.
 
 ---
 
