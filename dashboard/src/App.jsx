@@ -93,128 +93,67 @@ function AuthGate() {
         );
     }
 
-    // Keep authenticated dashboard inside a single key so sidebar/header don't re-animate when changing inner tabs
-    const isDashboardPath = isAuthenticated && (
-        location.pathname.startsWith('/client') ||
-        location.pathname.startsWith('/analytics') ||
-        location.pathname.startsWith('/admin') ||
-        location.pathname === '/settings' ||
-        location.pathname === '/activity' ||
-        (location.pathname === '/docs' && isAuthenticated)
-    );
-    const authGateKey = isDashboardPath ? 'dashboard-shell' : location.pathname;
+    if (isAuthenticated) {
+        return (
+            <Suspense fallback={<PageFallback />}>
+                <Routes location={location}>
+                    {/* REDIRECT AUTH PAGES IF ALREADY LOGGED IN */}
+                    <Route path="/login" element={<Navigate to="/client/dashboard" replace />} />
+                    <Route path="/onboard-super-admin" element={<Navigate to="/client/dashboard" replace />} />
+                    <Route path="/reset-password" element={<Navigate to="/client/dashboard" replace />} />
+                    <Route path="/" element={<Navigate to="/client/dashboard" replace />} />
+
+                    {/* PUBLIC STATIC PAGES */}
+                    <Route path="/privacy" element={<PrivacyPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
+                    <Route path="/about" element={<AboutPage />} />
+
+                    {/* 404 NOT FOUND */}
+                    <Route path="/404" element={<NotFoundPage />} />
+
+                    {/* AUTHENTICATED DASHBOARD SHELL */}
+                    <Route
+                        path="*"
+                        element={<AuthenticatedRoutes onLogout={handleLogout} />}
+                    />
+                </Routes>
+            </Suspense>
+        );
+    }
 
     return (
         <Suspense fallback={<PageFallback />}>
-            <PageTransition pageKey={authGateKey}>
+            <PageTransition pageKey={location.pathname}>
                 <Routes location={location}>
-            
                     {/* LANDING PAGE */}
-                    <Route
-                        path="/"
-                        element={
-                            isAuthenticated ? (
-                                <Navigate
-                                    to="/client/dashboard"
-                                    replace
-                                />
-                            ) : (
-                                <LandingPage />
-                            )
-                        }
-                    />
-            
+                    <Route path="/" element={<LandingPage />} />
+
                     {/* PRIVACY POLICY */}
-                    <Route
-                        path="/privacy"
-                        element={<PrivacyPage />}
-                    />
+                    <Route path="/privacy" element={<PrivacyPage />} />
 
                     {/* TERMS OF SERVICE */}
-                    <Route
-                        path="/terms"
-                        element={<TermsPage />}
-                    />
+                    <Route path="/terms" element={<TermsPage />} />
 
                     {/* ABOUT */}
-                    <Route
-                        path="/about"
-                        element={<AboutPage />}
-                    />
+                    <Route path="/about" element={<AboutPage />} />
 
                     {/* DOCUMENTATION (PUBLIC) */}
-                    {!isAuthenticated && (
-                        <Route
-                            path="/docs"
-                            element={<PublicDocsPage />}
-                        />
-                    )}
-
+                    <Route path="/docs" element={<PublicDocsPage />} />
 
                     {/* SUPER ADMIN SETUP */}
-                    <Route
-                        path="/onboard-super-admin"
-                        element={
-                            isAuthenticated ? (
-                                <Navigate
-                                    to="/client/dashboard"
-                                    replace
-                                />
-                            ) : (
-                                <OnboardSuperAdminPage />
-                            )
-                        }
-                    />
-            
+                    <Route path="/onboard-super-admin" element={<OnboardSuperAdminPage />} />
+
                     {/* LOGIN */}
-                    <Route
-                        path="/login"
-                        element={
-                            isAuthenticated ? (
-                                <Navigate
-                                    to="/client/dashboard"
-                                    replace
-                                />
-                            ) : (
-                                <Login />
-                            )
-                        }
-                    />
+                    <Route path="/login" element={<Login />} />
 
                     {/* RESET PASSWORD */}
-                    <Route
-                        path="/reset-password"
-                        element={
-                            isAuthenticated ? (
-                                <Navigate
-                                    to="/client/dashboard"
-                                    replace
-                                />
-                            ) : (
-                                <ResetPasswordPage />
-                            )
-                        }
-                    />
-            
-                    {/* 404 NOT FOUND */}
-                    <Route
-                        path="/404"
-                        element={<NotFoundPage />}
-                    />
+                    <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-                    {/* AUTHENTICATED APP OR 404 FALLBACK */}
-                    <Route
-                        path="*"
-                        element={
-                            isAuthenticated ? (
-                                <AuthenticatedRoutes
-                                    onLogout={handleLogout}
-                                />
-                            ) : (
-                                <NotFoundPage />
-                            )
-                        }
-                    />
+                    {/* 404 NOT FOUND */}
+                    <Route path="/404" element={<NotFoundPage />} />
+
+                    {/* FALLBACK */}
+                    <Route path="*" element={<NotFoundPage />} />
                 </Routes>
             </PageTransition>
         </Suspense>
