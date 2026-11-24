@@ -23,6 +23,7 @@ export { ChartCard } from './ChartCard';
 export { ActivityTimeline } from './ActivityTimeline';
 export { ApiKeyCard } from './ApiKeyCard';
 export { DeleteClientModal } from './DeleteClientModal';
+export { default as SpecularButton } from './SpecularButton';
 export {
   CodeBlock,
   CodeBlockHeader,

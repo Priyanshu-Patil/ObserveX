@@ -29,6 +29,7 @@ import {
   CodeBlockContent,
   CodeBlockFooter,
 } from "../components/ui/code-block";
+import SpecularButton from "../components/ui/SpecularButton";
 
 // ─── ANIMATION VARIANTS ───────────────────────────────────────────────────────
 
@@ -737,15 +738,25 @@ export function LandingPage() {
           </motion.p>
 
           <motion.div variants={fadeInUp} className={styles.heroActions}>
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              className={styles.btnPrimary}
+            <SpecularButton
+              size="lg"
               onClick={goOnboard}
+              tint="#a855f7"
+              tintOpacity={0.15}
+              blur={12}
+              lineColor="#e9d5ff"
+              baseColor="#581c87"
+              glow={1.2}
+              style={{
+                fontFamily: "var(--font-body)",
+                fontWeight: 600,
+                fontSize: "0.95rem",
+                boxShadow: "0 12px 32px -8px rgba(168, 85, 247, 0.45)",
+              }}
             >
               Get Started Free
               <ArrowRight size={16} />
-            </motion.button>
+            </SpecularButton>
           </motion.div>
 
           {/* Dashboard preview cards */}
@@ -853,15 +864,23 @@ export function LandingPage() {
               ))}
             </div>
 
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              className={styles.btnPrimary}
+            <SpecularButton
+              size="md"
               onClick={goOnboard}
-              style={{ display: "inline-flex" }}
+              tint="#a855f7"
+              tintOpacity={0.12}
+              blur={8}
+              lineColor="#e9d5ff"
+              baseColor="#581c87"
+              style={{
+                display: "inline-flex",
+                fontFamily: "var(--font-body)",
+                fontWeight: 600,
+                fontSize: "0.88rem",
+              }}
             >
               Get Started <ArrowRight size={16} />
-            </motion.button>
+            </SpecularButton>
           </motion.div>
 
           <motion.div
@@ -1008,15 +1027,24 @@ export function LandingPage() {
               ))}
             </div>
 
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              className={styles.btnPrimary}
-              style={{ marginTop: "1.5rem", display: "inline-flex" }}
+            <SpecularButton
+              size="md"
               onClick={goOnboard}
+              tint="#a855f7"
+              tintOpacity={0.12}
+              blur={8}
+              lineColor="#e9d5ff"
+              baseColor="#581c87"
+              style={{
+                marginTop: "1.5rem",
+                display: "inline-flex",
+                fontFamily: "var(--font-body)",
+                fontWeight: 600,
+                fontSize: "0.88rem",
+              }}
             >
               Get Started <ArrowRight size={16} />
-            </motion.button>
+            </SpecularButton>
           </motion.div>
         </div>
       </section>
@@ -1565,14 +1593,24 @@ export function LandingPage() {
             faster, and gain complete visibility into API performance.
           </p>
           <div className={styles.ctaActions}>
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              className={styles.btnPrimary}
+            <SpecularButton
+              size="lg"
               onClick={goOnboard}
+              tint="#a855f7"
+              tintOpacity={0.15}
+              blur={12}
+              lineColor="#e9d5ff"
+              baseColor="#581c87"
+              glow={1.2}
+              style={{
+                fontFamily: "var(--font-body)",
+                fontWeight: 600,
+                fontSize: "0.95rem",
+                boxShadow: "0 12px 32px -8px rgba(168, 85, 247, 0.45)",
+              }}
             >
               Get Started Free <ArrowRight size={16} />
-            </motion.button>
+            </SpecularButton>
           </div>
         </motion.div>
       </section>
